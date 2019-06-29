@@ -31,44 +31,57 @@ def energy_data():
     """
     return {
         '1111': {
-            'gas': -238.866118441457,
-            'DMSO': -239.479582872951,
-            'MeCN': -239.467189113410
+            'gas_xtb': -238.866118441457,
+            'DMSO_xtb': -239.479582872951,
+            'MeCN_xtb': -239.467189113410,
+            'gas_pm6': 0,
+            'DMSO_pm6': 0,
+            'MeCN_pm6': 0,
+            'gas_dft': 0,
+            'DMSO_dft': 0,
+            'MeCN_dft': 0,
         },
         '1-111': {
-            'gas': -238.875561746491,
-            'DMSO': -239.488637300703,
-            'MeCN': -239.476575081578
+            'gas_xtb': -238.875561746491,
+            'DMSO_xtb': -239.488637300703,
+            'MeCN_xtb': -239.476575081578,
+            'gas_pm6': 0,
+            'DMSO_pm6': 0,
+            'MeCN_pm6': 0,
+            'gas_dft': 0,
+            'DMSO_dft': 0,
+            'MeCN_dft': 0,
         },
         '11-1-1': {
-            'gas': -238.876692139787,
-            'DMSO': -239.488138205011,
-            'MeCN': -239.476614755594
+            'gas_xtb': -238.876692139787,
+            'DMSO_xtb': -239.488138205011,
+            'MeCN_xtb': -239.476614755594,
+            'gas_pm6': 0,
+            'DMSO_pm6': 0,
+            'MeCN_pm6': 0,
+            'gas_dft': 0,
+            'DMSO_dft': 0,
+            'MeCN_dft': 0,
         },
         '1-11-1': {
-            'gas': -238.882446230086,
-            'DMSO': -239.495093054748,
-            'MeCN': -239.483584358587
+            'gas_xtb': -238.882446230086,
+            'DMSO_xtb': -239.495093054748,
+            'MeCN_xtb': -239.483584358587,
+            'gas_pm6': 0,
+            'DMSO_pm6': 0,
+            'MeCN_pm6': 0,
+            'gas_dft': 0,
+            'DMSO_dft': 0,
+            'MeCN_dft': 0,
         }
     }
 
 
-def main():
-    if (not len(sys.argv) == 1):
-        print("""
-    Usage: plot_direction_isomers.py
-        """)
-        sys.exit()
-
-    energies = energy_data()
-
+def three_plots(solv, filename, energies):
     fig, ax = plt.subplots()
-
     X_positions = {
         'all': 2, '1-down': 4, 'cis': 6, 'trans': 8
     }
-
-    solv = ['gas', 'DMSO', 'MeCN']
     cs = ['k', 'r', 'b']
     ms = ['o', 'X', 'P']
     for i, c, m in zip(solv, cs, ms):
@@ -94,10 +107,32 @@ def main():
     ax.legend(fontsize=16)
     fig.tight_layout()
     fig.savefig(
-        'slide_3_isomer_energies.pdf',
+        filename,
         dpi=720,
         bbox_inches='tight'
     )
+
+
+def main():
+    if (not len(sys.argv) == 1):
+        print("""
+    Usage: plot_direction_isomers.py
+        """)
+        sys.exit()
+
+    energies = energy_data()
+
+    solv = ['gas_xtb', 'DMSO_xtb', 'MeCN_xtb']
+    filename = 'slide_3_isomer_energies_xtb.pdf'
+    three_plots(solv, filename, energies)
+
+    solv = ['gas_pm6', 'DMSO_pm6', 'MeCN_pm6']
+    filename = 'slide_3_isomer_energies_pm6.pdf'
+    three_plots(solv, filename, energies)
+
+    solv = ['gas_dft', 'DMSO_dft', 'MeCN_dft']
+    filename = 'slide_3_isomer_energies_dft.pdf'
+    three_plots(solv, filename, energies)
 
 
 if __name__ == "__main__":
