@@ -113,17 +113,20 @@ def energy_data():
 def three_plots(solv, filename, energies):
     fig, ax = plt.subplots()
     X_positions = {
-        'all': 2, '1-down': 4, 'cis': 6, 'trans': 8
+        'all': (2, '1111'), '1-down': (4, '1-111'),
+        'cis': (6, '11-1-1'), 'trans': (8, '1-11-1')
     }
+
     cs = ['k', 'r', 'b']
     ms = ['o', 'X', 'P']
     for i, c, m in zip(solv, cs, ms):
         X_values = []
         Y_values = []
-        for j, iso in enumerate(energies):
-            dc = energies[iso]
-            X_values.append(list(X_positions.values())[j])
-            Y_values.append(dc[i] * 2625.50)
+        for X in X_positions:
+            X_values.append(X_positions[X][0])
+            Y_values.append(
+                energies[X_positions[X][1]][i] * 2625.50
+            )
         new_Y_values = [i-min(Y_values) for i in Y_values]
         print(i, new_Y_values)
         ax.plot(
@@ -135,7 +138,7 @@ def three_plots(solv, filename, energies):
     ax.set_ylabel('rel. total energy [kJ/mol]', fontsize=16)
     ax.set_xlim(0, 10)
     ax.set_ylim(-10, 50)
-    ax.set_xticks(list(X_positions.values()))
+    ax.set_xticks([X_positions[i][0] for i in X_positions])
     ax.set_xticklabels(list(X_positions.keys()))
     ax.legend(fontsize=16)
     fig.tight_layout()
