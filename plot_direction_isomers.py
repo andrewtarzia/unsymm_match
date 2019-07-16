@@ -84,7 +84,7 @@ def energy_data():
             'DMSO_pm6_fe': 2.732914,
             'MeCN_pm6_fe': 2.738094,
             'gas_dft_fe': -3926.091721,
-            'DMSO_dft_fe': 0,
+            'DMSO_dft_fe': -3926.610500,
             'MeCN_dft_fe': -3926.605723,
         },
         '1-11-1': {
@@ -104,8 +104,8 @@ def energy_data():
             'DMSO_pm6_fe': 2.729810,
             'MeCN_pm6_fe': 2.735474,
             'gas_dft_fe': -3926.094601,
-            'DMSO_dft_fe': 0,
-            'MeCN_dft_fe': 0,
+            'DMSO_dft_fe': -3926.620582,
+            'MeCN_dft_fe': -3926.615079,
         }
     }
 
