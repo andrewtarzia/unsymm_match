@@ -27,6 +27,46 @@ def energy_data():
         List of building block placements to define cage.
 
     """
+    return {
+        'cage1': {
+            '1111': {
+                'gas - xtb': -263.490590460015,
+                'DMSO - xtb': -264.105987052207,
+            },
+            '1112': {
+                'gas - xtb': -263.495225539274,
+                'DMSO - xtb': -264.111998704079,
+            },
+            '1122': {
+                'gas - xtb': -263.497111563998,
+                'DMSO - xtb': -264.113844235440,
+            },
+            '1212': {
+                'gas - xtb': -263.496107977462,
+                'DMSO - xtb': -264.112553678762,
+            },
+        },
+        'cage2': {
+            '1111': {
+                'gas - xtb': -208.344281547373,
+                'DMSO - xtb': -208.979647567300,
+            },
+            '1112': {
+                'gas - xtb': -208.348232129357,
+                'DMSO - xtb': -208.983862936801,
+            },
+            '1122': {
+                'gas - xtb': -208.348822919629,
+                'DMSO - xtb': -208.983973230052,
+            },
+            '1212': {
+                'gas - xtb': -208.347359487125,
+                'DMSO - xtb': -208.982314660766,
+            },
+        }
+    }
+
+
 def make_plot(filename, energies):
     fig, ax = plt.subplots()
     X_positions = {
