@@ -4,11 +4,11 @@
 
 """
 Script to plot energy of isomers of a MOC with nonsymmetric linkers
-based on geometry effects.
+based on geometry + steric effects.
 
 Author: Andrew Tarzia
 
-Date Created: 16 Jul 2019
+Date Created: 19 Jul 2019
 
 """
 
@@ -28,40 +28,22 @@ def energy_data():
 
     """
     return {
-        'cage1': {
+        'cage_gs': {
             '1111': {
-                'gas - xtb': -263.490590460015,
-                'DMSO - xtb': -264.105987052207,
+                'gas - xtb': -220.946487181184,
+                'DMSO - xtb': -221.575666592182,
             },
             '1112': {
-                'gas - xtb': -263.495225539274,
-                'DMSO - xtb': -264.111998704079,
+                'gas - xtb': -220.975513115836,
+                'DMSO - xtb': -221.605756203057,
             },
             '1122': {
-                'gas - xtb': -263.497111563998,
-                'DMSO - xtb': -264.113844235440,
+                'gas - xtb': -220.976854627122,
+                'DMSO - xtb': -221.604175939634,
             },
             '1212': {
-                'gas - xtb': -263.496107977462,
-                'DMSO - xtb': -264.112553678762,
-            },
-        },
-        'cage2': {
-            '1111': {
-                'gas - xtb': -208.344281547373,
-                'DMSO - xtb': -208.979647567300,
-            },
-            '1112': {
-                'gas - xtb': -208.348232129357,
-                'DMSO - xtb': -208.983862936801,
-            },
-            '1122': {
-                'gas - xtb': -208.348822919629,
-                'DMSO - xtb': -208.983973230052,
-            },
-            '1212': {
-                'gas - xtb': -208.347359487125,
-                'DMSO - xtb': -208.982314660766,
+                'gas - xtb': -220.979131209469,
+                'DMSO - xtb': -221.605816156431,
             },
         }
     }
@@ -77,7 +59,7 @@ def make_plot(filename, energies):
     ms = ['o', 'X']
     solv = ['gas - xtb', 'DMSO - xtb']
     # solv = ['DMSO - xtb']
-    cages = ['cage1', 'cage2']
+    cages = ['cage_gs']
     for s, c in zip(solv, cs):
         for cage, m in zip(cages, ms):
             X_values = []
@@ -101,7 +83,7 @@ def make_plot(filename, energies):
     ax.set_xlabel('isomer label', fontsize=16)
     ax.set_ylabel('rel. total free energy [kJ/mol]', fontsize=16)
     ax.set_xlim(0, 10)
-    ax.set_ylim(-5, 30)
+    ax.set_ylim(-5, 90)
     ax.set_xticks([X_positions[i][0] for i in X_positions])
     ax.set_xticklabels(list(X_positions.keys()))
     ax.legend(fontsize=16)
@@ -123,7 +105,7 @@ def make_cage_plot(filename, energies):
     ms = ['o', 'X']
     # solv = ['gas - xtb', 'DMSO - xtb']
     solv = ['DMSO - xtb']
-    cages = ['cage1', 'cage2']
+    cages = ['cage_gs']
     for s in solv:
         for cage, m, c in zip(cages, ms, cs):
             X_values = []
@@ -147,7 +129,7 @@ def make_cage_plot(filename, energies):
     ax.set_xlabel('isomer label', fontsize=16)
     ax.set_ylabel('rel. total free energy [kJ/mol]', fontsize=16)
     ax.set_xlim(0, 10)
-    ax.set_ylim(-5, 30)
+    ax.set_ylim(-5, 90)
     ax.set_xticks([X_positions[i][0] for i in X_positions])
     ax.set_xticklabels(list(X_positions.keys()))
     ax.legend(fontsize=16)
@@ -162,15 +144,15 @@ def make_cage_plot(filename, energies):
 def main():
     if (not len(sys.argv) == 1):
         print("""
-    Usage: plot_geometry_isomers.py
+    Usage: plot_geometry_steric_isomers.py
         """)
         sys.exit()
 
     energies = energy_data()
 
-    filename = 'geometry_isomer_energies_xtb.pdf'
+    filename = 'geom_steric_isomer_energies_xtb.pdf'
     make_plot(filename, energies)
-    filename = 'geometry_isomer_energies_xtb_dmso.pdf'
+    filename = 'geom_steric_isomer_energies_xtb_dmso.pdf'
     make_cage_plot(filename, energies)
 
 
