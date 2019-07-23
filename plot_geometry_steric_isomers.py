@@ -32,18 +32,26 @@ def energy_data():
             '1111': {
                 'gas - xtb': -220.946487181184,
                 'DMSO - xtb': -221.575666592182,
+                'DMSO - pm6': 2.366200,
+                'DMSO - DFT': 0,
             },
             '1112': {
                 'gas - xtb': -220.975513115836,
                 'DMSO - xtb': -221.605756203057,
+                'DMSO - pm6': 2.362553,
+                'DMSO - DFT': 0,
             },
             '1122': {
                 'gas - xtb': -220.976854627122,
                 'DMSO - xtb': -221.604175939634,
+                'DMSO - pm6': 2.365342,
+                'DMSO - DFT': 0,
             },
             '1212': {
                 'gas - xtb': -220.979131209469,
                 'DMSO - xtb': -221.605816156431,
+                'DMSO - pm6': 2.365560,
+                'DMSO - DFT': 0,
             },
         }
     }
@@ -95,7 +103,7 @@ def make_plot(filename, energies):
     )
 
 
-def make_cage_plot(filename, energies):
+def make_cage_plot(filename, energies, method):
     fig, ax = plt.subplots()
     X_positions = {
         'all': (2, '1111'), '1-down': (4, '1112'),
@@ -104,7 +112,7 @@ def make_cage_plot(filename, energies):
     cs = ['r', 'b']
     ms = ['o', 'X']
     # solv = ['gas - xtb', 'DMSO - xtb']
-    solv = ['DMSO - xtb']
+    solv = [f'DMSO - {method}']
     cages = ['cage_gs']
     for s in solv:
         for cage, m, c in zip(cages, ms, cs):
@@ -133,6 +141,7 @@ def make_cage_plot(filename, energies):
     ax.set_xticks([X_positions[i][0] for i in X_positions])
     ax.set_xticklabels(list(X_positions.keys()))
     ax.legend(fontsize=16)
+    ax.set_title(method, fontsize=16)
     fig.tight_layout()
     fig.savefig(
         filename,
@@ -152,8 +161,15 @@ def main():
 
     filename = 'geom_steric_isomer_energies_xtb.pdf'
     make_plot(filename, energies)
-    filename = 'geom_steric_isomer_energies_xtb_dmso.pdf'
-    make_cage_plot(filename, energies)
+    method = 'xtb'
+    filename = f'geom_steric_isomer_energies_{method}_dmso.pdf'
+    make_cage_plot(filename, energies, method)
+    method = 'pm6'
+    filename = f'geom_steric_isomer_energies_{method}_dmso.pdf'
+    make_cage_plot(filename, energies, method)
+    method = 'DFT'
+    filename = f'geom_steric_isomer_energies_{method}_dmso.pdf'
+    make_cage_plot(filename, energies, method)
 
 
 if __name__ == "__main__":

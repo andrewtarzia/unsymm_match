@@ -32,36 +32,52 @@ def energy_data():
             '1111': {
                 'gas - xtb': -263.490590460015,
                 'DMSO - xtb': -264.105987052207,
+                'DMSO - pm6': 2.973747,
+                'DMSO - DFT': 0,
             },
             '1112': {
                 'gas - xtb': -263.495225539274,
                 'DMSO - xtb': -264.111998704079,
+                'DMSO - pm6': 2.971152,
+                'DMSO - DFT': 0,
             },
             '1122': {
                 'gas - xtb': -263.497111563998,
                 'DMSO - xtb': -264.113844235440,
+                'DMSO - pm6': 2.970532,
+                'DMSO - DFT': 0,
             },
             '1212': {
                 'gas - xtb': -263.496107977462,
                 'DMSO - xtb': -264.112553678762,
+                'DMSO - pm6': 2.970205,
+                'DMSO - DFT': 0,
             },
         },
         'cage2': {
             '1111': {
                 'gas - xtb': -208.344281547373,
                 'DMSO - xtb': -208.979647567300,
+                'DMSO - pm6': 2.335850,
+                'DMSO - DFT': 0,
             },
             '1112': {
                 'gas - xtb': -208.348232129357,
                 'DMSO - xtb': -208.983862936801,
+                'DMSO - pm6': 2.332590,
+                'DMSO - DFT': 0,
             },
             '1122': {
                 'gas - xtb': -208.348822919629,
                 'DMSO - xtb': -208.983973230052,
+                'DMSO - pm6': 2.334376,
+                'DMSO - DFT': 0,
             },
             '1212': {
                 'gas - xtb': -208.347359487125,
                 'DMSO - xtb': -208.982314660766,
+                'DMSO - pm6': 2.335488,
+                'DMSO - DFT': 0,
             },
         }
     }
@@ -113,7 +129,7 @@ def make_plot(filename, energies):
     )
 
 
-def make_cage_plot(filename, energies):
+def make_cage_plot(filename, energies, method):
     fig, ax = plt.subplots()
     X_positions = {
         'all': (2, '1111'), '1-down': (4, '1112'),
@@ -122,7 +138,7 @@ def make_cage_plot(filename, energies):
     cs = ['r', 'b']
     ms = ['o', 'X']
     # solv = ['gas - xtb', 'DMSO - xtb']
-    solv = ['DMSO - xtb']
+    solv = [f'DMSO - {method}']
     cages = ['cage1', 'cage2']
     for s in solv:
         for cage, m, c in zip(cages, ms, cs):
@@ -150,6 +166,7 @@ def make_cage_plot(filename, energies):
     ax.set_ylim(-5, 30)
     ax.set_xticks([X_positions[i][0] for i in X_positions])
     ax.set_xticklabels(list(X_positions.keys()))
+    ax.set_title(method, fontsize=16)
     ax.legend(fontsize=16)
     fig.tight_layout()
     fig.savefig(
@@ -170,8 +187,15 @@ def main():
 
     filename = 'geometry_isomer_energies_xtb.pdf'
     make_plot(filename, energies)
-    filename = 'geometry_isomer_energies_xtb_dmso.pdf'
-    make_cage_plot(filename, energies)
+    method = 'xtb'
+    filename = f'geometry_isomer_energies_{method}_dmso.pdf'
+    make_cage_plot(filename, energies, method)
+    method = 'pm6'
+    filename = f'geometry_isomer_energies_{method}_dmso.pdf'
+    make_cage_plot(filename, energies, method)
+    method = 'DFT'
+    filename = f'geometry_isomer_energies_{method}_dmso.pdf'
+    make_cage_plot(filename, energies, method)
 
 
 if __name__ == "__main__":
