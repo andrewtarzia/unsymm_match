@@ -69,6 +69,33 @@ def analyse_all_ligands(params, ligands):
     -------
 
     """
+
+    for ligand in ligands:
+        name = ligand
+        molecule = ligands[ligand]
+        if exists(f'{name}_opt_chosen.mol'):
+            molecule.update_from_file(f'{name}_opt_chosen.mol')
+        else:
+            print(f'doing {name}')
+            # Get conformers.
+            confs, cids = LA.get_conformers(
+                molecule,
+                N=int(params['N'])
+            )
+
+            # Plot their flexibility.
+            LA.plot_bite_flexibility(molecule, confs, cids, name)
+
+            # Select conformer with binding groups pointing the right
+            # way.
+            # Update molecule.
+            molecule = LA.select_conformer(molecule, confs, cids, name)
+            molecule.write(f'{name}_opt_chosen.mol')
+        ligands[ligand] = molecule
+
+    return ligands
+
+
 def build_all_cages(params):
     """
     Build all cages.
