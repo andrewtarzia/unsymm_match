@@ -32,6 +32,32 @@ def build_all_ligands(params):
     -------
 
     """
+    ligand_smiles = LB.ligands()
+    linker_smiles = LB.linkers()
+
+    ligands = {}
+
+    # Iterate through linkers.
+    count = 0
+    for link in linker_smiles:
+        link_smiles = linker_smiles[link]
+        for lig1, lig2 in combinations(ligand_smiles, r=2):
+            count += 1
+            lig1_smiles = ligand_smiles[lig1]
+            lig2_smiles = ligand_smiles[lig2]
+            name = f"{lig1}_{link}_{lig2}"
+            ligand = LB.build_linker(
+                lig1_smiles=lig1_smiles,
+                lig2_smiles=lig2_smiles,
+                linker_smiles=link_smiles,
+                name=name
+            )
+            ligands[name] = ligand
+
+    print(f'{count} ligands built')
+    return ligands
+
+
 def analyse_all_ligands(params, ligands):
     """
     Analyse all ligands.
