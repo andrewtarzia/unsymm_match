@@ -136,7 +136,38 @@ def analyse_all_cages(params, all_cage_sets, ligands):
     -------
 
     """
-    raise NotImplementedError()
+
+    cages_cis_wins = []
+    cages_not_wins = []
+
+    for lig_name in all_cage_sets:
+        cages = all_cage_sets[lig_name]
+        energies = CA.get_cage_energies(lig_name, cages)
+        m_distortions = CA.get_metal_centre_distortion(lig_name, cages)
+        import sys
+        sys.exit()
+        l_distortions = CA.get_ligand_distortion(lig_name, cages)
+
+        print(energies)
+        print(l_distortions)
+        print(m_distortions)
+
+        cis_preferred_and_stable = all(
+            CA.check_stability(l_distortions, m_distortions),
+            CA.check_preference(energies, energy_cutoff=100)
+        )
+
+        if cis_preferred_and_stable:
+            cages_cis_wins.append(lig_name)
+        else:
+            cages_not_wins.append(lig_name)
+
+    # Plot distribution of all cages.
+    total_cages = len(cages_cis_wins) + len(cages_not_wins)
+    print(
+        f'{len(cages_cis_wins)} cages with cis preffered '
+        f'and stable of {total_cages}.'
+    )
 
 
 def read_params(file):
