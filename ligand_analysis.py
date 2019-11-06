@@ -21,19 +21,6 @@ from rdkit.Chem import AllChem as rdkit
 import atools
 
 
-def build_linker(lig1_smiles, lig2_smiles, linker_smiles, name):
-    """
-    Build a linker from 3 components.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
-    """
-
-
 def plot_bite_flexibility(molecule, confs, cids, name):
     """
     Plot the flexibility of all conformers.
