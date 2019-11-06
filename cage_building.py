@@ -171,7 +171,7 @@ def build_cage_isomers(name, ligand, complex):
 
     """
 
-    cage_isomers = []
+    cage_isomers = {}
     ligand.write('temp.mol')
     complex.write('temp_met.mol')
 
@@ -205,7 +205,6 @@ def build_cage_isomers(name, ligand, complex):
     for top in topologies:
         topology = topologies[top]
         name_ = f'{name}_{top}'
-        opt_file = f'{name_}_optc.mol'
         json_file = f'{name_}_optc.json'
         if exists(json_file):
             cage = stk.ConstructedMolecule.load(
@@ -227,6 +226,6 @@ def build_cage_isomers(name, ligand, complex):
             print(cage)
             optimize_cage(cage, name_)
 
-        cage_isomers.append(cage)
+        cage_isomers[top] = cage
 
     return cage_isomers
