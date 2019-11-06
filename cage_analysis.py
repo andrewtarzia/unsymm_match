@@ -140,6 +140,69 @@ def get_cage_energies(name, cages):
         horiz=experimental_lines()
     )
     return energies
+def get_metal_centre_distortion(name, cages):
+    """
+    Get metal centre distortions.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
+
+    m_distortions = {
+        'bond_lengths': (
+            {'A': None, 'B': None, 'C': None, 'D': None},
+            'bonds',
+            r'mean bond length [$\mathrm{\AA}$]',
+            (0, 100)
+        ),
+        'angles': (
+            {'A': None, 'B': None, 'C': None, 'D': None},
+            'angles',
+            'mean N-Pd-N angle [degrees]',
+            (0, 100)
+        ),
+        'torsions': (
+            {'A': None, 'B': None, 'C': None, 'D': None},
+            'torsions',
+            'mean N-N-N-N torsion [degrees]',
+            (0, 100)
+        ),
+        'plane_dev': (
+            {'A': None, 'B': None, 'C': None, 'D': None},
+            'planes',
+            r'sum of plane deviation [$\mathrm{\AA}$]',
+            (0, 100)
+        )
+    }
+
+    for iso in cages:
+        name_ = f'{name}_{iso}'
+        print(name_)
+        cage = cages[iso]
+        results = atools.get_square_planar_distortion(
+            mol=cage,
+            metal=46,
+            bonder=7
+        )
+        print(results)
+        for measure in results:
+            print(measure)
+            print(results[measure])
+            m_distortions[measure][0][iso] = np.mean(results[measure])
+            print(m_distortions[measure][0][iso])
+
+    for i in m_distortions:
+        isomer_plot(
+            dictionary=m_distortions[i][0],
+            file_name=f'{name}_{m_distortions[i][1]}_plot.pdf',
+            ytitle=m_distortions[i][2],
+            ylim=m_distortions[i][3]
+        )
+    return m_distortions
 def check_preference(energies, energy_cutoff):
     """
     Check if cis isomer is preferred based on relative energetics.
