@@ -91,12 +91,13 @@ def analyse_all_ligands(params, ligands):
             # Update molecule.
             molecule = LA.select_conformer(molecule, confs, cids, name)
             molecule.write(f'{name}_opt_chosen.mol')
+            molecule.write(f'{name}_opt_chosen.xyz')
         ligands[ligand] = molecule
 
     return ligands
 
 
-def build_all_cages(params):
+def build_all_cages(params, ligands):
     """
     Build all cages.
 
@@ -107,10 +108,24 @@ def build_all_cages(params):
     -------
 
     """
-    raise NotImplementedError()
+
+    # Build metal complex.
+    complex = CB.build_metal_centre()
+
+    all_cage_sets = {}
+    for ligand in ligands:
+        name = ligand
+        molecule = ligands[ligand]
+        all_cage_sets[name] = CB.build_cage_isomers(
+            name=name,
+            ligand=molecule,
+            complex=complex
+        )
+
+    return all_cage_sets
 
 
-def analyse_all_cages(params):
+def analyse_all_cages(params, all_cage_sets, ligands):
     """
     Analyse all cages.
 
@@ -164,9 +179,9 @@ def main():
     # Analyse all ligands.
     ligands = analyse_all_ligands(params, ligands)
     # Build all cages.
-    build_all_cages(params)
+    all_cage_sets = build_all_cages(params, ligands)
     # Analyse all cages.
-    analyse_all_cages(params)
+    analyse_all_cages(params, all_cage_sets, ligands)
 
 
 if __name__ == "__main__":
