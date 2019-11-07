@@ -274,6 +274,66 @@ def get_metal_centre_distortion(name, cages):
             ylim=m_distortions[i][3]
         )
     return m_distortions
+
+
+def check_stability(lig_distortions, me_distortions):
+    """
+    Check if cis isomer is stable based on distortions.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
+
+    def fail_NN(value):
+        return value > 1
+
+    def fail_plane_dev(value):
+        return value > 0.3
+
+    checks = {
+        'bond_lengths': None,
+        'angles': None,
+        'torsions': None,
+        'plane_dev': fail_plane_dev,
+        'bite_angle': None,
+        'NN_dist': fail_NN
+    }
+
+    print('---')
+
+    for i in lig_distortions:
+        # No test for this measure.
+        if checks[i] is None:
+            continue
+        print(i)
+        print(lig_distortions[i])
+        print(lig_distortions[i][0]['C'])
+        print(checks[i])
+        print(checks[i](lig_distortions[i][0]['C']))
+        if checks[i](lig_distortions[i][0]['C']):
+            print('e')
+            return False
+
+    for i in me_distortions:
+        # No test for this measure.
+        if checks[i] is None:
+            continue
+        print(i)
+        print(me_distortions[i])
+        print(me_distortions[i][0]['C'])
+        print(checks[i])
+        print(checks[i](me_distortions[i][0]['C']))
+        if checks[i](me_distortions[i][0]['C']):
+            print('e')
+            return False
+
+    return True
+
+
 def check_preference(energies, energy_cutoff):
     """
     Check if cis isomer is preferred based on relative energetics.
