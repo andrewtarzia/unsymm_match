@@ -144,18 +144,16 @@ def analyse_all_cages(params, all_cage_sets, ligands):
         cages = all_cage_sets[lig_name]
         energies = CA.get_cage_energies(lig_name, cages)
         m_distortions = CA.get_metal_centre_distortion(lig_name, cages)
-        import sys
-        sys.exit()
         l_distortions = CA.get_ligand_distortion(lig_name, cages)
 
         print(energies)
         print(l_distortions)
         print(m_distortions)
 
-        cis_preferred_and_stable = all(
+        cis_preferred_and_stable = all([
             CA.check_stability(l_distortions, m_distortions),
             CA.check_preference(energies, energy_cutoff=100)
-        )
+        ])
 
         if cis_preferred_and_stable:
             cages_cis_wins.append(lig_name)
