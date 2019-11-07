@@ -117,7 +117,7 @@ def optimize_cage(cage, cage_name):
         temperature='700',
         equilbration='0.5',
         production='5.0',
-        timestep='0.5',
+        timestep='0.25',
         N_conformers=50,
         opt_conformers=False
     )
@@ -172,8 +172,6 @@ def build_cage_isomers(name, ligand, complex):
     """
 
     cage_isomers = {}
-    ligand.write('temp.mol')
-    complex.write('temp_met.mol')
 
     topologies = {
         'A': stk.cage.M2L4_Lantern(vertex_alignments={
