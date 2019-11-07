@@ -54,7 +54,7 @@ def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
     ax.set_ylim(ylim)
     if horiz is not None:
         for i in horiz:
-            ax.axhline(y=i, c='k', lw=2)
+            ax.axhline(y=i[0], c=i[1][0], lw=2)
     fig.tight_layout()
     fig.savefig(
         file_name,
@@ -116,9 +116,25 @@ def get_cage_energies(name, cages):
     """
 
     def experimental_lines():
-
-        lines = [10, 20, 30]
-        return lines
+        expts = {
+            'li1_lk2_li5': (10, 'k'),
+            'li2_lk2_li6': (12, 'r'),
+            'li1_lk2_li4': (14, 'k'),
+            'li4_lk2_li5': (16, 'r')
+        }
+        lines = [
+            expts['li1_lk2_li5'][0],
+            expts['li2_lk2_li6'][0],
+            expts['li1_lk2_li4'][0],
+            expts['li4_lk2_li5'][0],
+        ]
+        styles = [
+            expts['li1_lk2_li5'][1],
+            expts['li2_lk2_li6'][1],
+            expts['li1_lk2_li4'][1],
+            expts['li4_lk2_li5'][1],
+        ]
+        return lines, styles
 
     energies = {'A': None, 'B': None, 'C': None, 'D': None}
 
