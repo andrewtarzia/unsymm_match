@@ -173,7 +173,7 @@ def get_metal_centre_distortion(name, cages):
             {'A': None, 'B': None, 'C': None, 'D': None},
             'bonds',
             r'mean bond length [$\mathrm{\AA}$]',
-            (0, 100)
+            (1, 3)
         ),
         'angles': (
             {'A': None, 'B': None, 'C': None, 'D': None},
@@ -191,7 +191,7 @@ def get_metal_centre_distortion(name, cages):
             {'A': None, 'B': None, 'C': None, 'D': None},
             'planes',
             r'sum of plane deviation [$\mathrm{\AA}$]',
-            (0, 100)
+            (0, 2)
         )
     }
 
