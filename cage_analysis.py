@@ -156,6 +156,61 @@ def get_cage_energies(name, cages):
         horiz=experimental_lines()
     )
     return energies
+
+
+def get_ligand_distortion(name, cages):
+    """
+    Get ligand distortions compared to free ligand.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
+
+    l_distortions = {
+        'bite_angle': (
+            {'A': None, 'B': None, 'C': None, 'D': None},
+            'deltabites',
+            r'average($\Delta$bite angle) [degrees]',
+            (0, 100)
+        ),
+        'NN_dist': (
+            {'A': None, 'B': None, 'C': None, 'D': None},
+            'deltaNNs',
+            r'average($\Delta$NN distance) [$\mathrm{\AA}$]',
+            (0, 10)
+        ),
+    }
+    print('--------------')
+    for iso in cages:
+        name_ = f'{name}_{iso}'
+        print(name_)
+        cage = cages[iso]
+        results = atools.calculate_ligand_distortion(
+            mol=cage,
+            cage_name=name_,
+            free_ligand_name=name
+        )
+        print(results)
+        NN_change, bite_change = results
+        l_distortions['NN_dist'][0][iso] = NN_change
+        l_distortions['bite_angle'][0][iso] = bite_change
+
+    print([l_distortions[i][0] for i in l_distortions])
+
+    for i in l_distortions:
+        isomer_plot(
+            dictionary=l_distortions[i][0],
+            file_name=f'{name}_{l_distortions[i][1]}_plot.pdf',
+            ytitle=l_distortions[i][2],
+            ylim=l_distortions[i][3]
+        )
+    return l_distortions
+
+
 def get_metal_centre_distortion(name, cages):
     """
     Get metal centre distortions.
