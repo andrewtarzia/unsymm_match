@@ -11,9 +11,7 @@ Date Created: 5 Nov 2019
 
 """
 
-import sys
 from os.path import exists
-import numpy as np
 import stk
 from matplotlib.pyplot import close
 from rdkit.Chem import AllChem as rdkit
@@ -91,54 +89,6 @@ def get_conformers(molecule, N):
     return confs, cids
 
 
-def calculate_NN_angle(bb):
-    """
-    Calculate the N-COM-N angle of a ditopic building block.
-
-    This function will not work for cages built from FGs other than
-    metals + pyridine_N_metal.
-
-    Parameters
-    ----------
-    bb : :class:`stk.BuildingBlock`
-        stk molecule to analyse.
-
-    Returns
-    -------
-    angle : :class:`float`
-        Angle between two bonding vectors of molecule.
-
-    """
-
-    fg_counts = 0
-    fg_positions = []
-    for fg in bb.func_groups:
-        if 'pyridine_N_metal' == fg.fg_type.name:
-            fg_counts += 1
-            # Get geometrical properties of the FG.
-            # Get N position - deleter.
-            N_position = bb.get_center_of_mass(
-                atom_ids=fg.get_deleter_ids()
-            )
-            fg_positions.append(N_position)
-
-    if fg_counts != 2:
-        sys.exit(
-            f'{bb} does not have 2 pyridine_N_metal functional '
-            'groups.'
-        )
-
-    # Get building block COM.
-    COM_position = bb.get_center_of_mass()
-
-    # Get vectors.
-    fg_vectors = [i-COM_position for i in fg_positions]
-
-    # Calculate the angle between the two vectors.
-    angle = np.degrees(atools.angle_between(*fg_vectors))
-    return angle
-
-
 def select_conformer(molecule, confs, cids, name):
     """
     Select and optimize a conformer with desired directionality.
@@ -175,7 +125,7 @@ def select_conformer(molecule, confs, cids, name):
                 conf_id=cid
             )
 
-            angle = calculate_NN_angle(new_mol)
+            angle = atools.calculate_N_COM_N_angle(new_mol)
 
             if angle < min_angle:
                 min_cid = cid
