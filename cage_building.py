@@ -201,6 +201,80 @@ def optimize_cage_rdkit(cage, cage_name):
     cage.dump(f'{cage_name}_optc.json')
 
 
+def optimize_cage_rdkitMD(cage, cage_name):
+
+    print('doing optimisation')
+    optimizer = stk.MetalOptimizer(
+        metal_binder_distance=1.9,
+        metal_binder_fc=1.0e2,
+        binder_ligand_fc=0.0,
+        ignore_vdw=False,
+        rel_distance=None,
+        res_steps=50,
+        restrict_bonds=True,
+        restrict_angles=True,
+        restrict_orientation=True,
+        max_iterations=40,
+        do_long_opt=False
+    )
+
+    optimizer.optimize(mol=cage)
+    cage.write(f'{cage_name}_rdk.mol')
+    cage.write(f'{cage_name}_rdk.xyz')
+    cage.dump(f'{cage_name}_rdk.json')
+
+    print('doing UFF4MOF optimisation')
+    gulp_opt = stk.GulpMetalOptimizer(
+        gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
+        metal_FF='Pd4+2',
+        output_dir=f'cage_opt_{cage_name}_uff1'
+    )
+    gulp_opt.assign_FF(cage)
+    gulp_opt.optimize(mol=cage)
+    cage.write(f'{cage_name}_uff4mof.mol')
+    cage.write(f'{cage_name}_uff4mof.xyz')
+    cage.dump(f'{cage_name}_uff4mof.json')
+
+    print('doing UFF4MOF MD')
+    gulp_MD = stk.GulpMDMetalOptimizer(
+        gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
+        metal_FF='Pd4+2',
+        output_dir=f'cage_opt_{cage_name}_MD',
+        integrator='stochastic',
+        ensemble='nvt',
+        temperature='700',
+        equilbration='0.5',
+        production='5.0',
+        timestep='0.25',
+        N_conformers=50,
+        opt_conformers=False
+    )
+    gulp_MD.assign_FF(cage)
+    gulp_MD.optimize(cage)
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    print('doing XTB optimisation')
+    xtb_opt = stk.XTB(
+        xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
+        output_dir=f'cage_opt_{cage_name}_xtb',
+        gfn_version=2,
+        num_cores=6,
+        opt_level='tight',
+        charge=4,
+        num_unpaired_electrons=0,
+        max_runs=1,
+        electronic_temperature=1000,
+        calculate_hessian=False,
+        unlimited_memory=True
+    )
+    xtb_opt.optimize(mol=cage)
+    cage.write(f'{cage_name}_optc.mol')
+    cage.write(f'{cage_name}_optc.xyz')
+    cage.dump(f'{cage_name}_optc.json')
+
+
 def build_cage_isomers(name, ligand, complex):
     """
     Build all four cage isomers.
@@ -265,7 +339,8 @@ def build_cage_isomers(name, ligand, complex):
             cage.dump(f'{name_}_unopt.json')
             print(cage)
             # optimize_cage(cage, name_)
-            optimize_cage_rdkit(cage, name_)
+            # optimize_cage_rdkit(cage, name_)
+            optimize_cage_rdkitMD(cage, name_)
 
         cage_isomers[top] = cage
 
