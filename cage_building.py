@@ -159,6 +159,48 @@ def optimize_cage(cage, cage_name):
     cage.dump(f'{cage_name}_optc.json')
 
 
+def optimize_cage_rdkit(cage, cage_name):
+
+    print('doing optimisation')
+    optimizer = stk.MetalOptimizer(
+        metal_binder_distance=1.9,
+        metal_binder_fc=1.0e2,
+        binder_ligand_fc=0.0,
+        ignore_vdw=False,
+        rel_distance=None,
+        res_steps=50,
+        restrict_bonds=True,
+        restrict_angles=True,
+        restrict_orientation=True,
+        max_iterations=40,
+        do_long_opt=False
+    )
+
+    optimizer.optimize(mol=cage)
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    print('doing XTB optimisation')
+    xtb_opt = stk.XTB(
+        xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
+        output_dir=f'cage_opt_{cage_name}_xtb',
+        gfn_version=2,
+        num_cores=6,
+        opt_level='tight',
+        charge=4,
+        num_unpaired_electrons=0,
+        max_runs=1,
+        electronic_temperature=1000,
+        calculate_hessian=False,
+        unlimited_memory=True
+    )
+    xtb_opt.optimize(mol=cage)
+    cage.write(f'{cage_name}_optc.mol')
+    cage.write(f'{cage_name}_optc.xyz')
+    cage.dump(f'{cage_name}_optc.json')
+
+
 def build_cage_isomers(name, ligand, complex):
     """
     Build all four cage isomers.
@@ -222,7 +264,8 @@ def build_cage_isomers(name, ligand, complex):
             cage.write(f'{name_}_unopt.xyz')
             cage.dump(f'{name_}_unopt.json')
             print(cage)
-            optimize_cage(cage, name_)
+            # optimize_cage(cage, name_)
+            optimize_cage_rdkit(cage, name_)
 
         cage_isomers[top] = cage
 
