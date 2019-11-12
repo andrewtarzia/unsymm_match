@@ -172,7 +172,7 @@ def optimize_cage_rdkit(cage, cage_name):
         restrict_bonds=True,
         restrict_angles=True,
         restrict_orientation=True,
-        max_iterations=40,
+        max_iterations=60,
         do_long_opt=False
     )
 
@@ -339,8 +339,8 @@ def build_cage_isomers(name, ligand, complex):
             cage.dump(f'{name_}_unopt.json')
             print(cage)
             # optimize_cage(cage, name_)
-            # optimize_cage_rdkit(cage, name_)
-            optimize_cage_rdkitMD(cage, name_)
+            optimize_cage_rdkit(cage, name_)
+            # optimize_cage_rdkitMD(cage, name_)
 
         cage_isomers[top] = cage
 
