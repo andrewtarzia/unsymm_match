@@ -21,7 +21,7 @@ import atools
 
 def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
     """
-    Get xTB energies of all four isomers.
+    Generic plot of isomer properties.
 
     Parameters
     ----------
@@ -43,7 +43,7 @@ def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
             edgecolors='k',
             marker='o',
             alpha=1,
-            s=100
+            s=120
         )
     # Set number of ticks for x-axis
     ax.tick_params(axis='both', which='major', labelsize=16)
@@ -53,8 +53,8 @@ def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
     ax.set_xlim(0, 10)
     ax.set_ylim(ylim)
     if horiz is not None:
-        for i in horiz:
-            ax.axhline(y=i[0], c=i[1][0], lw=2)
+        for i, j in zip(*horiz):
+            ax.axhline(y=i, c=j, lw=2, alpha=0.2)
     fig.tight_layout()
     fig.savefig(
         file_name,
@@ -85,6 +85,7 @@ def get_energy(name, cage):
             energy = float(line.rstrip())
             break
     else:
+        print(f'calculating energy of {name}')
         # Extract energy.
         xtb_energy = stk.XTBEnergy(
             xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
@@ -116,11 +117,13 @@ def get_cage_energies(name, cages):
     """
 
     def experimental_lines():
+        # These lines are the energy difference between the cis and
+        # next most stable isomer from xtb after RDKIT opt.
         expts = {
-            'li1_lk2_li5': (10, 'k'),
-            'li2_lk2_li6': (12, 'r'),
-            'li1_lk2_li4': (14, 'k'),
-            'li4_lk2_li5': (16, 'r')
+            'li1_lk2_li5': (17, 'k'),
+            'li2_lk2_li6': (27, 'k'),
+            'li1_lk2_li4': (8, 'k'),
+            'li4_lk2_li5': (1.4, 'r')
         }
         lines = [
             expts['li1_lk2_li5'][0],
@@ -140,7 +143,6 @@ def get_cage_energies(name, cages):
 
     for iso in energies:
         name_ = f'{name}_{iso}'
-        print(name_)
         energies[iso] = get_energy(name=name_, cage=cages[iso])
 
     min_energy = min(energies.values())
@@ -152,13 +154,13 @@ def get_cage_energies(name, cages):
         dictionary=energies,
         file_name=f'{name}_energies_plot.pdf',
         ytitle=r'relative energies [kJ/mol]',
-        ylim=(-5, 300),
+        ylim=(-5, 50),
         horiz=experimental_lines()
     )
     return energies
 
 
-def get_ligand_distortion(name, cages):
+def get_ligand_distortion(name, cages, NN_dists, bites_dist):
     """
     Get ligand distortions compared to free ligand.
 
@@ -184,22 +186,19 @@ def get_ligand_distortion(name, cages):
             (0, 10)
         ),
     }
-    print('--------------')
     for iso in cages:
         name_ = f'{name}_{iso}'
-        print(name_)
         cage = cages[iso]
         results = atools.calculate_ligand_distortion(
             mol=cage,
             cage_name=name_,
-            free_ligand_name=name
+            free_ligand_name=f'{name}_opt_chosen.mol',
+            free_NN_dists=NN_dists,
+            free_bite_dists=bites_dist,
         )
-        print(results)
         NN_change, bite_change = results
         l_distortions['NN_dist'][0][iso] = NN_change
         l_distortions['bite_angle'][0][iso] = bite_change
-
-    print([l_distortions[i][0] for i in l_distortions])
 
     for i in l_distortions:
         isomer_plot(
@@ -251,20 +250,14 @@ def get_metal_centre_distortion(name, cages):
     }
 
     for iso in cages:
-        name_ = f'{name}_{iso}'
-        print(name_)
         cage = cages[iso]
         results = atools.get_square_planar_distortion(
             mol=cage,
             metal=46,
             bonder=7
         )
-        print(results)
         for measure in results:
-            print(measure)
-            print(results[measure])
             m_distortions[measure][0][iso] = np.mean(results[measure])
-            print(m_distortions[measure][0][iso])
 
     for i in m_distortions:
         isomer_plot(
@@ -276,7 +269,7 @@ def get_metal_centre_distortion(name, cages):
     return m_distortions
 
 
-def check_stability(lig_distortions, me_distortions):
+def check_stability(l_distortions, m_distortions):
     """
     Check if cis isomer is stable based on distortions.
 
@@ -300,35 +293,33 @@ def check_stability(lig_distortions, me_distortions):
         'torsions': None,
         'plane_dev': fail_plane_dev,
         'bite_angle': None,
-        'NN_dist': fail_NN
+        'NN_dist': None
     }
 
-    print('---')
-
-    for i in lig_distortions:
+    for i in l_distortions:
         # No test for this measure.
         if checks[i] is None:
             continue
-        print(i)
-        print(lig_distortions[i])
-        print(lig_distortions[i][0]['C'])
-        print(checks[i])
-        print(checks[i](lig_distortions[i][0]['C']))
-        if checks[i](lig_distortions[i][0]['C']):
-            print('e')
+        check = checks[i](l_distortions[i][0]['C'])
+        print(
+            f'> {i}:',
+            round(l_distortions[i][0]['C'], 4),
+            check
+        )
+        if checks[i](l_distortions[i][0]['C']):
             return False
 
-    for i in me_distortions:
+    for i in m_distortions:
         # No test for this measure.
         if checks[i] is None:
             continue
-        print(i)
-        print(me_distortions[i])
-        print(me_distortions[i][0]['C'])
-        print(checks[i])
-        print(checks[i](me_distortions[i][0]['C']))
-        if checks[i](me_distortions[i][0]['C']):
-            print('e')
+        check = checks[i](m_distortions[i][0]['C'])
+        print(
+            f'> {i}:',
+            round(m_distortions[i][0]['C'], 4),
+            check
+        )
+        if check:
             return False
 
     return True
@@ -350,10 +341,19 @@ def check_preference(energies, energy_cutoff):
         energy_sep = min([
             energies[i] for i in energies if energies[i] != 0
         ])
-        print(energies, energy_sep, energy_cutoff)
+        print(
+            '> energy test:',
+            round(energies['C'], 4),
+            round(energy_sep, 4),
+            energy_sep < energy_cutoff
+        )
         if energy_sep < energy_cutoff:
-            return False
+            return False, energy_sep
     else:
-        return False
+        print(
+            '> energy test (failed):',
+            round(energies['C'], 4),
+        )
+        return False, -energies['C']
 
-    return True
+    return True, energy_sep
