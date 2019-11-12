@@ -19,6 +19,192 @@ import stk
 import atools
 
 
+def plot_energetics(
+    ligands,
+    experiments,
+    cages_cis_wins,
+    cages_not_wins,
+    energy_preferences
+):
+    """
+    Plot energy preference of all cages.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    c_passed = atools.colors_i_like()[4]
+    c_failed = atools.colors_i_like()[3]
+    c_negative = atools.colors_i_like()[2]
+
+    for i, lig in enumerate(ligands):
+        if lig in cages_cis_wins:
+            c = c_passed
+        elif lig in cages_not_wins:
+            c = c_failed
+
+        if lig in experiments:
+            m = 'X'
+        else:
+            m = 'o'
+
+        if energy_preferences[i] < 0:
+            print(lig)
+            c = c_negative
+
+        ax.scatter(
+            i+1,
+            energy_preferences[i],
+            c=c,
+            edgecolors='k',
+            marker=m,
+            alpha=1,
+            s=70
+        )
+    # Set number of ticks for x-axis
+    ax.tick_params(axis='both', which='major', labelsize=16)
+    ax.set_ylabel('cage', fontsize=16)
+    ax.set_ylabel('energy preference [kJ/mol]', fontsize=16)
+    ax.set_xlim(0, 62)
+
+    ax.axhline(y=7.5, c='k', alpha=0.2)
+
+    ax.scatter(
+        -100,
+        0,
+        c=c_passed,
+        edgecolors='k',
+        marker='o',
+        alpha=1,
+        s=70,
+        label='passed'
+    )
+    ax.scatter(
+        -100,
+        0,
+        c=c_failed,
+        edgecolors='k',
+        marker='o',
+        alpha=1,
+        s=70,
+        label='failed'
+    )
+    ax.scatter(
+        -100,
+        0,
+        c=c_negative,
+        edgecolors='k',
+        marker='o',
+        alpha=1,
+        s=70,
+        label='cis not preferred'
+    )
+    ax.legend(fontsize=16)
+
+    fig.tight_layout()
+    fig.savefig(
+        'all_cages_energy_preferences.pdf',
+        dpi=720,
+        bbox_inches='tight'
+    )
+    plt.close()
+
+
+def plot_plane_devs(
+    ligands,
+    experiments,
+    cages_cis_wins,
+    cages_not_wins,
+    plane_devs
+):
+    """
+    Plot plane deviation of all cages.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
+
+    c_passed = atools.colors_i_like()[4]
+    c_failed = atools.colors_i_like()[3]
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    for i, lig in enumerate(ligands):
+        if lig in cages_cis_wins:
+            c = c_passed
+        elif lig in cages_not_wins:
+            c = c_failed
+
+        if lig in experiments:
+            m = 'X'
+        else:
+            m = 'o'
+
+        ax.scatter(
+            i+1,
+            plane_devs[i],
+            c=c,
+            edgecolors='k',
+            marker=m,
+            alpha=1,
+            s=70
+        )
+    # Set number of ticks for x-axis
+    ax.tick_params(axis='both', which='major', labelsize=16)
+    ax.set_ylabel('cage', fontsize=16)
+    ax.set_ylabel(
+        r'avg. plane deviation [$\mathrm{\AA}$]',
+        fontsize=16
+    )
+    ax.set_xlim(0, 62)
+
+    ax.axhline(y=0.3, c='k', alpha=0.2)
+
+    ax.scatter(
+        -100,
+        0,
+        c=c_passed,
+        edgecolors='k',
+        marker='o',
+        alpha=1,
+        s=70,
+        label='passed'
+    )
+    ax.scatter(
+        -100,
+        0,
+        c=c_failed,
+        edgecolors='k',
+        marker='o',
+        alpha=1,
+        s=70,
+        label='failed'
+    )
+    ax.legend(fontsize=16)
+    # ax.set_ylim(-1000, 1000)
+    # if horiz is not None:
+    #     for i, j in zip(*horiz):
+    #         ax.axhline(y=i, c=j, lw=2, alpha=0.2)
+
+    fig.tight_layout()
+    fig.savefig(
+        'all_cages_planedevs.pdf',
+        dpi=720,
+        bbox_inches='tight'
+    )
+    plt.close()
+
+
 def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
     """
     Generic plot of isomer properties.
