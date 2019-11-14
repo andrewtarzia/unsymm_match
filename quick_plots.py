@@ -80,6 +80,16 @@ def main():
         plane_devs
     )
 
+    CA.plot_energetics_and_geom(
+        lig_studied,
+        experiments,
+        cages_cis_wins,
+        cages_not_wins,
+        energy_preferences,
+        plane_devs
+    )
+
+
 
 if __name__ == "__main__":
     main()

@@ -259,6 +259,15 @@ def analyse_all_cages(params, all_cage_sets, ligands):
         plane_devs
     )
 
+    CA.plot_energetics_and_geom(
+        lig_studied,
+        experiments,
+        cages_cis_wins,
+        cages_not_wins,
+        energy_preferences,
+        plane_devs
+    )
+
 
 def read_params(file):
     """
