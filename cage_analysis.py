@@ -56,7 +56,6 @@ def plot_energetics_and_geom(
             m = 'o'
 
         if energy_preferences[i] < 0:
-            print(lig)
             c = c_negative
 
         ax.scatter(
@@ -157,8 +156,11 @@ def plot_energetics(
             m = 'o'
 
         if energy_preferences[i] < 0:
-            print(lig)
+            print(lig, energy_preferences[i])
             c = c_negative
+
+        if energy_preferences[i] > 50:
+            print(lig, energy_preferences[i])
 
         ax.scatter(
             i+1,

@@ -23,6 +23,9 @@ def ligands():
         'li4': 'BrC#Cc1cccnc1',
         'li5': 'Brc1cccnc1',
         'li6': 'Brc1ccncc1',
+        # 'li7': 'Brc1cccc2cnccc12',
+        # 'li8': 'Brc1cccc2ccncc12',
+        # 'li9': 'Brc1cccc2ncccc12',
     }
 
     return ligand_smiles
