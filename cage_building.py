@@ -95,10 +95,12 @@ def build_metal_centre():
 
 def optimize_cage(cage, cage_name):
 
+    metal_FFs = {46: 'Pd4+2'}
+
     print('doing UFF4MOF optimisation')
     gulp_opt = stk.GulpMetalOptimizer(
         gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
-        metal_FF='Pd4+2',
+        metal_FF=metal_FFs,
         output_dir=f'cage_opt_{cage_name}_uff1'
     )
     gulp_opt.assign_FF(cage)
@@ -110,7 +112,7 @@ def optimize_cage(cage, cage_name):
     print('doing UFF4MOF MD')
     gulp_MD = stk.GulpMDMetalOptimizer(
         gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
-        metal_FF='Pd4+2',
+        metal_FF=metal_FFs,
         output_dir=f'cage_opt_{cage_name}_MD',
         integrator='stochastic',
         ensemble='nvt',
@@ -130,7 +132,7 @@ def optimize_cage(cage, cage_name):
     print('doing UFF4MOF optimisation 2')
     gulp_opt2 = stk.GulpMetalOptimizer(
         gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
-        metal_FF='Pd4+2',
+        metal_FF=metal_FFs,
         output_dir=f'cage_opt_{cage_name}_uff2'
     )
     gulp_opt2.assign_FF(cage)
@@ -160,6 +162,8 @@ def optimize_cage(cage, cage_name):
 
 
 def optimize_cage_rdkit(cage, cage_name):
+
+    metal_FFs = {46: 'Pd4+2'}
 
     print('doing optimisation')
     optimizer = stk.MetalOptimizer(
@@ -203,6 +207,8 @@ def optimize_cage_rdkit(cage, cage_name):
 
 def optimize_cage_rdkitMD(cage, cage_name):
 
+    metal_FFs = {46: 'Pd4+2'}
+
     print('doing optimisation')
     optimizer = stk.MetalOptimizer(
         metal_binder_distance=1.9,
@@ -226,7 +232,7 @@ def optimize_cage_rdkitMD(cage, cage_name):
     print('doing UFF4MOF optimisation')
     gulp_opt = stk.GulpMetalOptimizer(
         gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
-        metal_FF='Pd4+2',
+        metal_FF=metal_FFs,
         output_dir=f'cage_opt_{cage_name}_uff1'
     )
     gulp_opt.assign_FF(cage)
@@ -238,7 +244,7 @@ def optimize_cage_rdkitMD(cage, cage_name):
     print('doing UFF4MOF MD')
     gulp_MD = stk.GulpMDMetalOptimizer(
         gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
-        metal_FF='Pd4+2',
+        metal_FF=metal_FFs,
         output_dir=f'cage_opt_{cage_name}_MD',
         integrator='stochastic',
         ensemble='nvt',
@@ -251,6 +257,254 @@ def optimize_cage_rdkitMD(cage, cage_name):
     )
     gulp_MD.assign_FF(cage)
     gulp_MD.optimize(cage)
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    print('doing XTB optimisation')
+    xtb_opt = stk.XTB(
+        xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
+        output_dir=f'cage_opt_{cage_name}_xtb',
+        gfn_version=2,
+        num_cores=6,
+        opt_level='tight',
+        charge=4,
+        num_unpaired_electrons=0,
+        max_runs=1,
+        electronic_temperature=1000,
+        calculate_hessian=False,
+        unlimited_memory=True
+    )
+    xtb_opt.optimize(mol=cage)
+    cage.write(f'{cage_name}_optc.mol')
+    cage.write(f'{cage_name}_optc.xyz')
+    cage.dump(f'{cage_name}_optc.json')
+
+
+def opt_test1(cage, cage_name):
+
+    metal_FFs = {46: 'Pd4+2'}
+
+    print('doing optimisation')
+    optimizer = stk.MetalOptimizer(
+        metal_binder_distance=1.9,
+        metal_binder_fc=1.0e2,
+        binder_ligand_fc=0.0,
+        ignore_vdw=False,
+        rel_distance=None,
+        res_steps=50,
+        restrict_bonds=True,
+        restrict_angles=True,
+        restrict_orientation=True,
+        max_iterations=40,
+        do_long_opt=True
+    )
+
+    optimizer.optimize(mol=cage)
+    cage.write(f'{cage_name}_rdk.mol')
+    cage.write(f'{cage_name}_rdk.xyz')
+    cage.dump(f'{cage_name}_rdk.json')
+
+    print('doing UFF4MOF optimisation')
+    gulp_opt = stk.GulpMetalOptimizer(
+        gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
+        metal_FF=metal_FFs,
+        output_dir=f'cage_opt_{cage_name}_uff1'
+    )
+    gulp_opt.assign_FF(cage)
+    gulp_opt.optimize(mol=cage)
+    cage.write(f'{cage_name}_uff4mof.mol')
+    cage.write(f'{cage_name}_uff4mof.xyz')
+    cage.dump(f'{cage_name}_uff4mof.json')
+
+    print('doing UFF4MOF MD')
+    gulp_MD = stk.GulpMDMetalOptimizer(
+        gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
+        metal_FF=metal_FFs,
+        output_dir=f'cage_opt_{cage_name}_MD',
+        integrator='leapfrog verlet',
+        ensemble='nvt',
+        temperature='700',
+        equilbration='0.5',
+        production='20.0',
+        timestep='0.25',
+        N_conformers=100,
+        opt_conformers=False
+    )
+    gulp_MD.assign_FF(cage)
+    gulp_MD.optimize(cage)
+    cage.write(f'{cage_name}_MD.mol')
+    cage.write(f'{cage_name}_MD.xyz')
+    cage.dump(f'{cage_name}_MD.json')
+
+    print('doing UFF4MOF optimisation 2')
+    gulp_opt2 = stk.GulpMetalOptimizer(
+        gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
+        metal_FF=metal_FFs,
+        output_dir=f'cage_opt_{cage_name}_uff2'
+    )
+    gulp_opt2.assign_FF(cage)
+    gulp_opt2.optimize(mol=cage)
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    print('doing XTB optimisation')
+    xtb_opt = stk.XTB(
+        xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
+        output_dir=f'cage_opt_{cage_name}_xtb',
+        gfn_version=2,
+        num_cores=6,
+        opt_level='vtight',
+        charge=4,
+        num_unpaired_electrons=0,
+        max_runs=1,
+        electronic_temperature=1000,
+        calculate_hessian=False,
+        unlimited_memory=True
+    )
+    xtb_opt.optimize(mol=cage)
+    cage.write(f'{cage_name}_optc.mol')
+    cage.write(f'{cage_name}_optc.xyz')
+    cage.dump(f'{cage_name}_optc.json')
+
+
+def opt_test2(cage, cage_name):
+
+    metal_FFs = {46: 'Pd4+2'}
+
+    print('doing optimisation')
+    optimizer = stk.MetalOptimizer(
+        metal_binder_distance=1.9,
+        metal_binder_fc=1.0e2,
+        binder_ligand_fc=0.0,
+        ignore_vdw=False,
+        rel_distance=None,
+        res_steps=50,
+        restrict_bonds=True,
+        restrict_angles=True,
+        restrict_orientation=True,
+        max_iterations=40,
+        do_long_opt=False
+    )
+
+    optimizer.optimize(mol=cage)
+    cage.write(f'{cage_name}_rdk.mol')
+    cage.write(f'{cage_name}_rdk.xyz')
+    cage.dump(f'{cage_name}_rdk.json')
+
+    print('doing UFF4MOF optimisation')
+    gulp_opt = stk.GulpMetalOptimizer(
+        gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
+        metal_FF=metal_FFs,
+        output_dir=f'cage_opt_{cage_name}_uff1'
+    )
+    gulp_opt.assign_FF(cage)
+    gulp_opt.optimize(mol=cage)
+    cage.write(f'{cage_name}_uff4mof.mol')
+    cage.write(f'{cage_name}_uff4mof.xyz')
+    cage.dump(f'{cage_name}_uff4mof.json')
+
+    print('doing UFF4MOF MD')
+    gulp_MD = stk.GulpMDMetalOptimizer(
+        gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
+        metal_FF=metal_FFs,
+        output_dir=f'cage_opt_{cage_name}_MD',
+        integrator='stochastic',
+        ensemble='nvt',
+        temperature='700',
+        equilbration='0.5',
+        production='20.0',
+        timestep='0.25',
+        N_conformers=100,
+        opt_conformers=False
+    )
+    gulp_MD.assign_FF(cage)
+    gulp_MD.optimize(cage)
+    cage.write(f'{cage_name}_MD.mol')
+    cage.write(f'{cage_name}_MD.xyz')
+    cage.dump(f'{cage_name}_MD.json')
+
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    print('doing XTB optimisation')
+    xtb_opt = stk.XTB(
+        xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
+        output_dir=f'cage_opt_{cage_name}_xtb',
+        gfn_version=2,
+        num_cores=6,
+        opt_level='tight',
+        charge=4,
+        num_unpaired_electrons=0,
+        max_runs=1,
+        electronic_temperature=1000,
+        calculate_hessian=False,
+        unlimited_memory=True
+    )
+    xtb_opt.optimize(mol=cage)
+    cage.write(f'{cage_name}_optc.mol')
+    cage.write(f'{cage_name}_optc.xyz')
+    cage.dump(f'{cage_name}_optc.json')
+
+
+def opt_test3(cage, cage_name):
+
+    metal_FFs = {46: 'Pd4+2'}
+
+    print('doing optimisation')
+    optimizer = stk.MetalOptimizer(
+        metal_binder_distance=1.9,
+        metal_binder_fc=1.0e2,
+        binder_ligand_fc=0.0,
+        ignore_vdw=False,
+        rel_distance=None,
+        res_steps=50,
+        restrict_bonds=True,
+        restrict_angles=True,
+        restrict_orientation=True,
+        max_iterations=40,
+        do_long_opt=False
+    )
+
+    optimizer.optimize(mol=cage)
+    cage.write(f'{cage_name}_rdk.mol')
+    cage.write(f'{cage_name}_rdk.xyz')
+    cage.dump(f'{cage_name}_rdk.json')
+
+    print('doing UFF4MOF optimisation')
+    gulp_opt = stk.GulpMetalOptimizer(
+        gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
+        metal_FF=metal_FFs,
+        output_dir=f'cage_opt_{cage_name}_uff1'
+    )
+    gulp_opt.assign_FF(cage)
+    gulp_opt.optimize(mol=cage)
+    cage.write(f'{cage_name}_uff4mof.mol')
+    cage.write(f'{cage_name}_uff4mof.xyz')
+    cage.dump(f'{cage_name}_uff4mof.json')
+
+    print('doing UFF4MOF MD')
+    gulp_MD = stk.GulpMDMetalOptimizer(
+        gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
+        metal_FF=metal_FFs,
+        output_dir=f'cage_opt_{cage_name}_MD',
+        integrator='leapfrog verlet',
+        ensemble='nvt',
+        temperature='1000',
+        equilbration='0.5',
+        production='20.0',
+        timestep='0.25',
+        N_conformers=10,
+        opt_conformers=True
+    )
+    gulp_MD.assign_FF(cage)
+    gulp_MD.optimize(cage)
+    cage.write(f'{cage_name}_MD.mol')
+    cage.write(f'{cage_name}_MD.xyz')
+    cage.dump(f'{cage_name}_MD.json')
+
     cage.write(f'{cage_name}_prextb.mol')
     cage.write(f'{cage_name}_prextb.xyz')
     cage.dump(f'{cage_name}_prextb.json')
@@ -337,10 +591,10 @@ def build_cage_isomers(name, ligand, complex):
             cage.write(f'{name_}_unopt.mol')
             cage.write(f'{name_}_unopt.xyz')
             cage.dump(f'{name_}_unopt.json')
-            print(cage)
             # optimize_cage(cage, name_)
-            optimize_cage_rdkit(cage, name_)
+            # optimize_cage_rdkit(cage, name_)
             # optimize_cage_rdkitMD(cage, name_)
+            opt_test3(cage, name_)
 
         cage_isomers[top] = cage
 
