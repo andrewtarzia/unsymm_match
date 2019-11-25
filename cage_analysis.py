@@ -267,7 +267,7 @@ def plot_plane_devs(
     ax.tick_params(axis='both', which='major', labelsize=16)
     ax.set_ylabel('cage', fontsize=16)
     ax.set_ylabel(
-        r'avg. plane deviation [$\mathrm{\AA}$]',
+        r'max. plane deviation [$\mathrm{\AA}$]',
         fontsize=16
     )
     ax.set_xlim(0, 62)
@@ -534,7 +534,7 @@ def get_metal_centre_distortion(name, cages):
         'plane_dev': (
             {'A': None, 'B': None, 'C': None, 'D': None},
             'planes',
-            r'sum of plane deviation [$\mathrm{\AA}$]',
+            r'max. sum of plane deviation [$\mathrm{\AA}$]',
             (0, 2)
         )
     }
@@ -547,7 +547,12 @@ def get_metal_centre_distortion(name, cages):
             bonder=7
         )
         for measure in results:
-            m_distortions[measure][0][iso] = np.mean(results[measure])
+            if measure == 'plane_dev':
+                m_distortions[measure][0][iso] = max(results[measure])
+            else:
+                m_distortions[measure][0][iso] = np.mean(
+                    results[measure]
+                )
 
     for i in m_distortions:
         isomer_plot(

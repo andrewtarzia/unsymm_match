@@ -292,7 +292,7 @@ def read_params(file):
 
     """
     params = {}
-    with open(sys.argv[1], 'r') as f:
+    with open(file, 'r') as f:
         lines = f.readlines()
 
     for line in lines:
