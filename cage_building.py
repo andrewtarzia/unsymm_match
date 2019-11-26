@@ -453,14 +453,15 @@ def MD_opt(
     timestep,
     equib,
     production,
-    opt_conf
+    opt_conf,
+    save_conf=False
 ):
     metal_FFs = {46: 'Pd4+2'}
     print('doing UFF4MOF MD')
     gulp_MD = stk.GulpMDMetalOptimizer(
         gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
         metal_FF=metal_FFs,
-        output_dir=f'cage_opt_{cage_name}_MD2',
+        output_dir=f'cage_opt_{cage_name}_MD',
         integrator=integrator,
         ensemble='nvt',
         temperature=temperature,
@@ -468,7 +469,8 @@ def MD_opt(
         production=production,
         timestep=timestep,
         N_conformers=N,
-        opt_conformers=opt_conf
+        opt_conformers=opt_conf,
+        save_conformers=save_conf
     )
     gulp_MD.assign_FF(cage)
     gulp_MD.optimize(cage)
