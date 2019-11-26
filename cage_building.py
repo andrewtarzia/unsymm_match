@@ -119,7 +119,7 @@ def optimize_cage(cage, cage_name):
     cage.write(f'{cage_name}_prextb.xyz')
     cage.dump(f'{cage_name}_prextb.json')
 
-    xtb_opt(cage, cage_name, opt_level='tight')
+    xtb_opt(cage, cage_name, opt_level='tight', etemp=1000)
 
 
 def optimize_cage_rdkit(cage, cage_name):
@@ -130,7 +130,7 @@ def optimize_cage_rdkit(cage, cage_name):
     cage.write(f'{cage_name}_prextb.xyz')
     cage.dump(f'{cage_name}_prextb.json')
 
-    xtb_opt(cage, cage_name, opt_level='tight')
+    xtb_opt(cage, cage_name, opt_level='tight', etemp=1000)
 
 
 def optimize_cage_rdkitMD(cage, cage_name):
@@ -155,7 +155,7 @@ def optimize_cage_rdkitMD(cage, cage_name):
     cage.write(f'{cage_name}_prextb.xyz')
     cage.dump(f'{cage_name}_prextb.json')
 
-    xtb_opt(cage, cage_name, opt_level='tight')
+    xtb_opt(cage, cage_name, opt_level='tight', etemp=1000)
 
 
 def opt_test1(cage, cage_name):
@@ -182,7 +182,7 @@ def opt_test1(cage, cage_name):
     cage.write(f'{cage_name}_prextb.xyz')
     cage.dump(f'{cage_name}_prextb.json')
 
-    xtb_opt(cage, cage_name, opt_level='vtight')
+    xtb_opt(cage, cage_name, opt_level='vtight', etemp=1000)
 
 
 def opt_test2(cage, cage_name):
@@ -207,7 +207,7 @@ def opt_test2(cage, cage_name):
     cage.write(f'{cage_name}_prextb.xyz')
     cage.dump(f'{cage_name}_prextb.json')
 
-    xtb_opt(cage, cage_name, opt_level='tight')
+    xtb_opt(cage, cage_name, opt_level='tight', etemp=1000)
 
 
 def opt_test3(cage, cage_name):
@@ -232,7 +232,7 @@ def opt_test3(cage, cage_name):
     cage.write(f'{cage_name}_prextb.xyz')
     cage.dump(f'{cage_name}_prextb.json')
 
-    xtb_opt(cage, cage_name, opt_level='tight')
+    xtb_opt(cage, cage_name, opt_level='tight', etemp=1000)
 
 
 def opt_test4(cage, cage_name):
@@ -257,7 +257,7 @@ def opt_test4(cage, cage_name):
     cage.write(f'{cage_name}_prextb.xyz')
     cage.dump(f'{cage_name}_prextb.json')
 
-    xtb_opt(cage, cage_name, opt_level='vtight')
+    xtb_opt(cage, cage_name, opt_level='vtight', etemp=1000)
 
 
 def opt_test5(cage, cage_name):
@@ -282,7 +282,7 @@ def opt_test5(cage, cage_name):
     cage.write(f'{cage_name}_prextb.xyz')
     cage.dump(f'{cage_name}_prextb.json')
 
-    xtb_opt(cage, cage_name, opt_level='extreme')
+    xtb_opt(cage, cage_name, opt_level='extreme', etemp=1000)
 
 
 def opt_test6(cage, cage_name):
@@ -323,7 +323,7 @@ def opt_test6(cage, cage_name):
     cage.write(f'{cage_name}_prextb.xyz')
     cage.dump(f'{cage_name}_prextb.json')
 
-    xtb_opt(cage, cage_name, opt_level='extreme')
+    xtb_opt(cage, cage_name, opt_level='extreme', etemp=1000)
 
 
 def opt_test7(cage, cage_name):
@@ -360,7 +360,7 @@ def opt_test7(cage, cage_name):
     cage.write(f'{cage_name}_prextb.xyz')
     cage.dump(f'{cage_name}_prextb.json')
 
-    xtb_opt(cage, cage_name, opt_level='extreme')
+    xtb_opt(cage, cage_name, opt_level='extreme', etemp=1000)
 
 
 def opt_test8(cage, cage_name):
@@ -397,7 +397,8 @@ def opt_test8(cage, cage_name):
     cage.write(f'{cage_name}_prextb.xyz')
     cage.dump(f'{cage_name}_prextb.json')
 
-    xtb_opt(cage, cage_name, opt_level='extreme')
+    xtb_opt(cage, cage_name, opt_level='extreme', etemp=1000)
+
 
 
 def rdkit_opt(cage, cage_name, do_long):
@@ -476,6 +477,14 @@ def MD_opt(
 
 
 def xtb_opt(cage, cage_name, opt_level):
+def xtb_opt(cage, cage_name, opt_level, etemp, solvent=None):
+
+    if solvent is None:
+        solvent_str = None
+        solvent_grid = 'normal'
+    else:
+        solvent_str, solvent_grid = solvent
+
     print('doing XTB optimisation')
     xtb_opt = stk.XTB(
         xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
@@ -486,9 +495,11 @@ def xtb_opt(cage, cage_name, opt_level):
         charge=4,
         num_unpaired_electrons=0,
         max_runs=1,
-        electronic_temperature=1000,
+        electronic_temperature=etemp,
         calculate_hessian=False,
-        unlimited_memory=True
+        unlimited_memory=True,
+        solvent=solvent_str,
+        solvent_grid=solvent_grid
     )
     xtb_opt.optimize(mol=cage)
     cage.write(f'{cage_name}_optc.mol')

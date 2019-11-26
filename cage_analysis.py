@@ -354,7 +354,7 @@ def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
     plt.close()
 
 
-def get_energy(name, cage):
+def get_energy(name, cage, solvent=None):
     """
     Get xTB energy of a cage.
 
@@ -377,6 +377,11 @@ def get_energy(name, cage):
     else:
         print(f'calculating energy of {name}')
         # Extract energy.
+        if solvent is None:
+            solvent_str = None
+            solvent_grid = 'normal'
+        else:
+            solvent_str, solvent_grid = solvent
         xtb_energy = stk.XTBEnergy(
             xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
             output_dir=f'cage_ey_{name}',
@@ -384,7 +389,9 @@ def get_energy(name, cage):
             charge=4,
             num_unpaired_electrons=0,
             electronic_temperature=300,
-            unlimited_memory=True
+            unlimited_memory=True,
+            solvent=solvent_str,
+            solvent_grid=solvent_grid
         )
         energy = xtb_energy.get_energy(cage)
         # Save to .ey file.
@@ -433,7 +440,11 @@ def get_cage_energies(name, cages):
 
     for iso in energies:
         name_ = f'{name}_{iso}'
-        energies[iso] = get_energy(name=name_, cage=cages[iso])
+        energies[iso] = get_energy(
+            name=name_,
+            cage=cages[iso],
+            solvent=('DMSO', 'verytight')
+        )
 
     min_energy = min(energies.values())
     energies = {
