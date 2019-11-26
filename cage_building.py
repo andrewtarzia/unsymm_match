@@ -11,10 +11,14 @@ Date Created: 5 Nov 2019
 
 """
 
-from os.path import exists
+import os
+from os.path import exists, join
+import glob
 from rdkit.Chem import AllChem as rdkit
+import matplotlib.pyplot as plt
 
 import stk
+import atools
 
 
 def build_metal():
@@ -400,6 +404,390 @@ def opt_test8(cage, cage_name):
     xtb_opt(cage, cage_name, opt_level='extreme', etemp=1000)
 
 
+def opt_test9(cage, cage_name):
+
+    cage = rdkit_opt(cage, cage_name, do_long=True)
+
+    cage = uff_opt(cage, cage_name)
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=10,
+        timestep='0.25',
+        equib='0.5',
+        production='1.0',
+        opt_conf=False
+    )
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=50,
+        timestep='0.75',
+        equib='0.5',
+        production='100.0',
+        opt_conf=True
+    )
+
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    xtb_opt(cage, cage_name, opt_level='extreme', etemp=300)
+
+
+def opt_test10(cage, cage_name):
+
+    cage = rdkit_opt(cage, cage_name, do_long=False)
+
+    cage = uff_opt(cage, cage_name)
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=10,
+        timestep='0.25',
+        equib='0.5',
+        production='0.5',
+        opt_conf=False
+    )
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=2000,
+        timestep='0.75',
+        equib='0.5',
+        production='200.0',
+        opt_conf=False
+    )
+
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    xtb_opt(cage, cage_name, opt_level='extreme', etemp=300)
+
+
+def opt_test11(cage, cage_name):
+
+    cage = rdkit_opt(cage, cage_name, do_long=False)
+
+    cage = uff_opt(cage, cage_name)
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=100,
+        timestep='0.25',
+        equib='0.5',
+        production='20.0',
+        opt_conf=True
+    )
+
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    xtb_opt(cage, cage_name, opt_level='extreme', etemp=300)
+
+
+def opt_test12(cage, cage_name):
+
+    cage = rdkit_opt(cage, cage_name, do_long=False)
+
+    cage = uff_opt(cage, cage_name)
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=2,
+        timestep='0.25',
+        equib='0.5',
+        production='0.5',
+        opt_conf=False,
+        save_conf=False
+    )
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=200,
+        timestep='0.75',
+        equib='0.5',
+        production='200.0',
+        opt_conf=False,
+        save_conf=True
+    )
+
+    cage.write(f'{cage_name}_conf.mol')
+    cage.write(f'{cage_name}_conf.xyz')
+    cage.dump(f'{cage_name}_conf.json')
+
+    xtb_conformers(
+        cage,
+        cage_name,
+        opt=False,
+        opt_level='crude',
+        etemp=300,
+        conformer_dir=f'cage_opt_{cage_name}_MD',
+        output_dir=f'cage_opt_{cage_name}_xtb_conf'
+    )
+
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    xtb_opt(cage, cage_name, opt_level='extreme', etemp=300)
+
+
+def opt_test13(cage, cage_name):
+
+    cage = rdkit_opt(cage, cage_name, do_long=False)
+
+    cage = uff_opt(cage, cage_name)
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=2,
+        timestep='0.25',
+        equib='0.5',
+        production='0.5',
+        opt_conf=False,
+        save_conf=False
+    )
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=200,
+        timestep='0.75',
+        equib='0.5',
+        production='200.0',
+        opt_conf=False,
+        save_conf=True
+    )
+
+    cage.write(f'{cage_name}_conf.mol')
+    cage.write(f'{cage_name}_conf.xyz')
+    cage.dump(f'{cage_name}_conf.json')
+
+    xtb_conformers(
+        cage,
+        cage_name,
+        opt=True,
+        opt_level='crude',
+        etemp=300,
+        conformer_dir=f'cage_opt_{cage_name}_MD',
+        output_dir=f'cage_opt_{cage_name}_xtb_conf'
+    )
+
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    xtb_opt(cage, cage_name, opt_level='extreme', etemp=300)
+
+
+def opt_test14(cage, cage_name):
+
+    cage = rdkit_opt(cage, cage_name, do_long=False)
+
+    cage = uff_opt(cage, cage_name)
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=2,
+        timestep='0.25',
+        equib='0.5',
+        production='0.5',
+        opt_conf=False,
+        save_conf=False
+    )
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=200,
+        timestep='0.75',
+        equib='0.5',
+        production='200.0',
+        opt_conf=False,
+        save_conf=True
+    )
+
+    cage.write(f'{cage_name}_conf.mol')
+    cage.write(f'{cage_name}_conf.xyz')
+    cage.dump(f'{cage_name}_conf.json')
+
+    xtb_conformers(
+        cage,
+        cage_name,
+        opt=False,
+        opt_level='crude',
+        etemp=300,
+        conformer_dir=f'cage_opt_{cage_name}_MD',
+        output_dir=f'cage_opt_{cage_name}_xtb_conf',
+        solvent=('dmso', 'verytight')
+    )
+
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    xtb_opt(
+        cage,
+        cage_name,
+        opt_level='extreme',
+        etemp=300,
+        solvent=('dmso', 'verytight')
+    )
+
+
+def opt_test15(cage, cage_name):
+
+    cage = rdkit_opt(cage, cage_name, do_long=False)
+
+    cage = uff_opt(cage, cage_name)
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=2,
+        timestep='0.25',
+        equib='0.5',
+        production='0.5',
+        opt_conf=False,
+        save_conf=False
+    )
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=200,
+        timestep='0.75',
+        equib='0.5',
+        production='200.0',
+        opt_conf=False,
+        save_conf=True
+    )
+
+    cage.write(f'{cage_name}_conf.mol')
+    cage.write(f'{cage_name}_conf.xyz')
+    cage.dump(f'{cage_name}_conf.json')
+
+    xtb_conformers(
+        cage,
+        cage_name,
+        opt=True,
+        opt_level='crude',
+        etemp=300,
+        conformer_dir=f'cage_opt_{cage_name}_MD',
+        output_dir=f'cage_opt_{cage_name}_xtb_conf',
+        solvent=('dmso', 'verytight')
+    )
+
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    xtb_opt(
+        cage,
+        cage_name,
+        opt_level='extreme',
+        etemp=300,
+        solvent=('dmso', 'verytight')
+    )
+
+
+def opt_test16(cage, cage_name):
+
+    cage = rdkit_opt(cage, cage_name, do_long=False)
+
+    cage = uff_opt(cage, cage_name)
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=2,
+        timestep='0.25',
+        equib='0.5',
+        production='0.5',
+        opt_conf=False,
+        save_conf=False
+    )
+
+    cage = MD_opt(
+        cage,
+        cage_name,
+        integrator='leapfrog verlet',
+        temperature='1000',
+        N=100,
+        timestep='0.75',
+        equib='0.5',
+        production='100.0',
+        opt_conf=False,
+        save_conf=True
+    )
+
+    cage.write(f'{cage_name}_conf.mol')
+    cage.write(f'{cage_name}_conf.xyz')
+    cage.dump(f'{cage_name}_conf.json')
+
+    xtb_conformers(
+        cage,
+        cage_name,
+        opt=True,
+        opt_level='normal',
+        etemp=300,
+        conformer_dir=f'cage_opt_{cage_name}_MD',
+        output_dir=f'cage_opt_{cage_name}_xtb_conf',
+        solvent=('dmso', 'verytight')
+    )
+
+    cage.write(f'{cage_name}_prextb.mol')
+    cage.write(f'{cage_name}_prextb.xyz')
+    cage.dump(f'{cage_name}_prextb.json')
+
+    xtb_opt(
+        cage,
+        cage_name,
+        opt_level='extreme',
+        etemp=300,
+        solvent=('dmso', 'verytight')
+    )
+
 
 def rdkit_opt(cage, cage_name, do_long):
     print('doing optimisation')
@@ -666,7 +1054,22 @@ def build_cage_isomers(name, ligand, complex):
             # optimize_cage_rdkit(cage, name_)
             # optimize_cage_rdkitMD(cage, name_)
             # opt_test3(cage, name_)
-            opt_test8(cage, name_)
+            # opt_test1(cage, name_)
+            # opt_test2(cage, name_)
+            # opt_test3(cage, name_)
+            # opt_test4(cage, name_)
+            # opt_test5(cage, name_)
+            # opt_test6(cage, name_)
+            # opt_test7(cage, name_)
+            # opt_test8(cage, name_)
+            # opt_test9(cage, name_)
+            # opt_test10(cage, name_)
+            # opt_test11(cage, name_)
+            # opt_test12(cage, name_)
+            # opt_test13(cage, name_)
+            # opt_test14(cage, name_)
+            # opt_test15(cage, name_)
+            opt_test16(cage, name_)
 
         cage_isomers[top] = cage
 
