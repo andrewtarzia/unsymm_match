@@ -476,7 +476,98 @@ def MD_opt(
     return cage
 
 
-def xtb_opt(cage, cage_name, opt_level):
+def xtb_conformers(
+    cage,
+    cage_name,
+    etemp,
+    output_dir,
+    conformer_dir,
+    opt=False,
+    opt_level=None,
+    solvent=None
+):
+
+    if not exists(output_dir):
+        os.mkdir(output_dir)
+
+    if solvent is None:
+        solvent_str = None
+        solvent_grid = 'normal'
+    else:
+        solvent_str, solvent_grid = solvent
+
+    print('doing XTB conformer sorting by energy')
+    conformers = glob.glob(f'{conformer_dir}/conf_*.xyz')
+    ids = []
+    energies = []
+    min_energy = 10E20
+    for file in sorted(conformers):
+        id = file.replace('.xyz', '').split('_')[-1]
+        cage.update_from_file(file)
+        if opt:
+            print(f'optimising conformer {id}')
+            xtb_opt = stk.XTB(
+                xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
+                output_dir=f'opt_{cage_name}_{id}',
+                gfn_version=2,
+                num_cores=6,
+                opt_level=opt_level,
+                charge=4,
+                num_unpaired_electrons=0,
+                max_runs=1,
+                electronic_temperature=etemp,
+                calculate_hessian=False,
+                unlimited_memory=True,
+                solvent=solvent_str,
+                solvent_grid=solvent_grid
+            )
+            xtb_opt.optimize(mol=cage)
+            cage.write(join(f'{output_dir}', f'conf_{id}_opt.xyz'))
+
+        print(f'calculating energy of {id}')
+        # Extract energy.
+        xtb_energy = stk.XTBEnergy(
+            xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
+            output_dir=f'ey_{cage_name}_{id}',
+            num_cores=6,
+            charge=4,
+            num_unpaired_electrons=0,
+            electronic_temperature=etemp,
+            unlimited_memory=True,
+            solvent=solvent_str,
+            solvent_grid=solvent_grid
+        )
+        energy = xtb_energy.get_energy(cage)
+        if energy < min_energy:
+            min_energy_conformer = file
+            min_energy = energy
+        ids.append(id)
+        energies.append(energy)
+
+    print('done', min_energy, min_energy_conformer)
+    cage.update_from_file(min_energy_conformer)
+    cage.write(f'{cage_name}_optc.mol')
+    cage.write(f'{cage_name}_optc.xyz')
+    cage.dump(f'{cage_name}_optc.json')
+
+    energies = [(i-min(energies))*2625.5 for i in energies]
+    fig, ax = atools.scatter_plot(
+        X=ids, Y=energies,
+        xtitle='conformer id',
+        ytitle='rel. energy [kJ/mol]',
+        xlim=(0, 201),
+        ylim=(-5, 1000)
+    )
+
+    fig.tight_layout()
+    fig.savefig(
+        join(output_dir, f'{cage_name}_conf_energies.pdf'),
+        dpi=720,
+        bbox_inches='tight'
+    )
+    plt.close()
+
+
 def xtb_opt(cage, cage_name, opt_level, etemp, solvent=None):
 
     if solvent is None:
