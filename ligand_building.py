@@ -13,6 +13,8 @@ Date Created: 5 Nov 2019
 
 from os.path import exists
 import stk
+import stko
+from atools import NPyridineFactory
 
 
 def ligands():
@@ -60,19 +62,19 @@ def build_linker(lig1_smiles, lig2_smiles, linker_smiles, name):
     if exists(opt_file):
         molecule = stk.BuildingBlock.init_from_file(
             path=opt_file,
-            functional_groups=['pyridine_N_metal']
+            functional_groups=[NPyridineFactory()]
         )
     else:
-        print(f'building {name}')
+        print(f'>> building {name}')
         # Build BuildingBlocks.
-        lig1 = stk.BuildingBlock(lig1_smiles, ['bromine'])
-        lig2 = stk.BuildingBlock(lig2_smiles, ['bromine'])
-        link = stk.BuildingBlock(linker_smiles, ['bromine'])
+        lig1 = stk.BuildingBlock(lig1_smiles, [stk.BromoFactory()])
+        lig2 = stk.BuildingBlock(lig2_smiles, [stk.BromoFactory()])
+        link = stk.BuildingBlock(linker_smiles, [stk.BromoFactory()])
 
         # Build polymer.
         molecule = stk.ConstructedMolecule(
-            building_blocks=[lig1, link, lig2],
             topology_graph=stk.polymer.Linear(
+                building_blocks=(lig1, link, lig2),
                 repeating_unit='ABC',
                 num_repeating_units=1,
                 orientations=(0, 0, 0),
@@ -81,13 +83,13 @@ def build_linker(lig1_smiles, lig2_smiles, linker_smiles, name):
         )
 
         # Optimise with ETKDG.
-        etkdg = stk.ETKDG(use_cache=False)
-        etkdg.optimize(molecule)
+        etkdg = stko.ETKDG()
+        molecule = etkdg.optimize(molecule)
 
         # Initialise as building block.
         molecule = stk.BuildingBlock.init_from_molecule(
-            mol=molecule,
-            functional_groups=['pyridine_N_metal']
+            molecule=molecule,
+            functional_groups=[NPyridineFactory()],
         )
         # Save file.
         molecule.write(opt_file)
