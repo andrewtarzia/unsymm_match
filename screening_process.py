@@ -12,7 +12,6 @@ Date Created: 05 Nov 2019
 """
 
 import sys
-import numpy as np
 from os.path import exists
 from itertools import combinations
 
@@ -87,7 +86,9 @@ def analyse_all_ligands(params, ligands):
             with open(name+'_NNs_dists.txt', 'r') as f:
                 lines = f.readlines()
             NN_dist = [float(i.rstrip()) for i in lines]
-            molecule.update_from_file(f'{name}_opt_chosen.mol')
+            molecule = molecule.with_structure_from_file(
+                f'{name}_opt_chosen.mol'
+            )
 
         else:
             print(f'doing {name}')
@@ -291,6 +292,7 @@ def read_params(file):
         Dictionary of parameters.
 
     """
+
     params = {}
     with open(file, 'r') as f:
         lines = f.readlines()
@@ -308,6 +310,7 @@ def main():
             """
             Usage: screening_process.py param_file
                 param_file (str) - text file with parameters.
+
             """
         )
         sys.exit()
