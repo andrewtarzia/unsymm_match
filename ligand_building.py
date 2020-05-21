@@ -14,7 +14,7 @@ Date Created: 5 Nov 2019
 from os.path import exists
 import stk
 import stko
-from atools import NPyridineFactory
+from atools import NPyridineFactory, NTriazoleFactory
 
 
 def ligands():
@@ -25,7 +25,7 @@ def ligands():
         'li4': 'BrC#Cc1cccnc1',
         'li5': 'Brc1cccnc1',
         'li6': 'Brc1ccncc1',
-        # 'li7': 'Brc1cccc2cnccc12',
+        'li7': 'Cc1cn(Br)nn1',
         # 'li8': 'Brc1cccc2ccncc12',
         # 'li9': 'Brc1cccc2ncccc12',
     }
@@ -89,7 +89,10 @@ def build_linker(lig1_smiles, lig2_smiles, linker_smiles, name):
         # Initialise as building block.
         molecule = stk.BuildingBlock.init_from_molecule(
             molecule=molecule,
-            functional_groups=[NPyridineFactory()],
+            functional_groups=[
+                NPyridineFactory(),
+                NTriazoleFactory(),
+            ],
         )
         # Save file.
         molecule.write(opt_file)
