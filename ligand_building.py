@@ -62,7 +62,7 @@ def build_linker(lig1_smiles, lig2_smiles, linker_smiles, name):
     if exists(opt_file):
         molecule = stk.BuildingBlock.init_from_file(
             path=opt_file,
-            functional_groups=[NPyridineFactory()]
+            functional_groups=[NPyridineFactory(), NTriazoleFactory()],
         )
     else:
         print(f'>> building {name}')
@@ -89,10 +89,7 @@ def build_linker(lig1_smiles, lig2_smiles, linker_smiles, name):
         # Initialise as building block.
         molecule = stk.BuildingBlock.init_from_molecule(
             molecule=molecule,
-            functional_groups=[
-                NPyridineFactory(),
-                NTriazoleFactory(),
-            ],
+            functional_groups=[NPyridineFactory(), NTriazoleFactory()],
         )
         # Save file.
         molecule.write(opt_file)

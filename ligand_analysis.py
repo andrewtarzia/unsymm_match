@@ -13,10 +13,19 @@ Date Created: 5 Nov 2019
 
 from os.path import exists
 import stk
+import stko
 from matplotlib.pyplot import close
 from rdkit.Chem import AllChem as rdkit
 
-import atools
+from atools import (
+    update_from_rdkit_conf,
+    calculate_NN_distance,
+    calculate_bite_angle,
+    NPyridineFactory,
+    calculate_N_COM_N_angle,
+    histogram_plot_N,
+    colors_i_like,
+)
 
 
 def calc_NN_flexibility(molecule, confs, cids, name):
@@ -34,19 +43,19 @@ def calc_NN_flexibility(molecule, confs, cids, name):
     for cid in cids:
         # Need to define the functional groups.
         new_mol = stk.BuildingBlock.init_from_molecule(
-            mol=molecule,
-            functional_groups=['pyridine_N_metal']
+            molecule=molecule,
+            functional_groups=[NPyridineFactory()]
         )
 
         # Update stk_mol to conformer geometry.
-        new_mol = atools.update_from_rdkit_conf(
-            new_mol,
-            confs,
+        new_mol = update_from_rdkit_conf(
+            stk_mol=new_mol,
+            rdk_mol=confs,
             conf_id=cid
         )
 
         NNs.append(
-            atools.calculate_NN_distance(
+            calculate_NN_distance(
                 bb=new_mol,
                 constructed=False,
             )
@@ -74,19 +83,19 @@ def calc_bite_flexibility(molecule, confs, cids, name):
     for cid in cids:
         # Need to define the functional groups.
         new_mol = stk.BuildingBlock.init_from_molecule(
-            mol=molecule,
-            functional_groups=['pyridine_N_metal']
+            molecule=molecule,
+            functional_groups=[NPyridineFactory()]
         )
 
         # Update stk_mol to conformer geometry.
-        new_mol = atools.update_from_rdkit_conf(
-            new_mol,
-            confs,
+        new_mol = update_from_rdkit_conf(
+            stk_mol=new_mol,
+            rdk_mol=confs,
             conf_id=cid
         )
 
         bites.append(
-            atools.calculate_bite_angle(
+            calculate_bite_angle(
                 bb=new_mol,
                 constructed=False,
             )
@@ -110,17 +119,20 @@ def plot_NN_flexibility(NNs, name):
     -------
 
     """
-    fig, ax = atools.histogram_plot_N(
+    fig, ax = histogram_plot_N(
         Y=NNs, X_range=(0, 30), width=2,
         alpha=1.0,
-        color=atools.colors_i_like()[1],
-        edgecolor=atools.colors_i_like()[1],
+        color=colors_i_like()[1],
+        edgecolor=colors_i_like()[1],
         xtitle=r'NN distance [$\mathrm{\AA}$]',
         N=1
     )
     fig.tight_layout()
-    fig.savefig(name+'_NNs_dists.pdf', dpi=720,
-                bbox_inches='tight')
+    fig.savefig(
+        name+'_NNs_dists.pdf',
+        dpi=720,
+        bbox_inches='tight'
+    )
     close()
 
 
@@ -136,17 +148,20 @@ def plot_bite_flexibility(bites, name):
 
     """
 
-    fig, ax = atools.histogram_plot_N(
+    fig, ax = histogram_plot_N(
         Y=bites, X_range=(0, 180), width=5,
         alpha=1.0,
-        color=atools.colors_i_like()[1],
-        edgecolor=atools.colors_i_like()[1],
+        color=colors_i_like()[1],
+        edgecolor=colors_i_like()[1],
         xtitle=r'bite angles [degrees]',
         N=1
     )
     fig.tight_layout()
-    fig.savefig(name+'_bites_dists.pdf', dpi=720,
-                bbox_inches='tight')
+    fig.savefig(
+        name+'_bites_dists.pdf',
+        dpi=720,
+        bbox_inches='tight'
+    )
     close()
 
     return bites
@@ -193,7 +208,9 @@ def select_conformer(molecule, confs, cids, name):
     """
 
     if exists(f'{name}_opt_chosen.mol'):
-        molecule.update_from_file(f'{name}_opt_chosen.mol')
+        molecule = molecule.with_structure_from_file(
+            f'{name}_opt_chosen.mol'
+        )
     else:
         print(f'getting optimal conformer of {name}')
         min_angle = 10000
@@ -201,28 +218,29 @@ def select_conformer(molecule, confs, cids, name):
         for cid in cids:
             # Need to define the functional groups.
             new_mol = stk.BuildingBlock.init_from_molecule(
-                mol=molecule,
-                functional_groups=['pyridine_N_metal']
+                molecule=molecule,
+                functional_groups=[NPyridineFactory()]
             )
 
             # Update stk_mol to conformer geometry.
-            new_mol = atools.update_from_rdkit_conf(
-                new_mol,
-                confs,
+            new_mol = update_from_rdkit_conf(
+                stk_mol=new_mol,
+                rdk_mol=confs,
                 conf_id=cid
             )
 
-            angle = atools.calculate_N_COM_N_angle(new_mol)
+            angle = calculate_N_COM_N_angle(new_mol)
 
             if angle < min_angle:
                 min_cid = cid
                 min_angle = angle
-                molecule = atools.update_from_rdkit_conf(
-                    molecule,
-                    confs,
+                molecule = update_from_rdkit_conf(
+                    stk_mol=molecule,
+                    rdk_mol=confs,
                     conf_id=min_cid
                 )
-        xtb_opt = stk.XTB(
+
+        xtb_opt = stko.XTB(
             xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
             output_dir=f'{name}',
             gfn_version=2,
@@ -232,6 +250,6 @@ def select_conformer(molecule, confs, cids, name):
             calculate_hessian=False,
             unlimited_memory=True
         )
-        xtb_opt.optimize(mol=molecule)
+        molecule = xtb_opt.optimize(mol=molecule)
 
     return molecule
