@@ -19,6 +19,7 @@ import ligand_building as LB
 import ligand_analysis as LA
 import cage_building as CB
 import cage_analysis as CA
+import plotting as PL
 
 
 def build_all_ligands(params):
@@ -176,6 +177,7 @@ def analyse_all_cages(params, all_cage_sets, ligands):
     energy_preferences = []
     plane_devs = []
     sqpl_ops = []
+    lses = []
 
     experiments = [
         'li1_lk2_li5', 'li2_lk2_li6', 'li1_lk2_li4', 'li4_lk2_li5',
@@ -183,7 +185,7 @@ def analyse_all_cages(params, all_cage_sets, ligands):
 
     with open('all_cage_results.txt', 'w') as f:
         f.write(
-            f'lig,stable,preferred,plane_dev_C,sqpl_op_C,'
+            f'lig,stable,preferred,plane_dev_C,sqpl_op_C,lse_C,'
             'energy_A,energy_B,energy_C,energy_D\n'
         )
         for lig_name in all_cage_sets:
@@ -223,11 +225,12 @@ def analyse_all_cages(params, all_cage_sets, ligands):
             stable = CA.check_stability(l_distortions, m_distortions)
             preferred, energy_sep = CA.check_preference(
                 energies,
-                energy_cutoff=7.5
+                energy_cutoff=6.0
             )
             energy_preferences.append(energy_sep)
             plane_devs.append(m_distortions['plane_dev'][0]['C'])
             sqpl_ops.append(m_distortions['min_q4_op'][0]['C'])
+            lses.append(l_distortions['sum_strain'][0]['C'])
 
             cis_preferred_and_stable = all([stable, preferred])
             if cis_preferred_and_stable:
@@ -239,6 +242,7 @@ def analyse_all_cages(params, all_cage_sets, ligands):
                 f'{lig_name},{stable},{preferred},'
                 f"{m_distortions['plane_dev'][0]['C']},"
                 f"{m_distortions['min_q4_op'][0]['C']},"
+                f"{l_distortions['sum_strain'][0]['C']},"
                 f"{energies['A']},{energies['B']},"
                 f"{energies['C']},{energies['D']}\n"
             )
@@ -252,10 +256,10 @@ def analyse_all_cages(params, all_cage_sets, ligands):
         )
         print('-----------------------------------------')
         print('candidate cages:')
-        for i in cages_cis_wins:
+        for i in sorted(cages_cis_wins):
             print(i)
 
-    CA.plot_energetics(
+    PL.plot_energetics(
         lig_studied,
         experiments,
         cages_cis_wins,
@@ -263,7 +267,7 @@ def analyse_all_cages(params, all_cage_sets, ligands):
         energy_preferences
     )
 
-    CA.plot_plane_devs(
+    PL.plot_plane_devs(
         lig_studied,
         experiments,
         cages_cis_wins,
@@ -271,7 +275,7 @@ def analyse_all_cages(params, all_cage_sets, ligands):
         plane_devs
     )
 
-    CA.plot_sqpl_ops(
+    PL.plot_sqpl_ops(
         lig_studied,
         experiments,
         cages_cis_wins,
@@ -279,14 +283,30 @@ def analyse_all_cages(params, all_cage_sets, ligands):
         sqpl_ops
     )
 
-    CA.plot_energetics_and_geom(
+    PL.plot_lses(
+        lig_studied,
+        experiments,
+        cages_cis_wins,
+        cages_not_wins,
+        lses
+    )
+
+    PL.plot_energetics_and_geom(
         lig_studied,
         experiments,
         cages_cis_wins,
         cages_not_wins,
         energy_preferences,
         plane_devs,
-        sqpl_ops
+        sqpl_ops,
+    )
+
+    PL.draw_molecules(
+        lig_studied,
+        experiments,
+        energy_preferences,
+        plane_devs,
+        sqpl_ops,
     )
 
 
