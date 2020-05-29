@@ -75,8 +75,8 @@ def analyse_all_ligands(params, ligands):
     ]
 
     for ligand in ligands:
-        if ligand not in experiments:
-            continue
+        # if ligand not in experiments:
+        #     continue
         name = ligand
         molecule = ligands[ligand]
         if exists(f'{name}_opt_chosen.mol'):
@@ -140,23 +140,19 @@ def build_all_cages(params, ligands):
 
     """
 
-    # Build metal complex.
-    complex = CB.build_metal_centre()
-
     experiments = [
         'li1_lk2_li5', 'li2_lk2_li6', 'li1_lk2_li4', 'li4_lk2_li5',
     ]
 
     all_cage_sets = {}
     for ligand in ligands:
-        if ligand not in experiments:
-            continue
+        # if ligand not in experiments:
+        #     continue
         name = ligand
         molecule = ligands[ligand][0]
         all_cage_sets[name] = CB.build_cage_isomers(
             name=name,
             ligand=molecule,
-            complex=complex
         )
 
     return all_cage_sets

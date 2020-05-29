@@ -12,147 +12,97 @@ Date Created: 5 Nov 2019
 """
 
 from os.path import exists
-from rdkit.Chem import AllChem as rdkit
+import numpy as np
 
 import stk
 import atools
 
 
-def build_metal():
-    m = rdkit.MolFromSmiles('[Pd+2]')
-    m.AddConformer(rdkit.Conformer(m.GetNumAtoms()))
-    metal = stk.BuildingBlock.init_from_rdkit_mol(
-        m,
-        functional_groups=None,
-    )
-    metal_coord_info = {
-        0: {
-            'atom_ids': [0],
-            'bonder_ids': [0],
-            'deleter_ids': [None]
-        },
-        1: {
-            'atom_ids': [0],
-            'bonder_ids': [0],
-            'deleter_ids': [None]
-        },
-        2: {
-            'atom_ids': [0],
-            'bonder_ids': [0],
-            'deleter_ids': [None]
-        },
-        3: {
-            'atom_ids': [0],
-            'bonder_ids': [0],
-            'deleter_ids': [None]
-        },
-    }
-    metal = stk.assign_metal_fgs(
-        building_block=metal,
-        coordination_info=metal_coord_info
-    )
-    return metal
-
-
-def build_N_atom():
-    m = rdkit.MolFromSmiles('N')
-    m.AddConformer(rdkit.Conformer(m.GetNumAtoms()))
-    n_atom = stk.BuildingBlock.init_from_rdkit_mol(
-        m,
-        functional_groups=['metal_bound_N'],
-    )
-    return n_atom
-
-
-def build_metal_centre():
-    """
-    Build Pd2+ square planar metal centre.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
-    """
-
-    metal = build_metal()
-    n_atom = build_N_atom()
-    sqpl = stk.metal_centre.SquarePlanar()
-    complex = stk.ConstructedMolecule(
-        building_blocks=[metal, n_atom],
-        topology_graph=sqpl,
-        building_block_vertices={
-            metal: tuple([sqpl.vertices[0]]),
-            n_atom: sqpl.vertices[1:]
-        }
-    )
-    complex = stk.BuildingBlock.init_from_molecule(
-        complex,
-        functional_groups=['metal_bound_N']
-    )
-    return complex
-
-
 def optimize_cage(cage, cage_name):
 
-    cage = atools.MOC_rdkit_opt(cage, cage_name, do_long=False)
-    cage.write(f'{cage_name}_rdk.mol')
-    cage.write(f'{cage_name}_rdk.xyz')
+    collapser_file = f'{cage_name}_coll.mol'
+    uff4mof_file = f'{cage_name}_uff4mof.mol'
+    mdconf_file = f'{cage_name}_MDconf.mol'
+    prextb_file = f'{cage_name}_prextb.mol'
+    opt_file = f'{cage_name}_optc.mol'
 
-    cage = atools.MOC_uff_opt(cage, cage_name, metal_FFs={46: 'Pd4+2'})
-    cage.write(f'{cage_name}_uff4mof.mol')
-    cage.write(f'{cage_name}_uff4mof.xyz')
+    if exists(collapser_file):
+        cage = cage.with_structure_from_file(collapser_file)
+    else:
+        step_size = 0.05
+        distance_cut = 2.0
+        scale_steps = True
+        cage = atools.MOC_collapse(
+            cage,
+            cage_name,
+            step_size=step_size,
+            distance_cut=distance_cut,
+            scale_steps=scale_steps
+        )
+        cage.write(collapser_file)
 
-    cage = atools.MOC_MD_opt(
-        cage,
-        cage_name,
-        integrator='leapfrog verlet',
-        temperature='1000',
-        N=2,
-        timestep='0.25',
-        equib='0.5',
-        production='0.5',
-        metal_FFs={46: 'Pd4+2'},
-        opt_conf=False,
-        save_conf=False
-    )
+    if exists(uff4mof_file):
+        cage = cage.with_structure_from_file(uff4mof_file)
+    else:
+        cage = atools.MOC_uff_opt(
+            cage,
+            cage_name,
+            metal_FFs={46: 'Pd4+2'}
+        )
+        cage.write(uff4mof_file)
 
-    cage = atools.MOC_MD_opt(
-        cage,
-        cage_name,
-        integrator='leapfrog verlet',
-        temperature='1000',
-        N=100,
-        timestep='0.75',
-        equib='0.5',
-        production='100.0',
-        metal_FFs={46: 'Pd4+2'},
-        opt_conf=False,
-        save_conf=True
-    )
+    if exists(mdconf_file):
+        cage = cage.with_structure_from_file(mdconf_file)
+    else:
+        cage = atools.MOC_MD_opt(
+            cage,
+            cage_name,
+            integrator='leapfrog verlet',
+            temperature='1000',
+            N=2,
+            timestep='0.25',
+            equib='0.5',
+            production='0.5',
+            metal_FFs={46: 'Pd4+2'},
+            opt_conf=False,
+            save_conf=False
+        )
 
-    cage.write(f'{cage_name}_MDconf.mol')
-    cage.write(f'{cage_name}_MDconf.xyz')
+        cage = atools.MOC_MD_opt(
+            cage,
+            cage_name,
+            integrator='leapfrog verlet',
+            temperature='1000',
+            N=100,
+            timestep='0.75',
+            equib='0.5',
+            production='100.0',
+            metal_FFs={46: 'Pd4+2'},
+            opt_conf=False,
+            save_conf=True
+        )
 
-    atools.MOC_xtb_conformers(
-        cage,
-        cage_name,
-        opt=True,
-        opt_level='normal',
-        nc=6,
-        free_e=0,
-        charge=4,
-        etemp=300,
-        conformer_dir=f'cage_opt_{cage_name}_MD',
-        output_dir=f'cage_opt_{cage_name}_xtb_conf',
-        solvent=('dmso', 'verytight')
-    )
+        cage.write(mdconf_file)
 
-    cage.write(f'{cage_name}_prextb.mol')
-    cage.write(f'{cage_name}_prextb.xyz')
+    if exists(prextb_file):
+        cage = cage.with_structure_from_file(prextb_file)
+    else:
+        cage = atools.MOC_xtb_conformers(
+            cage,
+            cage_name,
+            opt=True,
+            opt_level='normal',
+            nc=6,
+            free_e=0,
+            charge=4,
+            etemp=300,
+            conformer_dir=f'cage_opt_{cage_name}_MD',
+            output_dir=f'cage_opt_{cage_name}_xtb_conf',
+            solvent=('dmso', 'verytight')
+        )
+        cage.write(prextb_file)
 
-    atools.MOC_xtb_opt(
+    cage = atools.MOC_xtb_opt(
         cage,
         cage_name,
         nc=6,
@@ -162,12 +112,12 @@ def optimize_cage(cage, cage_name):
         etemp=300,
         solvent=('dmso', 'verytight')
     )
-    cage.write(f'{cage_name}_optc.mol')
-    cage.write(f'{cage_name}_optc.xyz')
-    cage.dump(f'{cage_name}_optc.json')
+    cage.write(opt_file)
+
+    return cage
 
 
-def build_cage_isomers(name, ligand, complex):
+def build_cage_isomers(name, ligand):
     """
     Build all four cage isomers.
 
@@ -181,56 +131,60 @@ def build_cage_isomers(name, ligand, complex):
 
     cage_isomers = {}
 
-    topologies = {
-        'A': stk.cage.M2L4_Lantern(vertex_alignments={
-            2: 0,
-            3: 0,
-            4: 0,
-            5: 0
-        }),
-        'B': stk.cage.M2L4_Lantern(vertex_alignments={
-            2: 1,
-            3: 0,
-            4: 0,
-            5: 0
-        }),
-        'C': stk.cage.M2L4_Lantern(vertex_alignments={
-            2: 1,
-            3: 1,
-            4: 0,
-            5: 0
-        }),
-        'D': stk.cage.M2L4_Lantern(vertex_alignments={
-            2: 1,
-            3: 0,
-            4: 1,
-            5: 0
-        }),
+    v_alignments = {
+        'A': {2: 0, 3: 0, 4: 0, 5: 0},
+        'B': {2: 1, 3: 0, 4: 0, 5: 0},
+        'C': {2: 1, 3: 1, 4: 0, 5: 0},
+        'D': {2: 1, 3: 0, 4: 1, 5: 0},
     }
 
-    for top in topologies:
-        topology = topologies[top]
-        name_ = f'{name}_{top}'
-        json_file = f'{name_}_optc.json'
-        if exists(json_file):
-            cage = stk.ConstructedMolecule.load(
-                json_file
-            )
-        else:
-            print(f'building {name_}')
-            cage = stk.ConstructedMolecule(
-                building_blocks=[complex, ligand],
-                topology_graph=topology,
-                building_block_vertices={
-                    complex: topology.vertices[:2],
-                    ligand: topology.vertices[2:],
-                }
-            )
-            cage.write(f'{name_}_unopt.mol')
-            cage.write(f'{name_}_unopt.xyz')
-            cage.dump(f'{name_}_unopt.json')
-            optimize_cage(cage, name_)
+    complex = stk.BuildingBlock(
+        smiles='[Pd+2]',
+        functional_groups=(
+            stk.SingleAtom(stk.Pd(0, charge=2))
+            for i in range(4)
+        ),
+        position_matrix=np.array([[0, 0, 0]]),
+    )
 
-        cage_isomers[top] = cage
+    for v_a in v_alignments:
+        v_align = v_alignments[v_a]
+        name_ = f'{name}_{v_a}'
+        opt_file = f'{name_}_optc.mol'
+
+        # Build cage.
+        cage = stk.ConstructedMolecule(
+            stk.cage.M2L4Lantern(
+                building_blocks={
+                    complex: (0, 1),
+                    ligand: (2, 3, 4, 5)
+                },
+                vertex_alignments=v_align,
+                reaction_factory=stk.DativeReactionFactory(
+                    stk.GenericReactionFactory(
+                        bond_orders={
+                            frozenset({
+                                stk.GenericFunctionalGroup,
+                                stk.SingleAtom
+                            }): 9
+                        }
+                    )
+                )
+            )
+        )
+
+        if exists(opt_file):
+            print(
+                'Using non constructed molecule here. fix this in '
+                'future'
+            )
+            # cage = cage.with_structure_from_file(opt_file)
+            cage = stk.BuildingBlock.init_from_file(opt_file)
+        else:
+            print(f'optimizing {name_}')
+            cage.write(f'{name_}_unopt.mol')
+            cage = optimize_cage(cage, name_)
+
+        cage_isomers[v_a] = cage
 
     return cage_isomers
