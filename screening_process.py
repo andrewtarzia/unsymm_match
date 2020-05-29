@@ -175,6 +175,7 @@ def analyse_all_cages(params, all_cage_sets, ligands):
     lig_studied = []
     energy_preferences = []
     plane_devs = []
+    sqpl_ops = []
 
     experiments = [
         'li1_lk2_li5', 'li2_lk2_li6', 'li1_lk2_li4', 'li4_lk2_li5',
@@ -182,7 +183,7 @@ def analyse_all_cages(params, all_cage_sets, ligands):
 
     with open('all_cage_results.txt', 'w') as f:
         f.write(
-            f'lig,stable,preferred,plane_dev_C,'
+            f'lig,stable,preferred,plane_dev_C,sqpl_op_C,'
             'energy_A,energy_B,energy_C,energy_D\n'
         )
         for lig_name in all_cage_sets:
@@ -226,6 +227,7 @@ def analyse_all_cages(params, all_cage_sets, ligands):
             )
             energy_preferences.append(energy_sep)
             plane_devs.append(m_distortions['plane_dev'][0]['C'])
+            sqpl_ops.append(m_distortions['min_q4_op'][0]['C'])
 
             cis_preferred_and_stable = all([stable, preferred])
             if cis_preferred_and_stable:
@@ -236,6 +238,7 @@ def analyse_all_cages(params, all_cage_sets, ligands):
             f.write(
                 f'{lig_name},{stable},{preferred},'
                 f"{m_distortions['plane_dev'][0]['C']},"
+                f"{m_distortions['min_q4_op'][0]['C']},"
                 f"{energies['A']},{energies['B']},"
                 f"{energies['C']},{energies['D']}\n"
             )
@@ -268,13 +271,22 @@ def analyse_all_cages(params, all_cage_sets, ligands):
         plane_devs
     )
 
+    CA.plot_sqpl_ops(
+        lig_studied,
+        experiments,
+        cages_cis_wins,
+        cages_not_wins,
+        sqpl_ops
+    )
+
     CA.plot_energetics_and_geom(
         lig_studied,
         experiments,
         cages_cis_wins,
         cages_not_wins,
         energy_preferences,
-        plane_devs
+        plane_devs,
+        sqpl_ops
     )
 
 
