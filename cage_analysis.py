@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from os.path import exists
 import numpy as np
 
-import stk
+import stko
 import atools
 
 
@@ -25,7 +25,8 @@ def plot_energetics_and_geom(
     cages_cis_wins,
     cages_not_wins,
     energy_preferences,
-    plane_devs
+    plane_devs,
+    sqpl_ops
 ):
     """
     Plot energy preference of all cages.
@@ -38,86 +39,95 @@ def plot_energetics_and_geom(
 
     """
 
-    fig, ax = plt.subplots(figsize=(8, 5))
+    names = {
+        'plane_dev': {
+            'xlim': (0, 1),
+            'xtitle': r'avg. plane deviation [$\mathrm{\AA}$]',
+        },
+        'sqpl': {
+            'xlim': (0, 1),
+            'xtitle': r'min. $q_{\mathrm{sp}}$',
+        }
+    }
 
-    c_passed = atools.colors_i_like()[4]
-    c_failed = atools.colors_i_like()[3]
-    c_negative = atools.colors_i_like()[2]
+    for name, data in zip(names, [plane_devs, sqpl_ops]):
+        fig, ax = plt.subplots(figsize=(8, 5))
 
-    for i, lig in enumerate(ligands):
-        if lig in cages_cis_wins:
-            c = c_passed
-        elif lig in cages_not_wins:
-            c = c_failed
+        c_passed = atools.colors_i_like()[4]
+        c_failed = atools.colors_i_like()[3]
+        c_negative = atools.colors_i_like()[2]
 
-        if lig in experiments:
-            m = 'X'
-        else:
-            m = 'o'
+        for i, lig in enumerate(ligands):
+            if lig in cages_cis_wins:
+                c = c_passed
+            elif lig in cages_not_wins:
+                c = c_failed
 
-        if energy_preferences[i] < 0:
-            c = c_negative
+            if lig in experiments:
+                m = 'X'
+            else:
+                m = 'o'
+
+            if energy_preferences[i] < 0:
+                c = c_negative
+
+            ax.scatter(
+                data[i],
+                energy_preferences[i],
+                c=c,
+                edgecolors='k',
+                marker=m,
+                alpha=1,
+                s=70
+            )
+        # Set number of ticks for x-axis
+        ax.tick_params(axis='both', which='major', labelsize=16)
+        ax.set_xlabel(names[name]['xtitle'], fontsize=16)
+        ax.set_ylabel('energy preference [kJ/mol]', fontsize=16)
+        ax.set_xlim(names[name]['xlim'])
+        ax.set_ylim(-100, 100)
+
+        ax.axhline(y=7.5, c='k', alpha=0.2)
 
         ax.scatter(
-            plane_devs[i],
-            energy_preferences[i],
-            c=c,
+            -100,
+            0,
+            c=c_passed,
             edgecolors='k',
-            marker=m,
+            marker='o',
             alpha=1,
-            s=70
+            s=70,
+            label='passed'
         )
-    # Set number of ticks for x-axis
-    ax.tick_params(axis='both', which='major', labelsize=16)
-    ax.set_xlabel(
-        r'avg. plane deviation [$\mathrm{\AA}$]',
-        fontsize=16
-    )
-    ax.set_ylabel('energy preference [kJ/mol]', fontsize=16)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(-100, 100)
+        ax.scatter(
+            -100,
+            0,
+            c=c_failed,
+            edgecolors='k',
+            marker='o',
+            alpha=1,
+            s=70,
+            label='failed'
+        )
+        ax.scatter(
+            -100,
+            0,
+            c=c_negative,
+            edgecolors='k',
+            marker='o',
+            alpha=1,
+            s=70,
+            label='cis not preferred'
+        )
+        ax.legend(fontsize=16)
 
-    ax.axhline(y=7.5, c='k', alpha=0.2)
-
-    ax.scatter(
-        -100,
-        0,
-        c=c_passed,
-        edgecolors='k',
-        marker='o',
-        alpha=1,
-        s=70,
-        label='passed'
-    )
-    ax.scatter(
-        -100,
-        0,
-        c=c_failed,
-        edgecolors='k',
-        marker='o',
-        alpha=1,
-        s=70,
-        label='failed'
-    )
-    ax.scatter(
-        -100,
-        0,
-        c=c_negative,
-        edgecolors='k',
-        marker='o',
-        alpha=1,
-        s=70,
-        label='cis not preferred'
-    )
-    ax.legend(fontsize=16)
-
-    fig.tight_layout()
-    fig.savefig(
-        'all_cages_pref_and_stable.pdf',
-        dpi=720,
-        bbox_inches='tight'
-    )
-    plt.close()
+        fig.tight_layout()
+        fig.savefig(
+            f'all_cages_pref_and_stable_{name}.pdf',
+            dpi=720,
+            bbox_inches='tight'
+        )
+        plt.close()
 
 
 def plot_energetics(
@@ -309,6 +319,96 @@ def plot_plane_devs(
     plt.close()
 
 
+def plot_sqpl_ops(
+    ligands,
+    experiments,
+    cages_cis_wins,
+    cages_not_wins,
+    sqpl_ops
+):
+    """
+    Plot plane deviation of all cages.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
+
+    c_passed = atools.colors_i_like()[4]
+    c_failed = atools.colors_i_like()[3]
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    for i, lig in enumerate(ligands):
+        if lig in cages_cis_wins:
+            c = c_passed
+        elif lig in cages_not_wins:
+            c = c_failed
+
+        if lig in experiments:
+            m = 'X'
+        else:
+            m = 'o'
+
+        ax.scatter(
+            i+1,
+            sqpl_ops[i],
+            c=c,
+            edgecolors='k',
+            marker=m,
+            alpha=1,
+            s=70
+        )
+    # Set number of ticks for x-axis
+    ax.tick_params(axis='both', which='major', labelsize=16)
+    ax.set_ylabel('cage', fontsize=16)
+    ax.set_ylabel(
+        r'min. $q_{\mathrm{sp}}$',
+        fontsize=16
+    )
+    ax.set_xlim(0, 62)
+    ax.set_ylim(0, 1)
+
+    ax.axhline(y=0.3, c='k', alpha=0.2)
+
+    ax.scatter(
+        -100,
+        0,
+        c=c_passed,
+        edgecolors='k',
+        marker='o',
+        alpha=1,
+        s=70,
+        label='passed'
+    )
+    ax.scatter(
+        -100,
+        0,
+        c=c_failed,
+        edgecolors='k',
+        marker='o',
+        alpha=1,
+        s=70,
+        label='failed'
+    )
+    ax.legend(fontsize=16)
+    # ax.set_ylim(-1000, 1000)
+    # if horiz is not None:
+    #     for i, j in zip(*horiz):
+    #         ax.axhline(y=i, c=j, lw=2, alpha=0.2)
+
+    fig.tight_layout()
+    fig.savefig(
+        'all_cages_sqplop.pdf',
+        dpi=720,
+        bbox_inches='tight'
+    )
+    plt.close()
+
+
 def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
     """
     Generic plot of isomer properties.
@@ -335,6 +435,7 @@ def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
             alpha=1,
             s=120
         )
+
     # Set number of ticks for x-axis
     ax.tick_params(axis='both', which='major', labelsize=16)
     ax.set_ylabel(ytitle, fontsize=16)
@@ -382,7 +483,7 @@ def get_energy(name, cage, solvent=None):
             solvent_grid = 'normal'
         else:
             solvent_str, solvent_grid = solvent
-        xtb_energy = stk.XTBEnergy(
+        xtb_energy = stko.XTBEnergy(
             xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
             output_dir=f'cage_ey_{name}',
             num_cores=6,
@@ -547,6 +648,12 @@ def get_metal_centre_distortion(name, cages):
             'planes',
             r'max. sum of plane deviation [$\mathrm{\AA}$]',
             (0, 2)
+        ),
+        'min_q4_op': (
+            {'A': None, 'B': None, 'C': None, 'D': None},
+            'q4op',
+            r'min. $q_{\mathrm{sp}}$',
+            (0, 1)
         )
     }
 
@@ -557,13 +664,24 @@ def get_metal_centre_distortion(name, cages):
             metal=46,
             bonder=7
         )
+        order_results = atools.get_order_values(
+            mol=cage,
+            metal=46
+        )
+
         for measure in results:
             if measure == 'plane_dev':
                 m_distortions[measure][0][iso] = max(results[measure])
+            elif measure not in m_distortions:
+                continue
             else:
                 m_distortions[measure][0][iso] = np.mean(
                     results[measure]
                 )
+
+        m_distortions['min_q4_op'][0][iso] = (
+            order_results['sq_plan']['min']
+        )
 
     for i in m_distortions:
         isomer_plot(
@@ -593,13 +711,17 @@ def check_stability(l_distortions, m_distortions):
     def fail_plane_dev(value):
         return value > 0.3
 
+    def fail_op(value):
+        return value < 0.7
+
     checks = {
         'bond_lengths': None,
         'angles': None,
         'torsions': None,
         'plane_dev': fail_plane_dev,
         'bite_angle': None,
-        'NN_dist': None
+        'NN_dist': None,
+        'min_q4_op': fail_op,
     }
 
     for i in l_distortions:
