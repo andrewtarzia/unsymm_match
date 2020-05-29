@@ -562,6 +562,102 @@ def get_cage_energies(name, cages):
     return energies
 
 
+def calculate_ligand_distortion(
+    mol,
+    cage_name,
+    free_ligand_name,
+    metal_atom_nos=None
+):
+    """
+    Calculate ligand distorion of ligands in mol.
+
+    Strain energy definition:
+        strain energy =
+            E(ligand extracted from cage) -
+            E(lowest energy conformer of ligand)
+
+    Parameters
+    ----------
+    mol : :class:`stk.Molecule`
+        Molecules whose ligands you want to analyse.
+
+    cage_name : :class:`str`
+        Name of cage associated with ligand.
+
+    free_ligand_name : :class:`str`
+        Name of ligand.
+
+    metal_atom_nos : :class:`iterable` of :class:`int`
+        The atomic number of metal atoms to remove from structure.
+
+    Returns
+    -------
+    distortions : :class:`tuple` of :class:`dicts`
+        Dictionaries containing the ligand distortions of each ligand
+        found in the cage.
+            Distortions calculated depends on input:
+                Average change in NN distance from lowest energy
+                conformer.
+                Average change in bite angle from lowest energy
+                conformer.
+                Strain energy from lowest energy conformer.
+
+    """
+
+    org_ligs, smiles_keys = atools.get_organic_linkers(
+        cage=mol,
+        metal_atom_nos=metal_atom_nos,
+        file_prefix=f'{cage_name}_sg'
+    )
+
+    atools.get_lowest_energy_conformers(
+        org_ligs=org_ligs,
+        smiles_keys=smiles_keys,
+        file_prefix=f'{free_ligand_name}_sg'
+    )
+
+    deltann_dist_dict = atools.calculate_deltann_distance(
+        org_ligs=org_ligs,
+        smiles_keys=smiles_keys,
+        fg_factory=[
+            atools.NPyridineFactory(),
+            atools.NTriazoleFactory()
+        ],
+        file_prefix=f'{free_ligand_name}_sg'
+    )
+    deltaangle_dist_dict = atools.calculate_deltaangle_distance(
+        org_ligs=org_ligs,
+        smiles_keys=smiles_keys,
+        fg_factory=[
+            atools.NPyridineFactory(),
+            atools.NTriazoleFactory()
+        ],
+        file_prefix=f'{free_ligand_name}_sg'
+    )
+    lse_dict = atools.calculate_ligand_SE(
+        org_ligs=org_ligs,
+        smiles_keys=smiles_keys,
+        output_json=f'{cage_name}_lse.json',
+        file_prefix=f'{free_ligand_name}_sg'
+    )
+
+    NN_avg_cage_min_free = np.average(list(
+        deltann_dist_dict.values()
+    ))
+    bite_avg_cage_min_free = np.average(list(
+        deltaangle_dist_dict.values()
+    ))
+    sum_strain_energy = sum(list(lse_dict.values()))
+
+    distortions = (
+        NN_avg_cage_min_free,
+        bite_avg_cage_min_free,
+        sum_strain_energy
+    )
+
+    return distortions
+
+
 def get_ligand_distortion(name, cages, NN_dists, bites_dist):
     """
     Get ligand distortions compared to free ligand.
@@ -587,20 +683,29 @@ def get_ligand_distortion(name, cages, NN_dists, bites_dist):
             r'average($\Delta$NN distance) [$\mathrm{\AA}$]',
             (0, 10)
         ),
+        'sum_strain': (
+            {'A': None, 'B': None, 'C': None, 'D': None},
+            'sum_strain',
+            r'sum(ligand strain energy) [kJmol$^{-1}$]',
+            (-10000, 10000)
+        ),
     }
     for iso in cages:
         name_ = f'{name}_{iso}'
         cage = cages[iso]
-        results = atools.calculate_ligand_distortion(
+        print(name)
+        results = calculate_ligand_distortion(
             mol=cage,
             cage_name=name_,
-            free_ligand_name=f'{name}_opt_chosen.mol',
-            free_NN_dists=NN_dists,
-            free_bite_dists=bites_dist,
+            free_ligand_name=name,
+            metal_atom_nos=(46, )
         )
-        NN_change, bite_change = results
+        NN_change, bite_change, sum_strain = results
+        print(results)
+        input()
         l_distortions['NN_dist'][0][iso] = NN_change
         l_distortions['bite_angle'][0][iso] = bite_change
+        l_distortions['sum_strain'][0][iso] = sum_strain
 
     for i in l_distortions:
         isomer_plot(
@@ -714,6 +819,9 @@ def check_stability(l_distortions, m_distortions):
     def fail_op(value):
         return value < 0.7
 
+    def fail_sum_strain(value):
+        return value < 0.7
+
     checks = {
         'bond_lengths': None,
         'angles': None,
@@ -722,7 +830,10 @@ def check_stability(l_distortions, m_distortions):
         'bite_angle': None,
         'NN_dist': None,
         'min_q4_op': fail_op,
+        'sum_strain': None,
     }
+
+    print('Need to implement fail sum_strain based on expts.')
 
     for i in l_distortions:
         # No test for this measure.
