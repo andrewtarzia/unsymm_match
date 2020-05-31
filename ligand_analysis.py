@@ -22,6 +22,7 @@ from atools import (
     calculate_NN_distance,
     calculate_bite_angle,
     NPyridineFactory,
+    NTriazoleFactory,
     calculate_N_COM_N_angle,
     histogram_plot_N,
     colors_i_like,
@@ -44,7 +45,9 @@ def calc_NN_flexibility(molecule, confs, cids, name):
         # Need to define the functional groups.
         new_mol = stk.BuildingBlock.init_from_molecule(
             molecule=molecule,
-            functional_groups=[NPyridineFactory()]
+            functional_groups=[
+                NPyridineFactory(), NTriazoleFactory()
+            ]
         )
 
         # Update stk_mol to conformer geometry.
@@ -54,12 +57,7 @@ def calc_NN_flexibility(molecule, confs, cids, name):
             conf_id=cid
         )
 
-        NNs.append(
-            calculate_NN_distance(
-                bb=new_mol,
-                constructed=False,
-            )
-        )
+        NNs.append(calculate_NN_distance(bb=new_mol))
 
     with open(name+'_NNs_dists.txt', 'w') as f:
         for i in NNs:
@@ -84,7 +82,9 @@ def calc_bite_flexibility(molecule, confs, cids, name):
         # Need to define the functional groups.
         new_mol = stk.BuildingBlock.init_from_molecule(
             molecule=molecule,
-            functional_groups=[NPyridineFactory()]
+            functional_groups=[
+                NPyridineFactory(), NTriazoleFactory()
+            ]
         )
 
         # Update stk_mol to conformer geometry.
@@ -94,12 +94,7 @@ def calc_bite_flexibility(molecule, confs, cids, name):
             conf_id=cid
         )
 
-        bites.append(
-            calculate_bite_angle(
-                bb=new_mol,
-                constructed=False,
-            )
-        )
+        bites.append(calculate_bite_angle(bb=new_mol))
 
     with open(name+'_bites_dists.txt', 'w') as f:
         for i in bites:
@@ -219,7 +214,9 @@ def select_conformer(molecule, confs, cids, name):
             # Need to define the functional groups.
             new_mol = stk.BuildingBlock.init_from_molecule(
                 molecule=molecule,
-                functional_groups=[NPyridineFactory()]
+                functional_groups=[
+                    NPyridineFactory(), NTriazoleFactory()
+                ]
             )
 
             # Update stk_mol to conformer geometry.
