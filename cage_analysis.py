@@ -79,26 +79,38 @@ def get_cage_energies(name, cages):
 
     """
 
-    def experimental_lines():
+    def horiz_lines():
         # These lines are the energy difference between the cis and
         # next most stable isomer from xtb after RDKIT opt.
-        expts = {
-            'li1_lk2_li5': (17, 'k'),
-            'li2_lk2_li6': (27, 'k'),
-            'li1_lk2_li4': (8, 'k'),
-            'li4_lk2_li5': (1.4, 'r')
+        # expts = {
+        #     'li1_lk2_li5': (17, 'k'),
+        #     'li2_lk2_li6': (27, 'k'),
+        #     'li1_lk2_li4': (8, 'k'),
+        #     'li4_lk2_li5': (1.4, 'r')
+        # }
+        # lines = [
+        #     expts['li1_lk2_li5'][0],
+        #     expts['li2_lk2_li6'][0],
+        #     expts['li1_lk2_li4'][0],
+        #     expts['li4_lk2_li5'][0],
+        # ]
+        # styles = [
+        #     expts['li1_lk2_li5'][1],
+        #     expts['li2_lk2_li6'][1],
+        #     expts['li1_lk2_li4'][1],
+        #     expts['li4_lk2_li5'][1],
+        # ]
+        higlights = {
+            'threshold': (6, 'k', 3),
+            'zero': (0, 'k', 3),
         }
         lines = [
-            expts['li1_lk2_li5'][0],
-            expts['li2_lk2_li6'][0],
-            expts['li1_lk2_li4'][0],
-            expts['li4_lk2_li5'][0],
+            higlights['threshold'][0],
+            higlights['zero'][0],
         ]
         styles = [
-            expts['li1_lk2_li5'][1],
-            expts['li2_lk2_li6'][1],
-            expts['li1_lk2_li4'][1],
-            expts['li4_lk2_li5'][1],
+            (higlights['threshold'][1], higlights['threshold'][2]),
+            (higlights['zero'][1], higlights['zero'][2]),
         ]
         return lines, styles
 
@@ -122,7 +134,7 @@ def get_cage_energies(name, cages):
         file_name=f'{name}_energies_plot.pdf',
         ytitle=r'relative energies [kJ/mol]',
         ylim=(-5, 50),
-        horiz=experimental_lines()
+        horiz=horiz_lines()
     )
     return energies
 
