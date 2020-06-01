@@ -568,19 +568,27 @@ def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
 
     """
 
+    col = 3
+
     X_positions = {'A': 2, 'B': 4, 'C': 6, 'D': 8}
 
     fig, ax = plt.subplots(figsize=(8, 5))
+    ax.plot(
+        list(X_positions.values()),
+        list(dictionary.values()),
+        color=atools.colors_i_like()[col],
+        lw=3,
+    )
     for isomer in dictionary:
         Y = dictionary[isomer]
         ax.scatter(
             X_positions[isomer],
             Y,
-            c=atools.colors_i_like()[6],
-            edgecolors='k',
+            c=atools.colors_i_like()[col],
+            edgecolors='none',
             marker='o',
             alpha=1,
-            s=120
+            s=180
         )
 
     # Set number of ticks for x-axis
@@ -592,7 +600,7 @@ def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
     ax.set_ylim(ylim)
     if horiz is not None:
         for i, j in zip(*horiz):
-            ax.axhline(y=i, c=j, lw=2, alpha=0.2)
+            ax.axhline(y=i, c=j[0], lw=j[1], alpha=0.4)
     fig.tight_layout()
     fig.savefig(
         file_name,
