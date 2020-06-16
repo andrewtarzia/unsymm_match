@@ -21,8 +21,8 @@ from atools import (
     update_from_rdkit_conf,
     calculate_NN_distance,
     calculate_bite_angle,
-    NPyridineFactory,
-    NTriazoleFactory,
+    AromaticCNCFactory,
+    AromaticCNNFactory,
     calculate_N_COM_N_angle,
     histogram_plot_N,
     colors_i_like,
@@ -46,7 +46,7 @@ def calc_NN_flexibility(molecule, confs, cids, name):
         new_mol = stk.BuildingBlock.init_from_molecule(
             molecule=molecule,
             functional_groups=[
-                NPyridineFactory(), NTriazoleFactory()
+                AromaticCNCFactory(), AromaticCNNFactory()
             ]
         )
 
@@ -83,7 +83,7 @@ def calc_bite_flexibility(molecule, confs, cids, name):
         new_mol = stk.BuildingBlock.init_from_molecule(
             molecule=molecule,
             functional_groups=[
-                NPyridineFactory(), NTriazoleFactory()
+                AromaticCNCFactory(), AromaticCNNFactory()
             ]
         )
 
@@ -215,7 +215,7 @@ def select_conformer(molecule, confs, cids, name):
             new_mol = stk.BuildingBlock.init_from_molecule(
                 molecule=molecule,
                 functional_groups=[
-                    NPyridineFactory(), NTriazoleFactory()
+                    AromaticCNCFactory(), AromaticCNNFactory()
                 ]
             )
 

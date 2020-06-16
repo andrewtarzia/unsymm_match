@@ -14,7 +14,7 @@ Date Created: 5 Nov 2019
 from os.path import exists
 import stk
 import stko
-from atools import NPyridineFactory, NTriazoleFactory
+from atools import AromaticCNCFactory, AromaticCNNFactory
 
 
 def ligands():
@@ -62,7 +62,7 @@ def build_linker(lig1_smiles, lig2_smiles, linker_smiles, name):
     if exists(opt_file):
         molecule = stk.BuildingBlock.init_from_file(
             path=opt_file,
-            functional_groups=[NPyridineFactory(), NTriazoleFactory()],
+            functional_groups=[AromaticCNCFactory(), AromaticCNNFactory()],
         )
     else:
         print(f'>> building {name}')
@@ -89,7 +89,7 @@ def build_linker(lig1_smiles, lig2_smiles, linker_smiles, name):
         # Initialise as building block.
         molecule = stk.BuildingBlock.init_from_molecule(
             molecule=molecule,
-            functional_groups=[NPyridineFactory(), NTriazoleFactory()],
+            functional_groups=[AromaticCNCFactory(), AromaticCNNFactory()],
         )
         # Save file.
         molecule.write(opt_file)

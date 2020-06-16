@@ -164,9 +164,13 @@ def build_cage_isomers(name, ligand):
                     stk.GenericReactionFactory(
                         bond_orders={
                             frozenset({
-                                stk.GenericFunctionalGroup,
+                                atools.AromaticCNC,
                                 stk.SingleAtom
-                            }): 9
+                            }): 9,
+                            frozenset({
+                                atools.AromaticCNN,
+                                stk.SingleAtom
+                            }): 9,
                         }
                     )
                 )

@@ -197,8 +197,8 @@ def calculate_ligand_distortion(
         org_ligs=org_ligs,
         smiles_keys=smiles_keys,
         fg_factory=[
-            atools.NPyridineFactory(),
-            atools.NTriazoleFactory()
+            atools.AromaticCNCFactory(),
+            atools.AromaticCNNFactory()
         ],
         file_prefix=f'{free_ligand_name}_sg'
     )
@@ -206,8 +206,8 @@ def calculate_ligand_distortion(
         org_ligs=org_ligs,
         smiles_keys=smiles_keys,
         fg_factory=[
-            atools.NPyridineFactory(),
-            atools.NTriazoleFactory()
+            atools.AromaticCNCFactory(),
+            atools.AromaticCNNFactory()
         ],
         file_prefix=f'{free_ligand_name}_sg'
     )
