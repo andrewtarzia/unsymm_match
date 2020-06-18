@@ -98,7 +98,8 @@ def optimize_cage(cage, cage_name):
             etemp=300,
             conformer_dir=f'cage_opt_{cage_name}_MD',
             output_dir=f'cage_opt_{cage_name}_xtb_conf',
-            solvent=('dmso', 'verytight')
+            solvent=('dmso', 'verytight'),
+            handle_failure=True
         )
         cage.write(prextb_file)
 
