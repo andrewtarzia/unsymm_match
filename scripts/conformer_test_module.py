@@ -818,7 +818,7 @@ def uff_opt(cage, cage_name):
     metal_FFs = {46: 'Pd4+2'}
 
     print('doing UFF4MOF optimisation')
-    gulp_opt = stk.GulpMetalOptimizer(
+    gulp_opt = stk.GulpUFFOptimizer(
         gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
         metal_FF=metal_FFs,
         output_dir=f'cage_opt_{cage_name}_uff1'
@@ -846,7 +846,7 @@ def MD_opt(
 ):
     metal_FFs = {46: 'Pd4+2'}
     print('doing UFF4MOF MD')
-    gulp_MD = stk.GulpMDMetalOptimizer(
+    gulp_MD = stk.GulpUFFMDOptimizer(
         gulp_path='/home/atarzia/software/gulp-5.1/Src/gulp/gulp',
         metal_FF=metal_FFs,
         output_dir=f'cage_opt_{cage_name}_MD',
