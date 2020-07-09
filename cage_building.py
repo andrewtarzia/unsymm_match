@@ -179,12 +179,7 @@ def build_cage_isomers(name, ligand):
         )
 
         if exists(opt_file):
-            print(
-                'Using non constructed molecule here. fix this in '
-                'future'
-            )
-            # cage = cage.with_structure_from_file(opt_file)
-            cage = stk.BuildingBlock.init_from_file(opt_file)
+            cage = cage.with_structure_from_file(opt_file)
         else:
             print(f'optimizing {name_}')
             cage.write(f'{name_}_unopt.mol')
