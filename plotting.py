@@ -130,15 +130,18 @@ def plot_energetics_and_geom(
         plt.close()
 
 
-def plot_energetics(
+def plot_all_cages_bars(
     ligands,
     experiments,
     cages_cis_wins,
     cages_not_wins,
-    energy_preferences
+    y_value,
+    y_title,
+    y_bar,
+    suffix,
 ):
     """
-    Plot energy preference of all cages.
+    Plot y value as bar chart of all cages.
 
     Parameters
     ----------
@@ -152,348 +155,67 @@ def plot_energetics(
 
     c_passed = atools.colors_i_like()[4]
     c_failed = atools.colors_i_like()[3]
-    c_negative = atools.colors_i_like()[2]
+    c_experiments = atools.colors_i_like()[0]
+
+    x_passed = []
+    y_passed = []
+    x_failed = []
+    y_failed = []
+    x_experiments = []
+    y_experiments = []
 
     for i, lig in enumerate(ligands):
-        if lig in cages_cis_wins:
-            c = c_passed
-        elif lig in cages_not_wins:
-            c = c_failed
-
         if lig in experiments:
-            m = 'X'
+            x_experiments.append(i+1)
+            y_experiments.append(y_value[i])
+        elif lig in cages_cis_wins:
+            x_passed.append(i+1)
+            y_passed.append(y_value[i])
+        elif lig in cages_not_wins:
+            x_failed.append(i+1)
+            y_failed.append(y_value[i])
         else:
-            m = 'o'
+            raise ValueError('no matches!?')
 
-        if energy_preferences[i] < 0:
-            print('negative:', lig, energy_preferences[i])
-            c = c_negative
-
-        if energy_preferences[i] > 50:
-            print('really large:', lig, energy_preferences[i])
-
-        ax.scatter(
-            i+1,
-            energy_preferences[i],
-            c=c,
-            edgecolors='k',
-            marker=m,
-            alpha=1,
-            s=70
-        )
     # Set number of ticks for x-axis
     ax.tick_params(axis='both', which='major', labelsize=16)
-    ax.set_ylabel('cage', fontsize=16)
-    ax.set_ylabel('energy preference [kJ/mol]', fontsize=16)
-    ax.set_xlim(0, 62)
+    ax.set_xlabel('cage', fontsize=16)
+    ax.set_ylabel(y_title, fontsize=16)
+    ax.set_xlim(0, 85)
 
-    ax.axhline(y=6.0, c='k', alpha=0.2)
-
-    ax.scatter(
-        -100,
-        0,
-        c=c_passed,
-        edgecolors='k',
-        marker='o',
+    ax.bar(
+        x_passed,
+        y_passed,
+        color=c_passed,
+        width=1,
+        edgecolor='none',
         alpha=1,
-        s=70,
         label='passed'
     )
-    ax.scatter(
-        -100,
-        0,
-        c=c_failed,
-        edgecolors='k',
-        marker='o',
+    ax.bar(
+        x_failed,
+        y_failed,
+        color=c_failed,
+        width=1,
+        edgecolor='none',
         alpha=1,
-        s=70,
         label='failed'
     )
-    ax.scatter(
-        -100,
-        0,
-        c=c_negative,
-        edgecolors='k',
-        marker='o',
+    ax.bar(
+        x_experiments,
+        y_experiments,
+        color=c_experiments,
+        width=1,
+        edgecolor='none',
         alpha=1,
-        s=70,
-        label='cis not preferred'
+        label='experimental cases'
     )
     ax.legend(fontsize=16)
+    ax.axhline(y=y_bar, c='k', alpha=0.2)
 
     fig.tight_layout()
     fig.savefig(
-        'all_cages_energy_preferences.pdf',
-        dpi=720,
-        bbox_inches='tight'
-    )
-    plt.close()
-
-
-def plot_lses(
-    ligands,
-    experiments,
-    cages_cis_wins,
-    cages_not_wins,
-    lses
-):
-    """
-    Plot sum of ligand strain energy of all cages.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
-    """
-
-    c_passed = atools.colors_i_like()[4]
-    c_failed = atools.colors_i_like()[3]
-
-    fig, ax = plt.subplots(figsize=(8, 5))
-
-    for i, lig in enumerate(ligands):
-        if lig in cages_cis_wins:
-            c = c_passed
-        elif lig in cages_not_wins:
-            c = c_failed
-
-        if lig in experiments:
-            m = 'X'
-        else:
-            m = 'o'
-
-        ax.scatter(
-            i+1,
-            lses[i],
-            c=c,
-            edgecolors='k',
-            marker=m,
-            alpha=1,
-            s=70
-        )
-    # Set number of ticks for x-axis
-    ax.tick_params(axis='both', which='major', labelsize=16)
-    ax.set_ylabel('cage', fontsize=16)
-    ax.set_ylabel(
-        r'sum(ligand strain energy) [kJmol$^{-1}$]',
-        fontsize=16
-    )
-    ax.set_xlim(0, 62)
-
-    print('fill in!')
-    ax.axhline(y=0.3, c='k', alpha=0.2)
-
-    ax.scatter(
-        -100,
-        0,
-        c=c_passed,
-        edgecolors='k',
-        marker='o',
-        alpha=1,
-        s=70,
-        label='passed'
-    )
-    ax.scatter(
-        -100,
-        0,
-        c=c_failed,
-        edgecolors='k',
-        marker='o',
-        alpha=1,
-        s=70,
-        label='failed'
-    )
-    ax.legend(fontsize=16)
-    # ax.set_ylim(-1000, 1000)
-    # if horiz is not None:
-    #     for i, j in zip(*horiz):
-    #         ax.axhline(y=i, c=j, lw=2, alpha=0.2)
-
-    fig.tight_layout()
-    fig.savefig(
-        'all_cages_LSES.pdf',
-        dpi=720,
-        bbox_inches='tight'
-    )
-    plt.close()
-
-
-def plot_plane_devs(
-    ligands,
-    experiments,
-    cages_cis_wins,
-    cages_not_wins,
-    plane_devs
-):
-    """
-    Plot plane deviation of all cages.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
-    """
-
-    c_passed = atools.colors_i_like()[4]
-    c_failed = atools.colors_i_like()[3]
-
-    fig, ax = plt.subplots(figsize=(8, 5))
-
-    for i, lig in enumerate(ligands):
-        if lig in cages_cis_wins:
-            c = c_passed
-        elif lig in cages_not_wins:
-            c = c_failed
-
-        if lig in experiments:
-            m = 'X'
-        else:
-            m = 'o'
-
-        ax.scatter(
-            i+1,
-            plane_devs[i],
-            c=c,
-            edgecolors='k',
-            marker=m,
-            alpha=1,
-            s=70
-        )
-    # Set number of ticks for x-axis
-    ax.tick_params(axis='both', which='major', labelsize=16)
-    ax.set_ylabel('cage', fontsize=16)
-    ax.set_ylabel(
-        r'max. plane deviation [$\mathrm{\AA}$]',
-        fontsize=16
-    )
-    ax.set_xlim(0, 62)
-
-    ax.axhline(y=0.3, c='k', alpha=0.2)
-
-    ax.scatter(
-        -100,
-        0,
-        c=c_passed,
-        edgecolors='k',
-        marker='o',
-        alpha=1,
-        s=70,
-        label='passed'
-    )
-    ax.scatter(
-        -100,
-        0,
-        c=c_failed,
-        edgecolors='k',
-        marker='o',
-        alpha=1,
-        s=70,
-        label='failed'
-    )
-    ax.legend(fontsize=16)
-    # ax.set_ylim(-1000, 1000)
-    # if horiz is not None:
-    #     for i, j in zip(*horiz):
-    #         ax.axhline(y=i, c=j, lw=2, alpha=0.2)
-
-    fig.tight_layout()
-    fig.savefig(
-        'all_cages_planedevs.pdf',
-        dpi=720,
-        bbox_inches='tight'
-    )
-    plt.close()
-
-
-def plot_sqpl_ops(
-    ligands,
-    experiments,
-    cages_cis_wins,
-    cages_not_wins,
-    sqpl_ops
-):
-    """
-    Plot plane deviation of all cages.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
-    """
-
-    c_passed = atools.colors_i_like()[4]
-    c_failed = atools.colors_i_like()[3]
-
-    fig, ax = plt.subplots(figsize=(8, 5))
-
-    for i, lig in enumerate(ligands):
-        if lig in cages_cis_wins:
-            c = c_passed
-        elif lig in cages_not_wins:
-            c = c_failed
-
-        if lig in experiments:
-            m = 'X'
-        else:
-            m = 'o'
-
-        ax.scatter(
-            i+1,
-            sqpl_ops[i],
-            c=c,
-            edgecolors='k',
-            marker=m,
-            alpha=1,
-            s=70
-        )
-    # Set number of ticks for x-axis
-    ax.tick_params(axis='both', which='major', labelsize=16)
-    ax.set_ylabel('cage', fontsize=16)
-    ax.set_ylabel(
-        r'min. $q_{\mathrm{sp}}$',
-        fontsize=16
-    )
-    ax.set_xlim(0, 62)
-    ax.set_ylim(0, 1)
-
-    print('fill in!')
-    ax.axhline(y=0.3, c='k', alpha=0.2)
-
-    ax.scatter(
-        -100,
-        0,
-        c=c_passed,
-        edgecolors='k',
-        marker='o',
-        alpha=1,
-        s=70,
-        label='passed'
-    )
-    ax.scatter(
-        -100,
-        0,
-        c=c_failed,
-        edgecolors='k',
-        marker='o',
-        alpha=1,
-        s=70,
-        label='failed'
-    )
-    ax.legend(fontsize=16)
-    # ax.set_ylim(-1000, 1000)
-    # if horiz is not None:
-    #     for i, j in zip(*horiz):
-    #         ax.axhline(y=i, c=j, lw=2, alpha=0.2)
-
-    fig.tight_layout()
-    fig.savefig(
-        'all_cages_sqplop.pdf',
+        f'all_C_cages_bar_{suffix}.pdf',
         dpi=720,
         bbox_inches='tight'
     )

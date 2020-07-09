@@ -295,30 +295,48 @@ def analyse_all_cages(params, all_cage_sets, ligands, read_data):
     for i in sorted(cages_cis_wins):
         print(i)
 
+    PL.plot_all_cages_bars(
+        ligands=lig_studied,
+        experiments=experiments,
+        cages_cis_wins=cages_cis_wins,
+        cages_not_wins=cages_not_wins,
+        y_value=energy_preferences,
+        y_title='energy preference [kJ/mol]',
+        y_bar=6.0,
+        suffix='energypreference',
     )
 
-    PL.plot_plane_devs(
-        lig_studied,
-        experiments,
-        cages_cis_wins,
-        cages_not_wins,
-        plane_devs
+    PL.plot_all_cages_bars(
+        ligands=lig_studied,
+        experiments=experiments,
+        cages_cis_wins=cages_cis_wins,
+        cages_not_wins=cages_not_wins,
+        y_value=lses,
+        y_title=r'sum(ligand strain energy) [kJmol$^{-1}$]',
+        y_bar=0.0,
+        suffix='lses',
     )
 
-    PL.plot_sqpl_ops(
-        lig_studied,
-        experiments,
-        cages_cis_wins,
-        cages_not_wins,
-        sqpl_ops
+    PL.plot_all_cages_bars(
+        ligands=lig_studied,
+        experiments=experiments,
+        cages_cis_wins=cages_cis_wins,
+        cages_not_wins=cages_not_wins,
+        y_value=plane_devs,
+        y_title=r'max. plane deviation [$\mathrm{\AA}$]',
+        y_bar=0.3,
+        suffix='planedevs',
     )
 
-    PL.plot_lses(
-        lig_studied,
-        experiments,
-        cages_cis_wins,
-        cages_not_wins,
-        lses
+    PL.plot_all_cages_bars(
+        ligands=lig_studied,
+        experiments=experiments,
+        cages_cis_wins=cages_cis_wins,
+        cages_not_wins=cages_not_wins,
+        y_value=sqpl_ops,
+        y_title=r'min. $q_{\mathrm{sp}}$',
+        y_bar=0.95,
+        suffix='sqplops',
     )
 
     PL.plot_energetics_and_geom(
