@@ -270,7 +270,6 @@ def get_ligand_distortion(name, cages, NN_dists, bites_dist):
     for iso in cages:
         name_ = f'{name}_{iso}'
         cage = cages[iso]
-        print(name)
         results = calculate_ligand_distortion(
             mol=cage,
             cage_name=name_,
@@ -278,7 +277,6 @@ def get_ligand_distortion(name, cages, NN_dists, bites_dist):
             metal_atom_nos=(46, )
         )
         NN_change, bite_change, sum_strain = results
-        print(results)
         l_distortions['NN_dist'][0][iso] = NN_change
         l_distortions['bite_angle'][0][iso] = bite_change
         l_distortions['sum_strain'][0][iso] = sum_strain
@@ -415,9 +413,8 @@ def check_stability(l_distortions, m_distortions):
             continue
         check = checks[i](l_distortions[i][0]['C'])
         print(
-            f'> {i}:',
-            round(l_distortions[i][0]['C'], 4),
-            check
+            f"> {i}: {round(l_distortions[i][0]['C'], 4)}."
+            f" C isomer unstable? {check}"
         )
         if checks[i](l_distortions[i][0]['C']):
             return False
@@ -428,9 +425,8 @@ def check_stability(l_distortions, m_distortions):
             continue
         check = checks[i](m_distortions[i][0]['C'])
         print(
-            f'> {i}:',
-            round(m_distortions[i][0]['C'], 4),
-            check
+            f"> {i}: {round(m_distortions[i][0]['C'], 4)}."
+            f" C isomer unstable? {check}"
         )
         if check:
             return False
@@ -450,24 +446,23 @@ def check_preference(energies, energy_cutoff):
 
     """
 
-    print('>>>', energies)
+    print(f'>>> relative isomer energies {energies}')
 
     if energies['C'] == 0:
         energy_sep = min([
             energies[i] for i in energies if energies[i] != 0
         ])
         print(
-            '> energy test:',
-            round(energies['C'], 4),
-            round(energy_sep, 4),
-            energy_sep < energy_cutoff
+            f"> energy test: C: {round(energies['C'], 4)}, "
+            f'next: {round(energy_sep, 4)} kJ/mol. Less than '
+            f'threshold? {energy_sep < energy_cutoff}.'
         )
         if energy_sep < energy_cutoff:
             return False, energy_sep
     else:
         print(
-            '> energy test (failed):',
-            round(energies['C'], 4),
+            f"> energy test failed: C is {round(energies['C'], 4)} "
+            'kJ/mol less stable'
         )
         return False, -energies['C']
 
