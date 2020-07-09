@@ -14,6 +14,7 @@ Date Created: 05 Nov 2019
 import sys
 from os.path import exists
 from itertools import combinations
+from pandas import read_csv
 
 import ligand_building as LB
 import ligand_analysis as LA
@@ -55,7 +56,7 @@ def build_all_ligands(params):
             )
             ligands[name] = ligand
 
-    print(f'{count} ligands built')
+    print(f'{count} ligands built -> {count*4} cages to build.')
     return ligands
 
 
@@ -159,7 +160,7 @@ def build_all_cages(params, ligands):
     return all_cage_sets
 
 
-def analyse_all_cages(params, all_cage_sets, ligands):
+def analyse_all_cages(params, all_cage_sets, ligands, read_data):
     """
     Analyse all cages.
 
@@ -183,88 +184,117 @@ def analyse_all_cages(params, all_cage_sets, ligands):
         'li1_lk2_li5', 'li2_lk2_li6', 'li1_lk2_li4', 'li4_lk2_li5',
     ]
 
-    with open('all_cage_results.txt', 'w') as f:
-        f.write(
-            f'lig,stable,preferred,plane_dev_C,sqpl_op_C,lse_C,'
-            'energy_A,energy_B,energy_C,energy_D\n'
-        )
-        for lig_name in all_cage_sets:
-            # if lig_name not in experiments:
-            #     continue
-            print('ligand:', lig_name)
-            lig_studied.append(lig_name)
-            cages = all_cage_sets[lig_name]
-            energies = CA.get_cage_energies(lig_name, cages)
-            m_distortions = CA.get_metal_centre_distortion(
-                lig_name,
-                cages
-            )
-            l_distortions = CA.get_ligand_distortion(
-                lig_name,
-                cages,
-                # bites_dist=ligands[lig_name][1],
-                # NN_dists=ligands[lig_name][2]
-                bites_dist=None,
-                NN_dists=None
-            )
+    if read_data:
+        data = read_csv('all_cage_results.txt')
 
-            # print('bites', np.mean(ligands[lig_name][1]))
-            # print('bites', np.std(ligands[lig_name][1]))
-            # print('nn', np.mean(ligands[lig_name][2]))
-            # print('nn', np.std(ligands[lig_name][2]))
-            # for i in m_distortions['plane_dev'][0]:
-            #     print(i, m_distortions['plane_dev'][0][i])
-            #
-            # for i in l_distortions['bite_angle'][0]:
-            #     print(i, l_distortions['bite_angle'][0][i])
-            #
-            # for i in l_distortions['NN_dist'][0]:
-            #     print(i, l_distortions['NN_dist'][0][i])
-            # print('---')
-
-            stable = CA.check_stability(l_distortions, m_distortions)
-            preferred, energy_sep = CA.check_preference(
-                energies,
-                energy_cutoff=6.0
-            )
-            energy_preferences.append(energy_sep)
-            plane_devs.append(m_distortions['plane_dev'][0]['C'])
-            sqpl_ops.append(m_distortions['min_q4_op'][0]['C'])
-            lses.append(l_distortions['sum_strain'][0]['C'])
-
+        for i, row in data.iterrows():
+            lig_name = row['lig']
+            stable = row['stable']
+            preferred = row['preferred']
             cis_preferred_and_stable = all([stable, preferred])
             if cis_preferred_and_stable:
                 cages_cis_wins.append(lig_name)
             else:
                 cages_not_wins.append(lig_name)
 
+            lig_studied.append(lig_name)
+            energies = [
+                float(row['energy_A']), float(row['energy_B']),
+                float(row['energy_C']), float(row['energy_D']),
+            ]
+            if energies[2] == 0:
+                energy_preferences.append(
+                    min([
+                        i for i in energies if i != 0
+                    ])
+                )
+            else:
+                energy_preferences.append(-energies[2])
+            plane_devs.append(float(row['plane_dev_C']))
+            sqpl_ops.append(float(row['sqpl_op_C']))
+            lses.append(float(row['lse_C']))
+
+    else:
+        with open('all_cage_results.txt', 'w') as f:
             f.write(
-                f'{lig_name},{stable},{preferred},'
-                f"{m_distortions['plane_dev'][0]['C']},"
-                f"{m_distortions['min_q4_op'][0]['C']},"
-                f"{l_distortions['sum_strain'][0]['C']},"
-                f"{energies['A']},{energies['B']},"
-                f"{energies['C']},{energies['D']}\n"
+                f'lig,stable,preferred,plane_dev_C,sqpl_op_C,lse_C,'
+                'energy_A,energy_B,energy_C,energy_D\n'
             )
+            for lig_name in all_cage_sets:
+                # if lig_name not in experiments:
+                #     continue
+                print('ligand:', lig_name)
+                lig_studied.append(lig_name)
+                cages = all_cage_sets[lig_name]
+                energies = CA.get_cage_energies(lig_name, cages)
+                m_distortions = CA.get_metal_centre_distortion(
+                    name=lig_name,
+                    cages=cages
+                )
+                l_distortions = CA.get_ligand_distortion(
+                    name=lig_name,
+                    cages=cages,
+                    # bites_dist=ligands[lig_name][1],
+                    # NN_dists=ligands[lig_name][2]
+                    bites_dist=None,
+                    NN_dists=None
+                )
 
-        print('-----------------------------------------')
-        # Plot distribution of all cages.
-        total_cages = len(cages_cis_wins) + len(cages_not_wins)
-        print(
-            f'{len(cages_cis_wins)} cages with cis preffered '
-            f'and stable of {total_cages}.'
-        )
-        print('-----------------------------------------')
-        print('candidate cages:')
-        for i in sorted(cages_cis_wins):
-            print(i)
+                # print('bites', np.mean(ligands[lig_name][1]))
+                # print('bites', np.std(ligands[lig_name][1]))
+                # print('nn', np.mean(ligands[lig_name][2]))
+                # print('nn', np.std(ligands[lig_name][2]))
+                # for i in m_distortions['plane_dev'][0]:
+                #     print(i, m_distortions['plane_dev'][0][i])
+                #
+                # for i in l_distortions['bite_angle'][0]:
+                #     print(i, l_distortions['bite_angle'][0][i])
+                #
+                # for i in l_distortions['NN_dist'][0]:
+                #     print(i, l_distortions['NN_dist'][0][i])
+                # print('---')
 
-    PL.plot_energetics(
-        lig_studied,
-        experiments,
-        cages_cis_wins,
-        cages_not_wins,
-        energy_preferences
+                stable = CA.check_stability(
+                    l_distortions=l_distortions,
+                    m_distortions=m_distortions
+                )
+                preferred, energy_sep = CA.check_preference(
+                    energies,
+                    energy_cutoff=6.0
+                )
+                energy_preferences.append(energy_sep)
+                plane_devs.append(m_distortions['plane_dev'][0]['C'])
+                sqpl_ops.append(m_distortions['min_q4_op'][0]['C'])
+                lses.append(l_distortions['sum_strain'][0]['C'])
+
+                cis_preferred_and_stable = all([stable, preferred])
+                if cis_preferred_and_stable:
+                    cages_cis_wins.append(lig_name)
+                else:
+                    cages_not_wins.append(lig_name)
+
+                f.write(
+                    f'{lig_name},{stable},{preferred},'
+                    f"{m_distortions['plane_dev'][0]['C']},"
+                    f"{m_distortions['min_q4_op'][0]['C']},"
+                    f"{l_distortions['sum_strain'][0]['C']},"
+                    f"{energies['A']},{energies['B']},"
+                    f"{energies['C']},{energies['D']}\n"
+                )
+                print('-----------------------')
+
+    print('-----------------------------------------')
+    # Plot distribution of all cages.
+    total_cages = len(cages_cis_wins) + len(cages_not_wins)
+    print(
+        f'{len(cages_cis_wins)} cages with cis preferred '
+        f'and stable of {total_cages}.'
+    )
+    print('-----------------------------------------')
+    print('candidate cages:')
+    for i in sorted(cages_cis_wins):
+        print(i)
+
     )
 
     PL.plot_plane_devs(
@@ -333,42 +363,52 @@ def read_params(file):
 
 
 def main():
-    if (not len(sys.argv) == 2):
+    if (not len(sys.argv) == 3):
         print(
             """
             Usage: screening_process.py param_file
                 param_file (str) - text file with parameters.
+
+                read_data (str) - 't' to read all_cage_results and
+                do plots.
 
             """
         )
         sys.exit()
     else:
         params = read_params(sys.argv[1])
+        read_data = True if sys.argv[2] is 't' else False
 
-    print(params)
+    print(params, read_data)
 
     # Build all ligands.
     ligands = build_all_ligands(params)
     #
     # subset = [
-    #     'li1_lk2_li4', 'li2_lk1_li5', 'li1_lk2_li6', 'li1_lk3_li4',
-    #     'li4_lk1_li6', 'li1_lk1_li5', 'li1_lk1_li4', 'li2_lk2_li6',
-    #     'li3_lk1_li4', 'li1_lk2_li3', 'li1_lk1_li3', 'li4_lk2_li5',
-    #     'li1_lk3_li2', 'li1_lk3_li3', 'li3_lk2_li5', 'li3_lk2_li6',
-    #     'li4_lk1_li5', 'li3_lk1_li5', 'li5_lk1_li6', 'li1_lk2_li2',
-    #     'li2_lk2_li3', 'li1_lk2_li5', 'li2_lk2_li4', 'li4_lk2_li6',
-    #     'li2_lk1_li4', 'li2_lk1_li3', 'li1_lk1_li6', 'li1_lk3_li5',
-    #     'li3_lk2_li4', 'li1_lk3_li6', 'li2_lk1_li6', 'li5_lk2_li6',
-    #     'li2_lk2_li5', 'li1_lk1_li2', 'li3_lk1_li6'
+    #     'li1_lk2_li4', 'li2_lk1_li5', 'li1_lk2_li6',
+    #     'li1_lk3_li4', 'li4_lk1_li6', 'li1_lk1_li5',
+    #     'li1_lk1_li4', 'li2_lk2_li6', 'li3_lk1_li4',
+    #     'li1_lk2_li3', 'li1_lk3_li2', 'li4_lk1_li5',
+    #     'li1_lk1_li3', 'li4_lk2_li5', 'li1_lk1_li2',
+    #     'li1_lk3_li3', 'li4_lk2_li6', 'li2_lk1_li4',
+    #     'li3_lk2_li5', 'li3_lk2_li6', 'li2_lk2_li4',
+    #     'li3_lk1_li5', 'li5_lk2_li6', 'li2_lk2_li5',
+    #     'li5_lk1_li6', 'li1_lk2_li2', 'li2_lk2_li3',
+    #     'li1_lk2_li5', 'li1_lk3_li5', 'li3_lk2_li4',
+    #     'li2_lk1_li3', 'li1_lk1_li6', 'li1_lk3_li6',
+    #     'li2_lk1_li6', 'li3_lk1_li6'
     # ]
     # ligands = {i: ligands[i] for i in ligands if i in subset}
-    # print(f'only doing {len(ligands)} because of an error, fix this')
+    # print(
+    #     f'only doing {len(ligands)} because of an error'
+    #     ', fix this'
+    # )
     # Analyse all ligands.
     ligands = analyse_all_ligands(params, ligands)
     # Build all cages.
     all_cage_sets = build_all_cages(params, ligands)
     # Analyse all cages.
-    analyse_all_cages(params, all_cage_sets, ligands)
+    analyse_all_cages(params, all_cage_sets, ligands, read_data)
 
 
 if __name__ == "__main__":
