@@ -42,7 +42,7 @@ def plot_energetics_and_geom(
     names = {
         'plane_dev': {
             'xlim': (0, 1),
-            'xtitle': r'avg. plane deviation [$\mathrm{\AA}$]',
+            'xtitle': r'max. plane deviation [$\mathrm{\AA}$]',
         },
         'sqpl': {
             'xlim': (0.6, 1),
