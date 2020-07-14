@@ -184,7 +184,7 @@ def analyse_all_cages(params, all_cage_sets, ligands, read_data):
         'li1_lk2_li5', 'li2_lk2_li6', 'li1_lk2_li4', 'li4_lk2_li5',
     ]
 
-    if read_data:
+    if read_data and exists('all_cage_results.txt'):
         data = read_csv('all_cage_results.txt')
 
         for i, row in data.iterrows():
@@ -217,7 +217,10 @@ def analyse_all_cages(params, all_cage_sets, ligands, read_data):
     else:
         with open('all_cage_results.txt', 'w') as f:
             f.write(
-                f'lig,stable,preferred,plane_dev_C,sqpl_op_C,lse_C,'
+                'lig,stable,preferred,'
+                'plane_dev_A,plane_dev_B,plane_dev_C,plane_dev_D,'
+                'sqpl_op_A,sqpl_op_B,sqpl_op_C,sqpl_op_D,'
+                'lse_A,lse_B,lse_C,lse_D,'
                 'energy_A,energy_B,energy_C,energy_D\n'
             )
             for lig_name in all_cage_sets:
@@ -275,9 +278,18 @@ def analyse_all_cages(params, all_cage_sets, ligands, read_data):
 
                 f.write(
                     f'{lig_name},{stable},{preferred},'
+                    f"{m_distortions['plane_dev'][0]['A']},"
+                    f"{m_distortions['plane_dev'][0]['B']},"
                     f"{m_distortions['plane_dev'][0]['C']},"
+                    f"{m_distortions['plane_dev'][0]['D']},"
+                    f"{m_distortions['min_q4_op'][0]['A']},"
+                    f"{m_distortions['min_q4_op'][0]['B']},"
                     f"{m_distortions['min_q4_op'][0]['C']},"
+                    f"{m_distortions['min_q4_op'][0]['D']},"
+                    f"{l_distortions['sum_strain'][0]['A']},"
+                    f"{l_distortions['sum_strain'][0]['B']},"
                     f"{l_distortions['sum_strain'][0]['C']},"
+                    f"{l_distortions['sum_strain'][0]['D']},"
                     f"{energies['A']},{energies['B']},"
                     f"{energies['C']},{energies['D']}\n"
                 )
