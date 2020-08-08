@@ -12,6 +12,8 @@ Date Created: 5 Aug 2020
 """
 
 import json
+from os.path import exists
+from os import mkdir
 import subprocess as sp
 import glob
 import stk
@@ -20,12 +22,14 @@ import stk
 def load_in_structure(file):
     struct = stk.BuildingBlock.init_from_file(file)
     pos_mat = struct.get_position_matrix()
+
     mol_list = []
     for i, atom in enumerate(struct.get_atoms()):
         mol_list.append([
             atom.__class__.__name__,
             (pos_mat[i][0], pos_mat[i][1], pos_mat[i][2])
         ])
+
     return mol_list
 
 
@@ -38,14 +42,14 @@ def write_molecule_section(mol_list):
     for atom in mol_list:
         string += (
             f'{atom[0]} {round(atom[1][0], 4)} '
-            f'{round(atom[1][1], 4)} {round(atom[1][1], 4)}\n'
+            f'{round(atom[1][1], 4)} {round(atom[1][2], 4)}\n'
         )
     string += '*\n'
 
     return string
 
 
-def write_spe_input_file(infile, mol_list, grid, np):
+def write_spe_input_file(infile, mol_list, grid, np, directory):
     comment_line = (
         '# Test a simple DFT calculation with D3, solvent (DMSO, CPCM)'
         ', ECPs. Using RIJCOSX because PBE0 is a hybrid functional.\n'
@@ -74,17 +78,20 @@ def write_spe_input_file(infile, mol_list, grid, np):
     string += procs_section
     string += mol_section
 
-    with open(infile, 'w') as f:
+    with open(f'{directory}/{infile}', 'w') as f:
         f.write(string)
 
 
-def write_run_file(infile, np):
+def write_run_file(name, directory, infiles, np):
 
     orca_bin_dir = '/apps/orca/4.2.1/bin/orca'
 
-    name = infile.replace('.in', '')
-    runfile = infile.replace('.in', '.sh')
-    outfile = infile.replace('.in', '.out')
+    runfile = f'{directory}/{name}.sh'
+
+    runlines = ''.join([
+        f"{orca_bin_dir} {infile} > {infile.replace('.in', '.out')}\n"
+        for infile in infiles
+    ])
 
     string = (
         f'#PBS -N {name}\n'
@@ -92,7 +99,7 @@ def write_run_file(infile, np):
         f'#PBS -l select=1:ncpus={np}:mem=124gb\n\n'
         'module load orca/4.2.1\n\n'
         'cd $PBS_O_WORKDIR\n\n'
-        f'{orca_bin_dir} {infile} > {outfile}\n'
+        f'{runlines}'
     )
 
     with open(runfile, 'w') as f:
@@ -183,14 +190,30 @@ def main():
         prefix = moll.replace('.mol', '')
 
         mol_list = load_in_structure(moll)
+        infiles = []
         for grid in grid_lists:
             calc_name = f'{prefix}_spe_{grid}'
+            directory = f'dir_{prefix}'
+            if not exists(directory):
+                mkdir(directory)
             print(f'> writing {calc_name}.....')
             infile = f'{calc_name}.in'
-            write_spe_input_file(infile, mol_list, grid, np=num_proc)
-            write_run_file(infile, np=num_proc)
+            write_spe_input_file(
+                infile=infile,
+                mol_list=mol_list,
+                grid=grid,
+                np=num_proc,
+                directory=directory,
+            )
+            infiles.append(infile)
             continue
             write_opt_input_file(infile, mol_list, grid)
+        write_run_file(
+            name=prefix,
+            directory=directory,
+            infiles=infiles,
+            np=num_proc
+        )
 
 
 if __name__ == '__main__':
