@@ -55,14 +55,15 @@ def write_spe_input_file(infile, mol_list, grid, np, directory):
         ', ECPs. Using RIJCOSX because PBE0 is a hybrid functional.\n'
     )
     top_line = (
-        f'! DFT SP RKS PBE0 RIJCOSX def2-SVP D3BJ {grid} NOFINALGRID '
+        f'! DFT SP RKS PBE0 RIJCOSX GridX{grid} def2-SVP D3BJ '
+        f'Grid{grid} NOFINALGRID '
         'TightSCF CPCM(dmso) printbasis\n\n'
     )
     base_name = infile.replace('.in', '')
     base_line = f'%base "{base_name}" \n\n'
 
     scf_section = (
-        '%scf\n   MaxIter 1000\nend\n\n'
+        '%scf\n   MaxIter 2000\nend\n\n'
     )
 
     procs_section = (
@@ -106,30 +107,42 @@ def write_run_file(name, directory, infiles, np):
         f.write(string)
 
 
-def write_opt_input_file(infile, mol_list, grid):
-    raise NotImplementedError()
+def write_opt_input_file(infile, mol_list, grid, np, directory):
     comment_line = (
         '# Test a simple DFT calculation with D3, solvent (DMSO, CPCM)'
         ', ECPs. Using RIJCOSX because PBE0 is a hybrid functional.\n'
     )
     top_line = (
-        f'! DFT SP RKS PBE0 RIJCOSX def2-SVP D3BJ {grid} NOFINALGRID '
-        'TightSCF CPCM(dmso) printbasis\n\n'
+        f'! DFT OPT RKS PBE0 RIJCOSX GridX{grid} def2-SVP D3BJ '
+        f'Grid{grid} NOFINALGRID '
+        'TightSCF CPCM(dmso) XYZFILE PDBFILE\n\n'
     )
     base_name = infile.replace('.in', '')
     base_line = f'%base "{base_name}" \n\n'
 
     scf_section = (
-        '%scf\n   MaxIter 1000\nend\n'
+        '%scf\n   MaxIter 2000\nend\n\n'
+    )
+
+    geom_section = (
+        '%geom\n   MaxIter 1000\nend\n\n'
+    )
+
+    procs_section = (
+        f'%pal\n   nprocs {np}\nend\n\n'
     )
 
     mol_section = write_molecule_section(mol_list)
 
-    string = (
-        comment_line + top_line + base_line + scf_section + mol_section
-    )
+    string = comment_line
+    string += top_line
+    string += base_line
+    string += scf_section
+    string += geom_section
+    string += procs_section
+    string += mol_section
 
-    with open(infile, 'w') as f:
+    with open(f'{directory}/{infile}', 'w') as f:
         f.write(string)
 
 
@@ -180,10 +193,8 @@ def output_energies(energy_file, energy_dict):
 def main():
 
     list_of_mols = glob.glob('*.mol')
-    grid_lists = [
-        'Grid0', 'Grid1', 'Grid2', 'Grid3', 'Grid4', 'Grid5', 'Grid6',
-        'Grid7',
-    ]
+    grid_lists = [0, 1, 2, 3, 4, 5, 6, 7]
+    grid_chosen = 6
     num_proc = 32
 
     for moll in list_of_mols:
@@ -191,11 +202,15 @@ def main():
 
         mol_list = load_in_structure(moll)
         infiles = []
+        opt_infiles = []
         for grid in grid_lists:
-            calc_name = f'{prefix}_spe_{grid}'
-            directory = f'dir_{prefix}'
-            if not exists(directory):
-                mkdir(directory)
+            calc_name = f'{prefix}_spe_Grid{grid}'
+            spe_directory = f'dir_{prefix}'
+            opt_directory = f'opt_{prefix}'
+            if not exists(spe_directory):
+                mkdir(spe_directory)
+            if not exists(opt_directory):
+                mkdir(opt_directory)
             print(f'> writing {calc_name}.....')
             infile = f'{calc_name}.in'
             write_spe_input_file(
@@ -203,15 +218,28 @@ def main():
                 mol_list=mol_list,
                 grid=grid,
                 np=num_proc,
-                directory=directory,
+                directory=spe_directory,
             )
             infiles.append(infile)
-            continue
-            write_opt_input_file(infile, mol_list, grid)
+            if grid == grid_chosen:
+                write_opt_input_file(
+                    infile=infile,
+                    mol_list=mol_list,
+                    grid=grid,
+                    np=num_proc,
+                    directory=opt_directory,
+                )
+                opt_infiles.append(infile)
         write_run_file(
             name=prefix,
-            directory=directory,
+            directory=spe_directory,
             infiles=infiles,
+            np=num_proc
+        )
+        write_run_file(
+            name=prefix,
+            directory=opt_directory,
+            infiles=opt_infiles,
             np=num_proc
         )
 
