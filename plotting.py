@@ -12,6 +12,8 @@ Date Created: 29 May 2020
 """
 
 import matplotlib.pyplot as plt
+from pandas import read_csv
+import numpy as np
 from os.path import exists
 from os import mkdir
 from rdkit.Chem import AllChem as rdkit
@@ -46,7 +48,7 @@ def plot_energetics_and_geom(
         },
         'sqpl': {
             'xlim': (0.6, 1),
-            'xtitle': r'min. $q_{\mathrm{sp}}$',
+            'xtitle': r'$q_{\mathrm{sqp,min}}$',
         }
     }
 
@@ -56,42 +58,36 @@ def plot_energetics_and_geom(
         c_passed = atools.colors_i_like()[4]
         c_failed = atools.colors_i_like()[3]
         c_negative = atools.colors_i_like()[2]
+        c_experiments = atools.colors_i_like()[0]
+
+        x_passed = []
+        y_passed = []
+        x_failed = []
+        y_failed = []
+        x_negative = []
+        y_negative = []
+        x_experiments = []
+        y_experiments = []
 
         for i, lig in enumerate(ligands):
-            if lig in cages_cis_wins:
-                c = c_passed
-            elif lig in cages_not_wins:
-                c = c_failed
-
             if lig in experiments:
-                m = 'X'
+                x_experiments.append(data[i])
+                y_experiments.append(energy_preferences[i])
+            elif energy_preferences[i] < 0:
+                x_negative.append(data[i])
+                y_negative.append(energy_preferences[i])
+            elif lig in cages_cis_wins:
+                x_passed.append(data[i])
+                y_passed.append(energy_preferences[i])
+            elif lig in cages_not_wins:
+                x_failed.append(data[i])
+                y_failed.append(energy_preferences[i])
             else:
-                m = 'o'
-
-            if energy_preferences[i] < 0:
-                c = c_negative
-
-            ax.scatter(
-                data[i],
-                energy_preferences[i],
-                c=c,
-                edgecolors='k',
-                marker=m,
-                alpha=1,
-                s=70
-            )
-        # Set number of ticks for x-axis
-        ax.tick_params(axis='both', which='major', labelsize=16)
-        ax.set_xlabel(names[name]['xtitle'], fontsize=16)
-        ax.set_ylabel('energy preference [kJ/mol]', fontsize=16)
-        ax.set_xlim(names[name]['xlim'])
-        ax.set_ylim(-80, 80)
-
-        ax.axhline(y=6.0, c='k', alpha=0.2)
+                raise ValueError('no matches!?')
 
         ax.scatter(
-            -100,
-            0,
+            x_passed,
+            y_passed,
             c=c_passed,
             edgecolors='k',
             marker='o',
@@ -100,8 +96,8 @@ def plot_energetics_and_geom(
             label='passed'
         )
         ax.scatter(
-            -100,
-            0,
+            x_failed,
+            y_failed,
             c=c_failed,
             edgecolors='k',
             marker='o',
@@ -110,15 +106,37 @@ def plot_energetics_and_geom(
             label='failed'
         )
         ax.scatter(
-            -100,
-            0,
+            x_negative,
+            y_negative,
             c=c_negative,
             edgecolors='k',
             marker='o',
             alpha=1,
             s=70,
-            label='cis not preferred'
+            label='$cis$ not preferred'
         )
+        ax.scatter(
+            x_experiments,
+            y_experiments,
+            c=c_experiments,
+            edgecolors='k',
+            marker='o',
+            alpha=1,
+            s=70,
+            label='published examples'
+        )
+
+        # Set number of ticks for x-axis
+        ax.tick_params(axis='both', which='major', labelsize=16)
+        ax.set_xlabel(names[name]['xtitle'], fontsize=16)
+        ax.set_ylabel('stability of C isomer [kJ/mol]', fontsize=16)
+        ax.set_xlim(names[name]['xlim'])
+        ax.set_ylim(-40, 80)
+
+        ax.axhline(y=6.0, c='k', alpha=0.6, lw=2)
+        if name == 'sqpl':
+            ax.axvline(x=0.95, c='k', alpha=0.6, lw=2)
+
         ax.legend(fontsize=16)
 
         fig.tight_layout()
@@ -188,30 +206,30 @@ def plot_all_cages_bars(
         y_passed,
         color=c_passed,
         width=1,
-        edgecolor='none',
+        edgecolor=c_passed,
         alpha=1,
-        label='passed'
+        label='C isomer passed'
     )
     ax.bar(
         x_failed,
         y_failed,
         color=c_failed,
         width=1,
-        edgecolor='none',
+        edgecolor=c_failed,
         alpha=1,
-        label='failed'
+        label='C isomer failed'
     )
     ax.bar(
         x_experiments,
         y_experiments,
         color=c_experiments,
         width=1,
-        edgecolor='none',
+        edgecolor=c_experiments,
         alpha=1,
-        label='experimental cases'
+        label='published examples'
     )
     ax.legend(fontsize=16)
-    ax.axhline(y=y_bar, c='k', alpha=0.2)
+    ax.axhline(y=y_bar, c='k', alpha=0.8, lw=2)
 
     fig.tight_layout()
     fig.savefig(
@@ -330,3 +348,129 @@ def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
         bbox_inches='tight'
     )
     plt.close()
+
+
+def plot_isomer_distributions():
+    """
+    Plot y value as bar chart of all cages.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
+
+    data = read_csv('all_cage_results.txt')
+
+    names = {
+        'plane_dev': {
+            'xlim': (0, 1),
+            'xtitle': r'max. plane deviation [$\mathrm{\AA}$]',
+            'atitle': 'plane_dev_A',
+            'btitle': 'plane_dev_B',
+            'ctitle': 'plane_dev_C',
+            'dtitle': 'plane_dev_D',
+            'width': 0.05,
+        },
+        'sqpl': {
+            'xlim': (0.0, 1),
+            'xtitle': r'$q_{\mathrm{sqp,min}}$',
+            'atitle': 'sqpl_op_A',
+            'btitle': 'sqpl_op_B',
+            'ctitle': 'sqpl_op_C',
+            'dtitle': 'sqpl_op_D',
+            'width': 0.05,
+        },
+        'energy': {
+            'xlim': (0, 200),
+            'xtitle': r'relative isomer energy [kJ/mol]',
+            'atitle': 'energy_A',
+            'btitle': 'energy_B',
+            'ctitle': 'energy_C',
+            'dtitle': 'energy_D',
+            'width': 5,
+        },
+    }
+
+    for name in names:
+        fig, ax = plt.subplots(figsize=(5, 5))
+        X_bins = np.arange(
+            names[name]['xlim'][0],
+            names[name]['xlim'][1],
+            names[name]['width'],
+        )
+
+        c_a = atools.colors_i_like()[4]
+        c_b = atools.colors_i_like()[3]
+        c_c = atools.colors_i_like()[0]
+        c_d = atools.colors_i_like()[2]
+        x_a = list(data[names[name]['atitle']])
+        x_b = list(data[names[name]['btitle']])
+        x_c = list(data[names[name]['ctitle']])
+        x_d = list(data[names[name]['dtitle']])
+        labels = ['A', 'B', 'C', 'D']
+        XS = [1, 2, 3, 4]
+        YS = [x_a, x_b, x_c, x_d]
+        CS = [c_a, c_b, c_c, c_d]
+
+        for X, label, Y, C in zip(XS, labels, YS, CS):
+            hist, bin_edges = np.histogram(
+                a=Y,
+                bins=X_bins,
+                density=True
+            )
+            # ax.bar(
+            #     bin_edges[:-1],
+            #     hist,
+            #     align='edge',
+            #     alpha=0.2,
+            #     width=names[name]['width'],
+            #     color=C,
+            #     edgecolor='none',
+            #     # linewidth=2,
+            #     label=label,
+            # )
+            # ax.plot(
+            #     bin_edges[:-1],
+            #     hist,
+            #     # align='edge',
+            #     alpha=1.0,
+            #     # width=names[name]['width'],
+            #     color=C,
+            #     # edgecolor=C,
+            #     marker='o',
+            #     linewidth=2,
+            #     label=label,
+            # )
+            parts = ax.violinplot(
+                Y,
+                [X],
+                showmeans=False,
+                showmedians=False,
+                showextrema=False
+            )
+            for pc in parts['bodies']:
+                pc.set_facecolor(C)
+                pc.set_edgecolor('black')
+                pc.set_alpha(1.0)
+
+        # Set number of ticks for x-axis
+        ax.tick_params(axis='both', which='major', labelsize=16)
+        # ax.set_ylabel('density', fontsize=16)
+        ax.set_ylabel(names[name]['xtitle'], fontsize=16)
+        ax.set_ylim(names[name]['xlim'])
+        ax.set_xlim(0, 5)
+        ax.set_xticks([1, 2, 3, 4])
+        ax.set_xticklabels(['A', 'B', 'C', 'D'])
+
+        # ax.legend(fontsize=16)
+
+        fig.tight_layout()
+        fig.savefig(
+            f'all_isomerdist_{name}.pdf',
+            dpi=720,
+            bbox_inches='tight'
+        )
+        plt.close()

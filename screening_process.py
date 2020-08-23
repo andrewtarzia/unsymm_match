@@ -307,13 +307,15 @@ def analyse_all_cages(params, all_cage_sets, ligands, read_data):
     for i in sorted(cages_cis_wins):
         print(i)
 
+    PL.plot_isomer_distributions()
+
     PL.plot_all_cages_bars(
         ligands=lig_studied,
         experiments=experiments,
         cages_cis_wins=cages_cis_wins,
         cages_not_wins=cages_not_wins,
         y_value=energy_preferences,
-        y_title='energy preference [kJ/mol]',
+        y_title='stability of C isomer [kJ/mol]',
         y_bar=6.0,
         suffix='energypreference',
     )
@@ -346,7 +348,7 @@ def analyse_all_cages(params, all_cage_sets, ligands, read_data):
         cages_cis_wins=cages_cis_wins,
         cages_not_wins=cages_not_wins,
         y_value=sqpl_ops,
-        y_title=r'min. $q_{\mathrm{sp}}$',
+        y_title=r'$q_{\mathrm{sqp,min}}$',
         y_bar=0.95,
         suffix='sqplops',
     )
