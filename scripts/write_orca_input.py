@@ -49,17 +49,18 @@ def write_molecule_section(mol_list):
     return string
 
 
-def write_spe_input_file(infile, mol_list, grid, np, directory):
+def write_spe_input_file(infile, struct, grid, np, directory):
     comment_line = (
-        '# Test a simple DFT calculation with D3, solvent (DMSO, CPCM)'
-        ', ECPs. Using RIJCOSX because PBE0 is a hybrid functional.\n'
+        '# DFT single point energy with D3, solvent (DMSO, CPCM), '
+        'def2-TZVPP, def2-ECPs. Grid is 6 and slow convergence is on.'
+        '.\n'
     )
     top_line = (
-        f'! DFT SP RKS PBE0 RIJCOSX GridX{grid} def2-SVP D3BJ '
-        f'Grid{grid} NOFINALGRID '
+        f'! DFT SP RKS PBE0 def2-TZVPP def2/J D3BJ '
+        f'Grid{grid} NOFINALGRID SlowConv '
         'TightSCF CPCM(dmso) printbasis\n\n'
     )
-    base_name = infile.replace('.in', '')
+    base_name = '_'+infile.replace('.in', '')
     base_line = f'%base "{base_name}" \n\n'
 
     scf_section = (
@@ -70,7 +71,7 @@ def write_spe_input_file(infile, mol_list, grid, np, directory):
         f'%pal\n   nprocs {np}\nend\n\n'
     )
 
-    mol_section = write_molecule_section(mol_list)
+    mol_section = write_molecule_section(directory, base_name, struct)
 
     string = comment_line
     string += top_line
@@ -107,17 +108,19 @@ def write_run_file(name, directory, infiles, np):
         f.write(string)
 
 
-def write_opt_input_file(infile, mol_list, grid, np, directory):
+def write_opt_input_file(infile, struct, grid, np, directory):
     comment_line = (
-        '# Test a simple DFT calculation with D3, solvent (DMSO, CPCM)'
-        ', ECPs. Using RIJCOSX because PBE0 is a hybrid functional.\n'
+        '# DFT optimisation with D3, solvent (DMSO, CPCM)'
+        ', def2-SVP, def2-ECPs. Grid is 6 and slow convergence is on.'
+        'Using RIJCOSX with GridX6 because PBE0 is a hybrid functional'
+        '.\n'
     )
     top_line = (
-        f'! DFT OPT RKS PBE0 RIJCOSX GridX{grid} def2-SVP D3BJ '
-        f'Grid{grid} NOFINALGRID '
-        'TightSCF CPCM(dmso) XYZFILE PDBFILE\n\n'
+        f'! DFT OPT RKS PBE0 RIJCOSX GridX{grid} def2-SVP def2/J D3BJ '
+        f'Grid{grid} NOFINALGRID SlowConv '
+        'TightSCF CPCM(dmso) XYZFILE PDBFILE printbasis\n\n'
     )
-    base_name = infile.replace('.in', '')
+    base_name = '_'+infile.replace('.in', '')
     base_line = f'%base "{base_name}" \n\n'
 
     scf_section = (
@@ -132,7 +135,7 @@ def write_opt_input_file(infile, mol_list, grid, np, directory):
         f'%pal\n   nprocs {np}\nend\n\n'
     )
 
-    mol_section = write_molecule_section(mol_list)
+    mol_section = write_molecule_section(directory, base_name, struct)
 
     string = comment_line
     string += top_line
@@ -146,38 +149,79 @@ def write_opt_input_file(infile, mol_list, grid, np, directory):
         f.write(string)
 
 
-def get_final_energy(outfile):
+def write_final_opt_input_file(infile, struct, grid, np, directory):
+    comment_line = (
+        '# DFT optimisation with D3, solvent (DMSO, CPCM), def2-TZVPP,'
+        ' def2-ECPs. Grid is 6 and slow convergence is on.'
+        '.\n'
+    )
+    top_line = (
+        f'! DFT OPT RKS PBE0 def2-TZVPP def2/J D3BJ '
+        f'Grid{grid} NOFINALGRID SlowConv '
+        'TightSCF CPCM(dmso) XYZFILE PDBFILE printbasis\n\n'
+    )
+    base_name = '_'+infile.replace('.in', '')
+    base_line = f'%base "{base_name}" \n\n'
 
-    with open(outfile, 'r') as f:
-        for line in f.readlines():
-            if 'FINAL SINGLE POINT ENERGY' in line:
-                energy = float(line.rstrip().split(' ')[-1])
-                print(line, energy)
-                break
+    scf_section = (
+        '%scf\n   MaxIter 2000\nend\n\n'
+    )
 
-    return energy
+    geom_section = (
+        '%geom\n   MaxIter 1000\nend\n\n'
+    )
+
+    procs_section = (
+        f'%pal\n   nprocs {np}\nend\n\n'
+    )
+
+    mol_section = write_molecule_section(directory, base_name, struct)
+
+    string = comment_line
+    string += top_line
+    string += base_line
+    string += scf_section
+    string += geom_section
+    string += procs_section
+    string += mol_section
+
+    with open(f'{directory}/{infile}', 'w') as f:
+        f.write(string)
 
 
-def run_spe(calc_name, mol_list, grid):
+def write_freq_input_file(infile, struct, grid, np, directory):
+    comment_line = (
+        '# DFT frequency calculation with D3, solvent (DMSO, CPCM), '
+        'def2-TZVPP, def2-ECPs. Grid is 6 and slow convergence is on.'
+        '.\n'
+    )
+    top_line = (
+        f'! DFT NumFreq RKS PBE0 def2-TZVPP def2/J D3BJ '
+        f'Grid{grid} NOFINALGRID SlowConv '
+        'TightSCF CPCM(dmso) XYZFILE PDBFILE printbasis\n\n'
+    )
+    base_name = '_'+infile.replace('.in', '')
+    base_line = f'%base "{base_name}" \n\n'
 
-    infile = f'{calc_name}.in'
-    outfile = infile.replace('.in', '.out')
-    write_spe_input_file(infile, mol_list, grid)
+    scf_section = (
+        '%scf\n   MaxIter 2000\nend\n\n'
+    )
 
-    orca_dir = '/home/atarzia/software/orca/orca'
-    cmd = f'{orca_dir} {infile}'
+    procs_section = (
+        f'%pal\n   nprocs {np}\nend\n\n'
+    )
 
-    with open(outfile, 'w') as f:
-        # Note that sp.call will hold the program until completion
-        # of the calculation.
-        sp.call(
-            cmd,
-            stdin=sp.PIPE,
-            stdout=f,
-            stderr=sp.PIPE,
-            # Shell is required to run complex arguments.
-            shell=True
-        )
+    mol_section = write_molecule_section(directory, base_name, struct)
+
+    string = comment_line
+    string += top_line
+    string += base_line
+    string += scf_section
+    string += procs_section
+    string += mol_section
+
+    with open(f'{directory}/{infile}', 'w') as f:
+        f.write(string)
 
     energy = get_final_energy(outfile)
 
