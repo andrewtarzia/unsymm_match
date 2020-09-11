@@ -96,8 +96,12 @@ def optimize_cage(cage, cage_name):
             free_e=0,
             charge=4,
             etemp=300,
-            conformer_dir=f'cage_opt_{cage_name}_MD',
-            output_dir=f'cage_opt_{cage_name}_xtb_conf',
+            conformer_dir=(
+                f'calculations_output/cage_opt_{cage_name}_MD'
+            ),
+            output_dir=(
+                f'calculations_output/cage_opt_{cage_name}_xtb_conf'
+            ),
             solvent=('dmso', 'verytight'),
             handle_failure=True
         )

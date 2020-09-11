@@ -56,14 +56,18 @@ def plot_energetics_and_geom(
         fig, ax = plt.subplots(figsize=(8, 5))
 
         c_passed = atools.colors_i_like()[4]
-        c_failed = atools.colors_i_like()[3]
-        c_negative = atools.colors_i_like()[2]
+        # c_failed = atools.colors_i_like()[3]
+        c_negative = atools.colors_i_like()[3]
         c_experiments = atools.colors_i_like()[0]
+        m_passed = 'o'
+        # m_failed = 'o'
+        m_negative = 's'
+        m_experiments = 'X'
 
         x_passed = []
         y_passed = []
-        x_failed = []
-        y_failed = []
+        # x_failed = []
+        # y_failed = []
         x_negative = []
         y_negative = []
         x_experiments = []
@@ -76,43 +80,37 @@ def plot_energetics_and_geom(
             elif energy_preferences[i] < 0:
                 x_negative.append(data[i])
                 y_negative.append(energy_preferences[i])
-            elif lig in cages_cis_wins:
+            elif lig in cages_cis_wins or lig in cages_not_wins:
                 x_passed.append(data[i])
                 y_passed.append(energy_preferences[i])
-            elif lig in cages_not_wins:
-                x_failed.append(data[i])
-                y_failed.append(energy_preferences[i])
+            # elif lig in cages_not_wins:
+            #     x_failed.append(data[i])
+            #     y_failed.append(energy_preferences[i])
             else:
                 raise ValueError('no matches!?')
+
+        print(
+            sum([len(x_experiments), len(x_negative), len(x_passed)])
+        )
 
         ax.scatter(
             x_passed,
             y_passed,
             c=c_passed,
             edgecolors='k',
-            marker='o',
+            marker=m_passed,
             alpha=1,
-            s=70,
-            label='passed'
-        )
-        ax.scatter(
-            x_failed,
-            y_failed,
-            c=c_failed,
-            edgecolors='k',
-            marker='o',
-            alpha=1,
-            s=70,
-            label='failed'
+            s=80,
+            label='$cis$ preferred'
         )
         ax.scatter(
             x_negative,
             y_negative,
             c=c_negative,
             edgecolors='k',
-            marker='o',
+            marker=m_negative,
             alpha=1,
-            s=70,
+            s=80,
             label='$cis$ not preferred'
         )
         ax.scatter(
@@ -120,9 +118,9 @@ def plot_energetics_and_geom(
             y_experiments,
             c=c_experiments,
             edgecolors='k',
-            marker='o',
+            marker=m_experiments,
             alpha=1,
-            s=70,
+            s=80,
             label='published examples'
         )
 
@@ -130,13 +128,12 @@ def plot_energetics_and_geom(
         ax.tick_params(axis='both', which='major', labelsize=16)
         ax.set_xlabel(names[name]['xtitle'], fontsize=16)
         ax.set_ylabel('stability of C isomer [kJ/mol]', fontsize=16)
-        ax.set_xlim(names[name]['xlim'])
-        ax.set_ylim(-40, 80)
+        # ax.set_xlim(names[name]['xlim'])
+        # ax.set_ylim(-40, 80)
 
         ax.axhline(y=6.0, c='k', alpha=0.6, lw=2)
-        if name == 'sqpl':
-            ax.axvline(x=0.95, c='k', alpha=0.6, lw=2)
-
+        # if name == 'sqpl':
+        #     ax.axvline(x=0.95, c='k', alpha=0.6, lw=2)
         ax.legend(fontsize=16)
 
         fig.tight_layout()
@@ -199,7 +196,7 @@ def plot_all_cages_bars(
     ax.tick_params(axis='both', which='major', labelsize=16)
     ax.set_xlabel('cage', fontsize=16)
     ax.set_ylabel(y_title, fontsize=16)
-    ax.set_xlim(0, 85)
+    ax.set_xlim(0, 61)
 
     ax.bar(
         x_passed,

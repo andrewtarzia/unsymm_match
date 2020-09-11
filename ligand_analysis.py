@@ -239,7 +239,7 @@ def select_conformer(molecule, confs, cids, name):
 
         xtb_opt = stko.XTB(
             xtb_path='/home/atarzia/software/xtb-190806/bin/xtb',
-            output_dir=f'{name}',
+            output_dir=f'calculations_output/{name}',
             gfn_version=2,
             num_cores=6,
             opt_level='verytight',
