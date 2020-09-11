@@ -193,43 +193,64 @@ def output_energies(energy_file, energy_dict):
 def main():
 
     list_of_mols = glob.glob('*.mol')
-    grid_lists = [0, 1, 2, 3, 4, 5, 6, 7]
+    # grid_lists = [0, 1, 2, 3, 4, 5, 6, 7]
     grid_chosen = 6
     num_proc = 32
 
     for moll in list_of_mols:
         prefix = moll.replace('.mol', '')
 
-        mol_list = load_in_structure(moll)
+        struct = load_in_structure(moll)
         infiles = []
         opt_infiles = []
-        for grid in grid_lists:
-            calc_name = f'{prefix}_spe_Grid{grid}'
-            spe_directory = f'dir_{prefix}'
-            opt_directory = f'opt_{prefix}'
-            if not exists(spe_directory):
-                mkdir(spe_directory)
-            if not exists(opt_directory):
-                mkdir(opt_directory)
-            print(f'> writing {calc_name}.....')
-            infile = f'{calc_name}.in'
-            write_spe_input_file(
-                infile=infile,
-                mol_list=mol_list,
-                grid=grid,
-                np=num_proc,
-                directory=spe_directory,
-            )
-            infiles.append(infile)
-            if grid == grid_chosen:
-                write_opt_input_file(
-                    infile=infile,
-                    mol_list=mol_list,
-                    grid=grid,
-                    np=num_proc,
-                    directory=opt_directory,
-                )
-                opt_infiles.append(infile)
+        fin_opt_infiles = []
+        freq_infiles = []
+        # for grid in grid_lists:
+        calc_name = f'{prefix}'
+        spe_directory = f'spe_{prefix}'
+        opt_directory = f'opt_{prefix}'
+        if not exists(spe_directory):
+            mkdir(spe_directory)
+        if not exists(opt_directory):
+            mkdir(opt_directory)
+        print(f'> writing {calc_name}.....')
+        infile = f's_{calc_name}.in'
+        o_infile = f'o_{calc_name}.in'
+        fo_infile = f'fo_{calc_name}.in'
+        f_infile = f'f_{calc_name}.in'
+        write_spe_input_file(
+            infile=infile,
+            struct=struct,
+            grid=grid_chosen,
+            np=num_proc,
+            directory=spe_directory,
+        )
+        infiles.append(infile)
+        # if grid == grid_chosen:
+        write_opt_input_file(
+            infile=o_infile,
+            struct=struct,
+            grid=grid_chosen,
+            np=num_proc,
+            directory=opt_directory,
+        )
+        opt_infiles.append(o_infile)
+        write_final_opt_input_file(
+            infile=fo_infile,
+            struct=struct,
+            grid=grid_chosen,
+            np=num_proc,
+            directory=opt_directory,
+        )
+        fin_opt_infiles.append(fo_infile)
+        write_freq_input_file(
+            infile=f_infile,
+            struct=struct,
+            grid=grid_chosen,
+            np=num_proc,
+            directory=opt_directory,
+        )
+        freq_infiles.append(f_infile)
         write_run_file(
             name=prefix,
             directory=spe_directory,
@@ -237,9 +258,21 @@ def main():
             np=num_proc
         )
         write_run_file(
-            name=prefix,
+            name=f'o_{prefix}',
             directory=opt_directory,
             infiles=opt_infiles,
+            np=num_proc
+        )
+        write_run_file(
+            name=f'fo_{prefix}',
+            directory=opt_directory,
+            infiles=fin_opt_infiles,
+            np=num_proc
+        )
+        write_run_file(
+            name=f'f_{prefix}',
+            directory=opt_directory,
+            infiles=freq_infiles,
             np=num_proc
         )
 
