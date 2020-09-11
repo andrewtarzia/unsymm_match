@@ -14,37 +14,38 @@ Date Created: 5 Aug 2020
 import json
 from os.path import exists
 from os import mkdir
-import subprocess as sp
 import glob
 import stk
 
 
 def load_in_structure(file):
     struct = stk.BuildingBlock.init_from_file(file)
-    pos_mat = struct.get_position_matrix()
+    # pos_mat = struct.get_position_matrix()
 
-    mol_list = []
-    for i, atom in enumerate(struct.get_atoms()):
-        mol_list.append([
-            atom.__class__.__name__,
-            (pos_mat[i][0], pos_mat[i][1], pos_mat[i][2])
-        ])
+    # mol_list = []
+    # for i, atom in enumerate(struct.get_atoms()):
+    #     mol_list.append([
+    #         atom.__class__.__name__,
+    #         (pos_mat[i][0], pos_mat[i][1], pos_mat[i][2])
+    #     ])
 
-    return mol_list
+    return struct
 
 
-def write_molecule_section(mol_list):
+def write_molecule_section(directory, base_name, struct):
 
     charge = 4
     multiplicity = 1
+    xyzfile = f'{base_name}_init.xyz'
 
-    string = f'* xyz {charge} {multiplicity}\n'
-    for atom in mol_list:
-        string += (
-            f'{atom[0]} {round(atom[1][0], 4)} '
-            f'{round(atom[1][1], 4)} {round(atom[1][2], 4)}\n'
-        )
-    string += '*\n'
+    string = f'* xyzfile {charge} {multiplicity} {xyzfile}\n'
+    # for atom in mol_list:
+    #     string += (
+    #         f'{atom[0]} {round(atom[1][0], 4)} '
+    #         f'{round(atom[1][1], 4)} {round(atom[1][2], 4)}\n'
+    #     )
+    # string += '*\n'
+    struct.write(f'{directory}/{xyzfile}')
 
     return string
 
@@ -223,9 +224,80 @@ def write_freq_input_file(infile, struct, grid, np, directory):
     with open(f'{directory}/{infile}', 'w') as f:
         f.write(string)
 
-    energy = get_final_energy(outfile)
 
-    return energy
+def get_spe_energy(dir, basename):
+
+    out_file = f'{dir}/{basename}.out'
+
+    with open(out_file, 'r') as f:
+        lines = f.readlines()
+
+    targ_str = 'FINAL SINGLE POINT ENERGY'
+    for line in lines:
+        if targ_str in line:
+            energy = float(line.rstrip().split(' ')[-1])
+            break
+
+    return energy * 2625.5
+
+
+def get_opt_energy(dir, basename):
+
+    out_file = f'{dir}/{basename}_fin.out'
+
+    if not exists(out_file):
+        raise FileNotFoundError(f'Copy final out file to {out_file}')
+
+    with open(out_file, 'r') as f:
+        lines = f.readlines()
+
+    targ_str = 'FINAL SINGLE POINT ENERGY'
+    for line in lines:
+        if targ_str in line:
+            energy = float(line.rstrip().split(' ')[-1])
+            print(energy)
+
+    print(energy)
+    input()
+    return energy * 2625.5
+
+
+def get_dft_spe_energies():
+
+    files = glob.glob(f'*_opt.mol')
+    spe_directory = f'spe_calcs'
+
+    energies = {}
+    for file in sorted(files):
+        print('dft_energy:', file)
+        name = file.replace('_opt.mol', '')
+        o_output = f'{name}_spe.out'
+        basename = f'{name}_spe'
+        if exists(f'{spe_directory}/{o_output}'):
+            energies[name] = get_spe_energy(spe_directory, basename)
+        else:
+            energies[name] = -5
+
+    return energies
+
+
+def get_dft_opt_energies():
+
+    files = glob.glob(f'*_opt.mol')
+    opt_directory = f'opt_calcs'
+
+    energies = {}
+    for file in sorted(files):
+        print('dft_energy:', file)
+        name = file.replace('_opt.mol', '')
+        o_output = f'{name}_opt.out'
+        basename = f'{name}_opt'
+        if exists(f'{opt_directory}/{o_output}'):
+            energies[name] = get_opt_energy(opt_directory, basename)
+        else:
+            energies[name] = -5
+
+    return energies
 
 
 def output_energies(energy_file, energy_dict):
