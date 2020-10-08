@@ -47,7 +47,7 @@ def build_all_ligands(params):
             count += 1
             lig1_smiles = ligand_smiles[lig1]
             lig2_smiles = ligand_smiles[lig2]
-            name = f"{lig1}_{link}_{lig2}"
+            name = f"{lig1}{link}{lig2}"
             ligand = LB.build_linker(
                 lig1_smiles=lig1_smiles,
                 lig2_smiles=lig2_smiles,
@@ -72,9 +72,7 @@ def analyse_all_ligands(params, ligands):
 
     """
 
-    experiments = [
-        'li1_lk2_li5', 'li2_lk2_li6', 'li1_lk2_li4', 'li4_lk2_li5',
-    ]
+    experiments = ['5D1', '4D2', '5D3', '3D1']
 
     for ligand in ligands:
         # if ligand not in experiments:
@@ -142,9 +140,7 @@ def build_all_cages(params, ligands):
 
     """
 
-    experiments = [
-        'li1_lk2_li5', 'li2_lk2_li6', 'li1_lk2_li4', 'li4_lk2_li5',
-    ]
+    experiments = ['5D1', '4D2', '5D3', '3D1']
 
     all_cage_sets = {}
     for ligand in ligands:
@@ -180,9 +176,7 @@ def analyse_all_cages(params, all_cage_sets, ligands, read_data):
     sqpl_ops = []
     lses = []
 
-    experiments = [
-        'li1_lk2_li5', 'li2_lk2_li6', 'li1_lk2_li4', 'li4_lk2_li5',
-    ]
+    experiments = ['5D1', '4D2', '5D3', '3D1']
 
     if read_data and exists('all_cage_results.txt'):
         data = read_csv('all_cage_results.txt')

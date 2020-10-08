@@ -83,22 +83,22 @@ def get_cage_energies(name, cages):
         # These lines are the energy difference between the cis and
         # next most stable isomer from xtb after RDKIT opt.
         # expts = {
-        #     'li1_lk2_li5': (17, 'k'),
-        #     'li2_lk2_li6': (27, 'k'),
-        #     'li1_lk2_li4': (8, 'k'),
-        #     'li4_lk2_li5': (1.4, 'r')
+        #     '5D1': (17, 'k'),
+        #     '4D2': (27, 'k'),
+        #     '5D3': (8, 'k'),
+        #     '3D1': (1.4, 'r')
         # }
         # lines = [
-        #     expts['li1_lk2_li5'][0],
-        #     expts['li2_lk2_li6'][0],
-        #     expts['li1_lk2_li4'][0],
-        #     expts['li4_lk2_li5'][0],
+        #     expts['5D1'][0],
+        #     expts['4D2'][0],
+        #     expts['5D3'][0],
+        #     expts['3D1'][0],
         # ]
         # styles = [
-        #     expts['li1_lk2_li5'][1],
-        #     expts['li2_lk2_li6'][1],
-        #     expts['li1_lk2_li4'][1],
-        #     expts['li4_lk2_li5'][1],
+        #     expts['5D1'][1],
+        #     expts['4D2'][1],
+        #     expts['5D3'][1],
+        #     expts['3D1'][1],
         # ]
         higlights = {
             'threshold': (6, 'k', 3),

@@ -26,18 +26,15 @@ def bar_figure(selected_ligands, experimental_ligands, data):
 
     for i, li in enumerate(selected_ligands):
         row = data[data['lig'] == li]
-        print(row, row['energy_C'])
+        print(row)
+        print(row['energy_C'])
         energy_sep = min([
             float(row['energy_A']),
             float(row['energy_B']),
             float(row['energy_D']),
         ])
         C_qsp = float(row['sqpl_op_C'])
-        short_name = (
-            li.replace(
-                '_li', '-'
-            ).replace('_lk', '-').replace('li', '')
-        )
+        short_name = li
         if li in experimental_ligands:
             x_expt[i] = (short_name, energy_sep, C_qsp)
         else:
@@ -200,16 +197,16 @@ def single_bar_figure(selected_ligands, experimental_ligands, data):
 def main():
 
     experimental_ligands = [
-        'li1_lk2_li5', 'li2_lk2_li6',
-        'li1_lk2_li4', 'li4_lk2_li5',
+        '5D1', '4D2',
+        '5D3', '3D1',
     ]
     selected_ligands = [
-        'li1_lk2_li5', 'li2_lk2_li6',
-        'li1_lk2_li4', 'li4_lk2_li5',
-        'li1_lk4_li4', 'li1_lk4_li5',
-        'li2_lk3_li4', 'li2_lk3_li5',
-        'li1_lk1_li6', 'li2_lk1_li6',
-        'li4_lk1_li6', 'li1_lk3_li2',
+        '5D1', '4D2',
+        '5D3', '3D1',
+        '5A3', '5A1',
+        '4B3', '4B1',
+        '5C2', '4C2',
+        '3C2', '5B4',
     ]
 
     full_data = pd.read_csv('all_cage_results.txt')

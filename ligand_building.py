@@ -19,12 +19,19 @@ from atools import AromaticCNCFactory, AromaticCNNFactory
 
 def ligands():
     ligand_smiles = {
-        'li1': 'BrC#Cc1cccc2cnccc12',
-        'li2': 'BrC#Cc1cccc2ccncc12',
-        'li3': 'BrC#Cc1cccc2ncccc12',
-        'li4': 'BrC#Cc1cccnc1',
-        'li5': 'Brc1cccnc1',
-        'li6': 'Brc1ccncc1',
+        '5': 'BrC#Cc1cccc2cnccc12',
+        '4': 'BrC#Cc1cccc2ccncc12',
+        '6': 'BrC#Cc1cccc2ncccc12',
+        '3': 'BrC#Cc1cccnc1',
+        '1': 'Brc1cccnc1',
+        '2': 'Brc1ccncc1',
+        # '7': 'Cc1cn(Br)nn1',  # Removed on 02/09/20
+        # 'li1': 'BrC#Cc1cccc2cnccc12',
+        # 'li2': 'BrC#Cc1cccc2ccncc12',
+        # 'li3': 'BrC#Cc1cccc2ncccc12',
+        # 'li4': 'BrC#Cc1cccnc1',
+        # 'li5': 'Brc1cccnc1',
+        # 'li6': 'Brc1ccncc1',
         # 'li7': 'Cc1cn(Br)nn1',  # Removed on 02/09/20
         # 'li8': 'Brc1cccc2ccncc12',
         # 'li9': 'Brc1cccc2ncccc12',
@@ -35,10 +42,10 @@ def ligands():
 
 def linkers():
     linker_smiles = {
-        'lk1': 'Brc1ccc2[nH]c3ccc(Br)cc3c2c1',
-        'lk2': 'Brc1cccc(Br)c1',
-        'lk3': 'Brc1ccc(Br)cc1',
-        'lk4': 'Brc1ccc2ccc(Br)cc2c1',
+        'C': 'Brc1ccc2[nH]c3ccc(Br)cc3c2c1',
+        'D': 'Brc1cccc(Br)c1',
+        'B': 'Brc1ccc(Br)cc1',
+        'A': 'Brc1ccc2ccc(Br)cc2c1',
     }
 
     return linker_smiles

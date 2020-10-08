@@ -27,8 +27,8 @@ def get_c(b):
 
 
 def get_xtick(name):
-    new_name = name.replace('_li', '-').replace('_lk', '-')
-    return new_name.replace('li', '')
+
+    return name
 
 
 def get_C_pd(row):
@@ -62,19 +62,21 @@ def main():
         """)
         sys.exit()
 
+    raise Exception('This script is outdated.')
+
     experimental_cases = {
-        'li1_lk2_li5': {'new': False, 'p': 1},
-        'li2_lk2_li6': {'new': False, 'p': 2},
-        'li1_lk2_li4': {'new': False, 'p': 3},
-        'li4_lk2_li5': {'new': False, 'p': 4},
-        'li1_lk4_li4': {'new': True, 'p': 5},
-        'li1_lk4_li5': {'new': True, 'p': 6},
-        'li2_lk3_li4': {'new': True, 'p': 7},
-        'li2_lk3_li5': {'new': True, 'p': 8},
-        'li1_lk1_li6': {'new': True, 'p': 9},
-        'li2_lk1_li6': {'new': True, 'p': 10},
-        'li1_lk2_li7': {'new': True, 'p': 11},
-        'li1_lk3_li2': {'new': True, 'p': 12},
+        '5D1': {'new': False, 'p': 1},
+        '4D2': {'new': False, 'p': 2},
+        '5D3': {'new': False, 'p': 3},
+        '3D1': {'new': False, 'p': 4},
+        '5A3': {'new': True, 'p': 5},
+        '5A1': {'new': True, 'p': 6},
+        '4B3': {'new': True, 'p': 7},
+        '4B1': {'new': True, 'p': 8},
+        '5C2': {'new': True, 'p': 9},
+        '4C2': {'new': True, 'p': 10},
+        '5D7': {'new': True, 'p': 11},
+        '5B4': {'new': True, 'p': 12},
     }
 
     print(experimental_cases)
