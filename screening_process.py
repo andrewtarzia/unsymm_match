@@ -409,30 +409,13 @@ def main():
 
     # Build all ligands.
     ligands = build_all_ligands(params)
-    #
-    # subset = [
-    #     'li1_lk2_li4', 'li2_lk1_li5', 'li1_lk2_li6',
-    #     'li1_lk3_li4', 'li4_lk1_li6', 'li1_lk1_li5',
-    #     'li1_lk1_li4', 'li2_lk2_li6', 'li3_lk1_li4',
-    #     'li1_lk2_li3', 'li1_lk3_li2', 'li4_lk1_li5',
-    #     'li1_lk1_li3', 'li4_lk2_li5', 'li1_lk1_li2',
-    #     'li1_lk3_li3', 'li4_lk2_li6', 'li2_lk1_li4',
-    #     'li3_lk2_li5', 'li3_lk2_li6', 'li2_lk2_li4',
-    #     'li3_lk1_li5', 'li5_lk2_li6', 'li2_lk2_li5',
-    #     'li5_lk1_li6', 'li1_lk2_li2', 'li2_lk2_li3',
-    #     'li1_lk2_li5', 'li1_lk3_li5', 'li3_lk2_li4',
-    #     'li2_lk1_li3', 'li1_lk1_li6', 'li1_lk3_li6',
-    #     'li2_lk1_li6', 'li3_lk1_li6'
-    # ]
-    # ligands = {i: ligands[i] for i in ligands if i in subset}
-    # print(
-    #     f'only doing {len(ligands)} because of an error'
-    #     ', fix this'
-    # )
+
     # Analyse all ligands.
     ligands = analyse_all_ligands(params, ligands)
+
     # Build all cages.
     all_cage_sets = build_all_cages(params, ligands)
+
     # Analyse all cages.
     analyse_all_cages(params, all_cage_sets, ligands, read_data)
 
