@@ -356,6 +356,15 @@ def analyse_all_cages(params, all_cage_sets, ligands, read_data):
         plane_devs,
         sqpl_ops,
     )
+    PL.plot_energetics_and_geom_3D(
+        lig_studied,
+        experiments,
+        cages_cis_wins,
+        cages_not_wins,
+        energy_preferences,
+        plane_devs,
+        sqpl_ops,
+    )
 
     PL.draw_molecules(
         lig_studied,

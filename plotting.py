@@ -12,6 +12,7 @@ Date Created: 29 May 2020
 """
 
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 from pandas import read_csv
 import numpy as np
 from os.path import exists
@@ -143,6 +144,236 @@ def plot_energetics_and_geom(
             bbox_inches='tight'
         )
         plt.close()
+
+
+def plot_energetics_and_geom_3D(
+    ligands,
+    experiments,
+    cages_cis_wins,
+    cages_not_wins,
+    energy_preferences,
+    plane_devs,
+    sqpl_ops
+):
+    """
+    Plot energy preference of all cages.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
+
+    names = {
+        'plane_dev': {
+            'xlim': (0, 1),
+            'xtitle': r'max. plane deviation [$\mathrm{\AA}$]',
+        },
+        'sqpl': {
+            'xlim': (0.6, 1),
+            'xtitle': r'$q_{\mathrm{sqp,min}}$',
+        }
+    }
+
+    m_passed = 'o'
+    m_negative = 's'
+    m_experiments = 'X'
+
+    x_passed = []
+    y_passed = []
+    z_passed = []
+    x_negative = []
+    y_negative = []
+    z_negative = []
+    x_experiments = []
+    y_experiments = []
+    z_experiments = []
+
+    for i, lig in enumerate(ligands):
+        if lig in experiments:
+            x_experiments.append(sqpl_ops[i])
+            y_experiments.append(energy_preferences[i])
+            z_experiments.append(plane_devs[i])
+        elif energy_preferences[i] < 0:
+            x_negative.append(sqpl_ops[i])
+            y_negative.append(energy_preferences[i])
+            z_negative.append(plane_devs[i])
+        elif lig in cages_cis_wins or lig in cages_not_wins:
+            x_passed.append(sqpl_ops[i])
+            y_passed.append(energy_preferences[i])
+            z_passed.append(plane_devs[i])
+        else:
+            raise ValueError('no matches!?')
+
+    print(
+        sum([len(x_experiments), len(x_negative), len(x_passed)])
+    )
+
+    # Normalize plane deviations.
+    z_passed = [i/0.2 for i in z_passed]
+    z_negative = [i/0.2 for i in z_negative]
+    z_experiments = [i/0.2 for i in z_experiments]
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    cmap = {
+        'mid_point': 0.5,
+        'cmap': cm.Blues_r,
+        'ticks': [0, .50, 1.00],
+        'labels': ['0', '0.1', '0.2'],
+        'cmap_label': names['plane_dev']['xtitle'],
+    }
+    cmp = atools.define_plot_cmap(
+        fig, ax,
+        mid_point=cmap['mid_point'],
+        cmap=cmap['cmap'],
+        ticks=cmap['ticks'],
+        labels=cmap['labels'],
+        cmap_label=cmap['cmap_label']
+    )
+
+    ax.scatter(
+        x_passed,
+        y_passed,
+        c=cmp(z_passed),
+        edgecolors='k',
+        marker=m_passed,
+        alpha=1,
+        s=100,
+        # label='$cis$ preferred'
+    )
+    ax.scatter(
+        x_negative,
+        y_negative,
+        c=cmp(z_negative),
+        edgecolors='k',
+        marker=m_negative,
+        alpha=1,
+        s=100,
+        # label='$cis$ not preferred'
+    )
+    ax.scatter(
+        x_experiments,
+        y_experiments,
+        c=cmp(z_experiments),
+        edgecolors='k',
+        marker=m_experiments,
+        alpha=1,
+        s=100,
+        # label='published examples'
+    )
+
+    # Set number of ticks for x-axis
+    ax.tick_params(axis='both', which='major', labelsize=16)
+    ax.set_xlabel(names['sqpl']['xtitle'], fontsize=16)
+    # ax.set_xlabel(names[name]['xtitle'], fontsize=16)
+    ax.set_ylabel('stability of C isomer [kJ/mol]', fontsize=16)
+    ax.set_xlim(0.3, 1.05)
+    ax.set_ylim(-31, 50)
+
+    ax.axhline(y=6.0, c='k', alpha=0.6, lw=2)
+    # if name == 'sqpl':
+    #     ax.axvline(x=0.95, c='k', alpha=0.6, lw=2)
+    ax.scatter(
+        -100, -100,
+        c='white',
+        edgecolors='k',
+        marker=m_passed,
+        alpha=1,
+        s=100,
+        label='$cis$ preferred',
+    )
+    ax.scatter(
+        -100, -100,
+        c='white',
+        edgecolors='k',
+        marker=m_negative,
+        alpha=1,
+        s=100,
+        label='$cis$ not preferred',
+    )
+    ax.scatter(
+        -100, -100,
+        c='white',
+        edgecolors='k',
+        marker=m_experiments,
+        alpha=1,
+        s=100,
+        label='published examples',
+    )
+    ax.legend(fontsize=16)
+
+    fig.tight_layout()
+    fig.savefig(
+        f'all_cages_pref_and_stable_3D.pdf',
+        dpi=720,
+        bbox_inches='tight'
+    )
+    plt.close()
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    cmap = {
+        'mid_point': 0.5,
+        'cmap': cm.Blues_r,
+        'ticks': [0, .50, 1.00],
+        'labels': ['0', '0.1', '0.2'],
+        'cmap_label': names['plane_dev']['xtitle'],
+    }
+    cmp = atools.define_plot_cmap(
+        fig, ax,
+        mid_point=cmap['mid_point'],
+        cmap=cmap['cmap'],
+        ticks=cmap['ticks'],
+        labels=cmap['labels'],
+        cmap_label=cmap['cmap_label']
+    )
+
+    ax.scatter(
+        x_passed,
+        y_passed,
+        c=cmp(z_passed),
+        edgecolors='k',
+        marker=m_passed,
+        alpha=1,
+        s=100,
+    )
+    ax.scatter(
+        x_negative,
+        y_negative,
+        c=cmp(z_negative),
+        edgecolors='k',
+        marker=m_negative,
+        alpha=1,
+        s=100,
+    )
+    ax.scatter(
+        x_experiments,
+        y_experiments,
+        c=cmp(z_experiments),
+        edgecolors='k',
+        marker=m_experiments,
+        alpha=1,
+        s=100,
+    )
+
+    # Set number of ticks for x-axis
+    ax.tick_params(axis='both', which='major', labelsize=16)
+    ax.set_xlabel(names['sqpl']['xtitle'], fontsize=16)
+    # ax.set_xlabel(names[name]['xtitle'], fontsize=16)
+    ax.set_ylabel('stability of C isomer [kJ/mol]', fontsize=16)
+    ax.set_xlim(0.95, 1)
+    ax.set_ylim(-20, 30)
+
+    ax.axhline(y=6.0, c='k', alpha=0.6, lw=2)
+
+    fig.tight_layout()
+    fig.savefig(
+        f'all_cages_pref_and_stable_3D_zoomed.pdf',
+        dpi=720,
+        bbox_inches='tight'
+    )
+    plt.close()
 
 
 def plot_all_cages_bars(
