@@ -117,7 +117,7 @@ def bar_figure(selected_ligands, experimental_ligands, data):
 
 def single_bar_figure(selected_ligands, experimental_ligands, data):
 
-    c_expt = colors_i_like()[0]
+    c_expt = colors_i_like()[3]
     c_selec = colors_i_like()[4]
 
     x_expt = {}
@@ -156,7 +156,7 @@ def single_bar_figure(selected_ligands, experimental_ligands, data):
         width=[x_expt[i][1] for i in x_expt],
         height=width,
         facecolor=c_expt,
-        edgecolor='none',
+        edgecolor='k',
         alpha=1,
         label='published examples'
     )
@@ -165,7 +165,7 @@ def single_bar_figure(selected_ligands, experimental_ligands, data):
         width=[x_selec[i][1] for i in x_selec],
         height=width,
         facecolor=c_selec,
-        edgecolor='none',
+        edgecolor='k',
         alpha=1,
         label='selected cage ligands'
     )
@@ -182,7 +182,7 @@ def single_bar_figure(selected_ligands, experimental_ligands, data):
     ax.set_xlim(0, 30)
     # Set number of ticks for x-axis
     ax.set_yticks(x_ticks)
-    ax.set_yticklabels(x_ticklabels, rotation=45)
+    ax.set_yticklabels(x_ticklabels)
     ax.legend(fontsize=16)
 
     fig.tight_layout()
@@ -196,17 +196,12 @@ def single_bar_figure(selected_ligands, experimental_ligands, data):
 
 def main():
 
-    experimental_ligands = [
-        '5D1', '4D2',
-        '5D3', '3D1',
-    ]
+    experimental_ligands = ['5D1', '4D2', '5D3', '3D1']
     selected_ligands = [
-        '5D1', '4D2',
-        '5D3', '3D1',
+        '5D1', '4D2', '5D3', '3D1',
+        '4B3', '4B1', '5B4',
         '5A3', '5A1',
-        '4B3', '4B1',
-        '5C2', '4C2',
-        '3C2', '5B4',
+        # '5C2', '4C2', '3C2',
     ]
 
     full_data = pd.read_csv('all_cage_results.txt')
