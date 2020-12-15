@@ -144,24 +144,40 @@ def get_deviation(molecule):
     return angle_between_vectors, projection_norm
 
 
-def plot(x, y, xlabel, ylabel, xlim, ylim, filename):
+def plot(
+    x, y, xlabel, ylabel, xlim, ylim, expt_x, expt_y, filename
+):
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.scatter(
         x,
         y,
-        c=colors_i_like()[0],
+        c=colors_i_like()[4],
         edgecolors='k',
         marker='o',
         alpha=1,
         s=120,
+        label='new cages'
     )
+    ax.scatter(
+        expt_x,
+        expt_y,
+        c=colors_i_like()[3],
+        edgecolors='k',
+        marker='o',
+        alpha=1,
+        s=120,
+        label='published examples'
+    )
+
+    ax.axhline(y=0, lw=2, linestyle='--', c='k')
+
     # Set number of ticks for x-axis
     ax.tick_params(axis='both', which='major', labelsize=16)
     ax.set_xlabel(xlabel, fontsize=16)
     ax.set_ylabel(ylabel, fontsize=16)
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
-
+    ax.legend(fontsize=16)
     fig.tight_layout()
     fig.savefig(filename, dpi=720, bbox_inches='tight')
     plt.close()
@@ -180,11 +196,15 @@ def main():
         pass
 
     cage_data = pd.read_csv('all_cage_results.txt')
+    experimental_ligands = ['5D3', '5D1', '4D2', '3D1']
 
     cis_cages = {}
+    expt_cages = {}
     for i, row in cage_data.iterrows():
         name = row['lig']
         if float(row['energy_C']) != 0:
+            continue
+        if float(row['sqpl_op_C']) < 0.9:
             continue
         molecule = stk.BuildingBlock.init_from_file(
             f'{name}_C_optc.mol'
@@ -193,10 +213,13 @@ def main():
         c_data['pore_size'] = get_pore_size(name, molecule)
         c_data['angle'], c_data['deviation'] = get_deviation(molecule)
         c_data['distance'] = get_distance(molecule)
-        cis_cages[name] = c_data
+        if name in experimental_ligands:
+            expt_cages[name] = c_data
+        else:
+            cis_cages[name] = c_data
         if c_data['pore_size'] == -1:
             print('pywindow fail', name, c_data)
-        elif c_data['pore_size'] < 2 and c_data['deviation'] > 5:
+        elif c_data['pore_size'] < 3 and c_data['deviation'] > 5:
             print('small pore, high aniso', name, c_data)
         elif c_data['pore_size'] > 3 and c_data['deviation'] > 6:
             print('large pore, high aniso', name, c_data)
@@ -208,6 +231,8 @@ def main():
         ylabel=r'Pd angle deviation [$\mathrm{\cdot}$]',
         xlim=(0, None),
         ylim=(None, None),
+        expt_x=[expt_cages[i]['pore_size'] for i in expt_cages],
+        expt_y=[expt_cages[i]['angle'] for i in expt_cages],
         filename=f'all_cages_prop_angle_vpore.pdf'
     )
     plot(
@@ -217,6 +242,8 @@ def main():
         ylabel=r'Pd angle deviation [$\mathrm{\cdot}$]',
         xlim=(None, None),
         ylim=(None, None),
+        expt_x=[expt_cages[i]['distance'] for i in expt_cages],
+        expt_y=[expt_cages[i]['angle'] for i in expt_cages],
         filename=f'all_cages_prop_angle_vdist.pdf'
     )
     plot(
@@ -226,6 +253,8 @@ def main():
         ylabel=r'Pd deviation [$\mathrm{\AA}$]',
         xlim=(0, None),
         ylim=(None, None),
+        expt_x=[expt_cages[i]['pore_size'] for i in expt_cages],
+        expt_y=[expt_cages[i]['deviation'] for i in expt_cages],
         filename=f'all_cages_prop_dev_vpore.pdf'
     )
     plot(
@@ -235,6 +264,8 @@ def main():
         ylabel=r'Pd deviation [$\mathrm{\AA}$]',
         xlim=(None, None),
         ylim=(None, None),
+        expt_x=[expt_cages[i]['distance'] for i in expt_cages],
+        expt_y=[expt_cages[i]['deviation'] for i in expt_cages],
         filename=f'all_cages_prop_dev_vdist.pdf'
     )
 
