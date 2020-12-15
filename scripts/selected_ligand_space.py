@@ -18,7 +18,7 @@ from atools import colors_i_like
 
 def bar_figure(selected_ligands, experimental_ligands, data):
 
-    c_expt = colors_i_like()[0]
+    c_expt = colors_i_like()[3]
     c_selec = colors_i_like()[4]
 
     x_expt = {}
