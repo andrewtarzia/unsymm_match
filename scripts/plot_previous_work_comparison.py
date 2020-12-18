@@ -168,7 +168,7 @@ def opposing_bar_chart(
     x_labels,
 ):
 
-    c_expt = colors_i_like()[0]
+    c_expt = colors_i_like()[3]
     c_selec = colors_i_like()[4]
 
     xs = [1, 2, 3, 4]
