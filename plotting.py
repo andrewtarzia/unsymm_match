@@ -168,11 +168,11 @@ def plot_energetics_and_geom_3D(
 
     names = {
         'plane_dev': {
-            'xlim': (0, 1),
+            'xlim': (0, None),
             'xtitle': r'max. plane deviation [$\mathrm{\AA}$]',
         },
         'sqpl': {
-            'xlim': (0.6, 1),
+            'xlim': (None, 1),
             'xtitle': r'$q_{\mathrm{sqp,min}}$',
         }
     }
@@ -212,16 +212,16 @@ def plot_energetics_and_geom_3D(
     )
 
     # Normalize plane deviations.
-    z_passed = [i/0.2 for i in z_passed]
-    z_negative = [i/0.2 for i in z_negative]
-    z_experiments = [i/0.2 for i in z_experiments]
+    z_passed = [i/0.1 for i in z_passed]
+    z_negative = [i/0.1 for i in z_negative]
+    z_experiments = [i/0.1 for i in z_experiments]
 
     fig, ax = plt.subplots(figsize=(8, 5))
     cmap = {
         'mid_point': 0.5,
-        'cmap': cm.Blues_r,
+        'cmap': cm.viridis,
         'ticks': [0, .50, 1.00],
-        'labels': ['0', '0.1', '0.2'],
+        'labels': ['0', '0.05', '0.1'],
         'cmap_label': names['plane_dev']['xtitle'],
     }
     cmp = atools.define_plot_cmap(
@@ -240,7 +240,7 @@ def plot_energetics_and_geom_3D(
         edgecolors='k',
         marker=m_passed,
         alpha=1,
-        s=100,
+        s=140,
         # label='$cis$ preferred'
     )
     ax.scatter(
@@ -250,7 +250,7 @@ def plot_energetics_and_geom_3D(
         edgecolors='k',
         marker=m_negative,
         alpha=1,
-        s=100,
+        s=140,
         # label='$cis$ not preferred'
     )
     ax.scatter(
@@ -260,7 +260,7 @@ def plot_energetics_and_geom_3D(
         edgecolors='k',
         marker=m_experiments,
         alpha=1,
-        s=100,
+        s=140,
         # label='published examples'
     )
 
@@ -270,9 +270,10 @@ def plot_energetics_and_geom_3D(
     # ax.set_xlabel(names[name]['xtitle'], fontsize=16)
     ax.set_ylabel('stability of C isomer [kJ/mol]', fontsize=16)
     ax.set_xlim(0.3, 1.05)
-    ax.set_ylim(-31, 50)
+    ax.set_ylim(-40, 50)
 
-    ax.axhline(y=6.0, c='k', alpha=0.6, lw=2)
+    ax.axhline(y=6.0, c='r', alpha=0.6, lw=2)
+    ax.axhline(y=0.0, c='k', alpha=0.6, lw=2, linestyle='--')
     # if name == 'sqpl':
     #     ax.axvline(x=0.95, c='k', alpha=0.6, lw=2)
     ax.scatter(
@@ -281,7 +282,7 @@ def plot_energetics_and_geom_3D(
         edgecolors='k',
         marker=m_passed,
         alpha=1,
-        s=100,
+        s=140,
         label='$cis$ preferred',
     )
     ax.scatter(
@@ -290,7 +291,7 @@ def plot_energetics_and_geom_3D(
         edgecolors='k',
         marker=m_negative,
         alpha=1,
-        s=100,
+        s=140,
         label='$cis$ not preferred',
     )
     ax.scatter(
@@ -299,7 +300,7 @@ def plot_energetics_and_geom_3D(
         edgecolors='k',
         marker=m_experiments,
         alpha=1,
-        s=100,
+        s=140,
         label='published examples',
     )
     ax.legend(fontsize=16)
@@ -315,9 +316,9 @@ def plot_energetics_and_geom_3D(
     fig, ax = plt.subplots(figsize=(8, 5))
     cmap = {
         'mid_point': 0.5,
-        'cmap': cm.Blues_r,
+        'cmap': cm.viridis,
         'ticks': [0, .50, 1.00],
-        'labels': ['0', '0.1', '0.2'],
+        'labels': ['0', '0.05', '0.1'],
         'cmap_label': names['plane_dev']['xtitle'],
     }
     cmp = atools.define_plot_cmap(
@@ -336,7 +337,7 @@ def plot_energetics_and_geom_3D(
         edgecolors='k',
         marker=m_passed,
         alpha=1,
-        s=100,
+        s=140,
     )
     ax.scatter(
         x_negative,
@@ -345,7 +346,7 @@ def plot_energetics_and_geom_3D(
         edgecolors='k',
         marker=m_negative,
         alpha=1,
-        s=100,
+        s=140,
     )
     ax.scatter(
         x_experiments,
@@ -354,7 +355,7 @@ def plot_energetics_and_geom_3D(
         edgecolors='k',
         marker=m_experiments,
         alpha=1,
-        s=100,
+        s=140,
     )
 
     # Set number of ticks for x-axis
@@ -365,7 +366,8 @@ def plot_energetics_and_geom_3D(
     ax.set_xlim(0.95, 1)
     ax.set_ylim(-20, 30)
 
-    ax.axhline(y=6.0, c='k', alpha=0.6, lw=2)
+    ax.axhline(y=6.0, c='r', alpha=0.6, lw=2)
+    ax.axhline(y=0.0, c='k', alpha=0.6, lw=2, linestyle='--')
 
     fig.tight_layout()
     fig.savefig(
