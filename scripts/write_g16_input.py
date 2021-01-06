@@ -11,15 +11,11 @@ Date Created: 5 Aug 2020
 
 """
 
+import sys
 from os.path import exists
 from os import mkdir
-import glob
+import pandas as pd
 import stk
-
-
-def load_in_structure(file):
-
-    return stk.BuildingBlock.init_from_file(file)
 
 
 def write_top_section(name, np, restart=False, freq=False):
@@ -52,53 +48,35 @@ def write_top_section(name, np, restart=False, freq=False):
     return string
 
 
-def write_defn_section(name, freq=False, restart=False, spe=False):
+def write_defn_section(
+    name,
+    runtype,
+    restart=False,
+    solvent=None,
+):
+
+    if solvent is None:
+        solvent_s = ''
+    else:
+        solvent_s = solvent
 
     new_name = name.split('.')[0]
 
-    if freq:
-        string = (
-            '#P PBE1PBE/GenECP '
-            'freq '
-            'geom=(checkpoint) '
-            'SCF=(YQC,MaxCycle=900) '
-            'int=(Grid=Ultrafine) '
-            'EmpiricalDispersion=GD3 '
-            'SCRF=(PCM,Solvent=DiMethylSulfoxide)\n\n'
-            f'{new_name}\n\n'
-        )
-    elif spe:
-        string = (
-            '#P PBE1PBE/GenECP '
-            'SP '
-            'geom=(checkpoint) '
-            'SCF=(YQC,MaxCycle=900) '
-            'int=(Grid=Ultrafine) '
-            'EmpiricalDispersion=GD3 '
-            'SCRF=(PCM,Solvent=DiMethylSulfoxide)\n\n'
-            f'{new_name}\n\n'
-        )
-    elif restart:
-        string = (
-            '#P PBE1PBE/GenECP '
-            'opt=(Tight,calcfc) '
-            'geom=(checkpoint) '
-            'SCF=(YQC,MaxCycle=900) '
-            'int=(Grid=Ultrafine) '
-            'EmpiricalDispersion=GD3 '
-            'SCRF=(PCM,Solvent=DiMethylSulfoxide)\n\n'
-            f'{new_name}\n\n'
-        )
+    if restart:
+        geom_ = 'geom=(checkpoint)'
     else:
-        string = (
-            '#P PBE1PBE/GenECP '
-            'opt=(Tight,calcfc) '
-            'SCF=(YQC,MaxCycle=900) '
-            'int=(Grid=Ultrafine) '
-            'EmpiricalDispersion=GD3 '
-            'SCRF=(PCM,Solvent=DiMethylSulfoxide)\n\n'
-            f'{new_name}\n\n'
-        )
+        geom_ = ''
+
+    string = (
+        '#P PBE1PBE/GenECP '
+        f'{runtype} '
+        f'{geom_} '
+        'SCF=(YQC,MaxCycle=900) '
+        'int=(Grid=Superfinegrid) '
+        'EmpiricalDispersion=GD3BJ '
+        f'{solvent_s}\n\n'
+        f'{new_name}\n\n'
+    )
 
     return string
 
@@ -136,14 +114,11 @@ def write_molecule_section(struct, restart=False):
     return string
 
 
-def write_run_file(name, directory, infiles, np):
+def write_run_file(name, directory, infile, np):
 
     runfile = f'{directory}/{name}.sh'
 
-    runlines = ''.join([
-        f"g16 < {infile} > {infile.replace('.gau', '.log')}\n"
-        for infile in infiles
-    ])
+    runlines = f"g16 < {infile} > {infile.replace('.gau', '.log')}\n"
 
     string = (
         f'#PBS -N _{name}\n'
@@ -158,7 +133,16 @@ def write_run_file(name, directory, infiles, np):
         f.write(string)
 
 
-def write_opt_input_file(infile, struct, np, directory):
+def write_opt_input_file(
+    infile,
+    struct,
+    np,
+    directory,
+    runtype,
+    org_basis,
+    m_basis,
+    solvent,
+):
     base_name = '_'+infile.replace('.in', '')
 
     string = write_top_section(
@@ -168,12 +152,12 @@ def write_opt_input_file(infile, struct, np, directory):
     )
     string += write_defn_section(
         name=base_name,
+        runtype=runtype,
         restart=False,
-        freq=False,
-        spe=False,
+        solvent=solvent,
     )
     string += write_molecule_section(struct, restart=False)
-    string += write_ECP_section(org_basis='Def2SVP', m_basis='SDD')
+    string += write_ECP_section(org_basis=org_basis, m_basis=m_basis)
 
     string2 = write_top_section(
         name=base_name,
@@ -182,12 +166,12 @@ def write_opt_input_file(infile, struct, np, directory):
     )
     string2 += write_defn_section(
         name=base_name,
+        runtype=runtype,
         restart=True,
-        freq=False,
-        spe=False,
+        solvent=solvent,
     )
     string2 += write_molecule_section(struct, restart=True)
-    string2 += write_ECP_section(org_basis='Def2SVP', m_basis='SDD')
+    string2 += write_ECP_section(org_basis=org_basis, m_basis=m_basis)
 
     with open(f'{directory}/{infile}', 'w') as f:
         f.write(string)
@@ -206,9 +190,8 @@ def write_final_spe_input_file(infile, struct, np, directory):
     )
     string += write_defn_section(
         name=base_name,
-        restart=False,
-        freq=False,
-        spe=True,
+        runtype='SP',
+        restart=True,
     )
     string += write_molecule_section(struct, restart=True)
     string += write_ECP_section(org_basis='Def2TZVP', m_basis='SDD')
@@ -228,9 +211,9 @@ def write_freq_input_file(infile, struct, np, directory):
     )
     string += write_defn_section(
         name=base_name,
-        restart=False,
+        runtype='freq',
+        restart=True,
         freq=True,
-        spe=False,
     )
     string += write_molecule_section(struct, restart=True)
     string += write_ECP_section(org_basis='Def2SVP', m_basis='SDD')
@@ -240,65 +223,88 @@ def write_freq_input_file(infile, struct, np, directory):
 
 
 def main():
-
-    list_of_mols = glob.glob('*.mol')
     num_proc = 32
+    optc_extension = '_optc.mol'
+    isomers = ['A', 'B', 'C', 'D']
+    selected_ligands = [
+        '5D1', '4D2', '5D3', '3D1',
+        '4B3', '4B1', '5B4',
+        '5A3', '5A1',
+        '4C1', '4C3',
+        # '5C2', '4C2', '3C2',
+    ]
 
-    for moll in list_of_mols:
-        prefix = moll.replace('.mol', '')
+    # full_data = pd.read_csv('../all_cage_results.txt')
+    # df_to_run = full_data[full_data['lig'].isin(selected_ligands)]
 
-        struct = load_in_structure(moll)
-        opt_infiles = []
-        fin_spe_infiles = []
-        freq_infiles = []
-        # for grid in grid_lists:
-        calc_name = f'{prefix}'
-        opt_directory = f'opt_{prefix}'
-        if not exists(opt_directory):
-            mkdir(opt_directory)
-        print(f'> writing {calc_name}.....')
-        o_infile = f'o_{calc_name}.gau'
-        s_infile = f's_{calc_name}.gau'
-        f_infile = f'f_{calc_name}.gau'
-        write_opt_input_file(
-            infile=o_infile,
-            struct=struct,
-            np=num_proc,
-            directory=opt_directory,
-        )
-        opt_infiles.append(o_infile)
-        write_final_spe_input_file(
-            infile=s_infile,
-            struct=struct,
-            np=num_proc,
-            directory=opt_directory,
-        )
-        fin_spe_infiles.append(s_infile)
-        write_freq_input_file(
-            infile=f_infile,
-            struct=struct,
-            np=num_proc,
-            directory=opt_directory,
-        )
-        freq_infiles.append(f_infile)
-        write_run_file(
-            name=f'o_{prefix}',
-            directory=opt_directory,
-            infiles=opt_infiles,
-            np=num_proc
-        )
-        write_run_file(
-            name=f's_{prefix}',
-            directory=opt_directory,
-            infiles=fin_spe_infiles,
-            np=num_proc
-        )
-        write_run_file(
-            name=f'f_{prefix}',
-            directory=opt_directory,
-            infiles=freq_infiles,
-            np=num_proc
-        )
+    for lig in selected_ligands:
+        # row = df_to_run[df_to_run['lig'] == lig]
+        for isomer in isomers:
+            # param = (
+            #     float(row[f'energy_{isomer}']),
+            #     float(row[f'plane_dev_{isomer}']),
+            #     float(row[f'sqpl_op_{isomer}']),
+            # )
+            struct_file = f'../{lig}_{isomer}{optc_extension}'
+            prefix = f'{lig.lower()}_{isomer.lower()}'
+            struct = stk.BuildingBlock.init_from_file(struct_file)
+            opt_directory = f'opt_{prefix}'
+            if not exists(opt_directory):
+                mkdir(opt_directory)
+
+            step1_infile = f'o1_{prefix}.gau'
+            write_opt_input_file(
+                infile=step1_infile,
+                struct=struct,
+                np=num_proc,
+                directory=opt_directory,
+                runtype='opt=(calcfc,maxstep=4)',
+                org_basis='Def2SVP',
+                m_basis='LANL2DZ',
+                solvent=None,
+            )
+            write_run_file(
+                name=f'o1_{prefix}',
+                directory=opt_directory,
+                infile=step1_infile,
+                np=num_proc
+            )
+
+            step2_infile = f'o2_{prefix}.gau'
+            write_opt_input_file(
+                infile=step2_infile,
+                struct=struct,
+                np=num_proc,
+                directory=opt_directory,
+                runtype='opt=(maxstep=4)',
+                org_basis='Def2SVP',
+                m_basis='SDD',
+                solvent=None,
+            )
+            write_run_file(
+                name=f'o2_{prefix}',
+                directory=opt_directory,
+                infile=step2_infile,
+                np=num_proc
+            )
+
+            step3_infile = f'o3_{prefix}.gau'
+            write_opt_input_file(
+                infile=step3_infile,
+                struct=struct,
+                np=num_proc,
+                directory=opt_directory,
+                runtype='opt=(maxstep=4)',
+                org_basis='Def2SVP',
+                m_basis='SDD',
+                solvent=r'SCRF=(PCM,Solvent=DiMethylSulfoxide)',
+            )
+            write_run_file(
+                name=f'o3_{prefix}',
+                directory=opt_directory,
+                infile=step3_infile,
+                np=num_proc
+            )
 
 
 if __name__ == '__main__':
