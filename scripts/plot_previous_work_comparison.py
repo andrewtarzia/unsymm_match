@@ -173,51 +173,48 @@ def opposing_bar_chart(
 
     xs = [1, 2, 3, 4]
 
-    fig, ax = plt.subplots(ncols=2, sharey=True, figsize=(8, 8))
-    ax[0].barh(
+    fig, ax = plt.subplots(nrows=2, sharex=True, figsize=(8, 10))
+    ax[0].bar(
         xs,
-        width=xtbenergies,
-        height=1,
+        xtbenergies,
+        width=1,
         color=c_selec,
         edgecolor='k',
         linewidth=1.5,
         label='GFN2-xTB'
     )
-    ax[1].barh(
+    ax[1].bar(
         xs,
-        width=dftenergies,
-        height=1,
+        dftenergies,
+        width=1,
         color=c_expt,
         edgecolor='k',
         linewidth=1.5,
         label='PBE0-D3/def2-SVP/SDD/PCM(DMSO) [CHKTHIS]'
     )
 
-    ax[0].set_yticks(xs)
-    ax[0].set_yticklabels(x_labels)
+    ax[1].set_xticks(xs)
+    ax[1].set_xticklabels(x_labels)
     ax[0].tick_params(axis='both', which='major', labelsize=16)
-    # ax[0].set_xlabel(
-    #     r'xTB $cis$ energy preference [kJ/mol]',
-    #     fontsize=16
-    # )
-    ax[0].set_ylim(0, 5)
-    ax[0].set_xlim(None, None)
+    ax[0].set_ylabel(
+        r'xTB $cis$ energy preference [kJ/mol]',
+        fontsize=16
+    )
+    ax[0].set_xlim(0, 5)
+    ax[0].set_ylim(None, None)
     # ax[0].legend(fontsize=16)
-
-    ax[0].set_yticks(xs)
-    ax[0].set_yticklabels(x_labels)
     ax[1].tick_params(axis='both', which='major', labelsize=16)
-    # ax[1].set_xlabel(
-    #     r'DFT $cis$ energy preference [kJ/mol]',
-    #     fontsize=16
-    # )
-    ax[1].set_ylim(0, 5)
-    ax[1].set_xlim(None, None)
+    ax[1].set_ylabel(
+        r'DFT $cis$ energy preference [kJ/mol]',
+        fontsize=16
+    )
+    ax[1].set_xlim(0, 5)
+    ax[1].set_ylim(None, None)
     # ax[1].legend(fontsize=16)
 
-    ax[0].invert_xaxis()
+    ax[1].invert_yaxis()
     # ax[0].set(yticks=df_male_1['age'])
-    ax[0].yaxis.tick_right()
+    # ax[0].xaxis.tick_right()
 
     fig.tight_layout()
     fig.savefig(filename, dpi=720, bbox_inches='tight')
