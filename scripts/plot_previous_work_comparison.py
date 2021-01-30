@@ -26,7 +26,7 @@ from atools import colors_i_like
 def plot_xtb_bar_chart(data, ligands):
 
     filename = 'previous_xtb_energies.pdf'
-    y_title = r'xTB $cis$ energy preference [kJ/mol]'
+    y_title = r'xTB $cis$ energy preference [kJmol$^{-1}$]'
 
     energies = []
     for lig in ligands:
@@ -50,7 +50,7 @@ def plot_xtb_bar_chart(data, ligands):
 def plot_dft_bar_chart(data, ligands):
 
     filename = 'previous_dft_energies.pdf'
-    y_title = r'DFT $cis$ energy preference [kJ/mol]'
+    y_title = r'DFT $cis$ energy preference [kJmol$^{-1}$]'
 
     print(data)
 
@@ -197,7 +197,7 @@ def opposing_bar_chart(
     ax[1].set_xticklabels(x_labels)
     ax[0].tick_params(axis='both', which='major', labelsize=16)
     ax[0].set_ylabel(
-        r'xTB $cis$ energy preference [kJ/mol]',
+        r'xTB $cis$ energy preference [kJmol$^{-1}$]',
         fontsize=16
     )
     ax[0].set_xlim(0, 5)
@@ -205,7 +205,7 @@ def opposing_bar_chart(
     # ax[0].legend(fontsize=16)
     ax[1].tick_params(axis='both', which='major', labelsize=16)
     ax[1].set_ylabel(
-        r'DFT $cis$ energy preference [kJ/mol]',
+        r'DFT $cis$ energy preference [kJmol$^{-1}$]',
         fontsize=16
     )
     ax[1].set_xlim(0, 5)

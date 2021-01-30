@@ -73,7 +73,7 @@ def bar_figure(selected_ligands, experimental_ligands, data):
     # ax.set_xlabel(names[name]['xtitle'], fontsize=16)
     # ax1.set_xticks(x_ticks)
     # ax1.set_xticklabels(x_ticklabels)
-    ax1.set_xlabel('stability of C isomer [kJ/mol]', fontsize=16)
+    ax1.set_xlabel('stability of C isomer [kJmol$^{-1}$]', fontsize=16)
     # ax.set_xlim(names[name]['xlim'])
     ax1.set_xlim(0, 30)
 
@@ -177,7 +177,7 @@ def single_bar_figure(selected_ligands, experimental_ligands, data):
     # ax.set_xlabel(names[name]['xtitle'], fontsize=16)
     # ax1.set_xticks(x_ticks)
     # ax1.set_xticklabels(x_ticklabels)
-    ax.set_xlabel('stability of C isomer [kJ/mol]', fontsize=16)
+    ax.set_xlabel('stability of C isomer [kJmol$^{-1}$]', fontsize=16)
     # ax.set_xlim(names[name]['xlim'])
     ax.set_xlim(0, 30)
     # Set number of ticks for x-axis

@@ -124,7 +124,7 @@ def plot_isomers(edict, grid):
 
         ax.tick_params(axis='both', which='major', labelsize=16)
         ax.set_xlabel('isomer', fontsize=16)
-        ax.set_ylabel('rel. total energy [kJ/mol]', fontsize=16)
+        ax.set_ylabel('rel. total energy [kJmol$^{-1}$]', fontsize=16)
         ax.set_xticks([X_positions[i] for i in X_positions])
         ax.set_xticklabels(list(X_positions.keys()))
         ax.set_ylim(-1, 50)

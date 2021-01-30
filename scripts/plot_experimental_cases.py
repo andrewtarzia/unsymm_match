@@ -89,7 +89,7 @@ def main():
     plot_properties = {
         'energies': {
             'ylim': (0, 40),
-            'ytitle': 'energy separation [kJ/mol]',
+            'ytitle': 'energy separation [kJmol$^{-1}$]',
             'data_f': get_energy_sep,
             'ycut': 6,
         },

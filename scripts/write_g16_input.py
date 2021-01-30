@@ -11,10 +11,8 @@ Date Created: 5 Aug 2020
 
 """
 
-import sys
 from os.path import exists
 from os import mkdir
-import pandas as pd
 import stk
 
 

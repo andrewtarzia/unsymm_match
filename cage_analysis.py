@@ -132,7 +132,7 @@ def get_cage_energies(name, cages):
     isomer_plot(
         dictionary=energies,
         file_name=f'{name}_energies_plot.pdf',
-        ytitle=r'relative energies [kJ/mol]',
+        ytitle=r'relative energies [kJmol$^{-1}$]',
         ylim=(-5, 50),
         horiz=horiz_lines()
     )
@@ -454,7 +454,7 @@ def check_preference(energies, energy_cutoff):
         ])
         print(
             f"> energy test: C: {round(energies['C'], 4)}, "
-            f'next: {round(energy_sep, 4)} kJ/mol. Less than '
+            f'next: {round(energy_sep, 4)} kJmol$^{-1}$. Less than '
             f'threshold? {energy_sep < energy_cutoff}.'
         )
         if energy_sep < energy_cutoff:
@@ -462,7 +462,7 @@ def check_preference(energies, energy_cutoff):
     else:
         print(
             f"> energy test failed: C is {round(energies['C'], 4)} "
-            'kJ/mol less stable'
+            'kJmol$^{-1}$ less stable'
         )
         return False, -energies['C']
 

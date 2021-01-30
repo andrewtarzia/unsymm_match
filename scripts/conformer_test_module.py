@@ -944,7 +944,7 @@ def xtb_conformers(
     fig, ax = atools.scatter_plot(
         X=ids, Y=energies,
         xtitle='conformer id',
-        ytitle='rel. energy [kJ/mol]',
+        ytitle='rel. energy [kJmol$^{-1}$]',
         xlim=(0, 201),
         ylim=(-5, 1000)
     )

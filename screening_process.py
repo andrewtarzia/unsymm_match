@@ -309,7 +309,7 @@ def analyse_all_cages(params, all_cage_sets, ligands, read_data):
         cages_cis_wins=cages_cis_wins,
         cages_not_wins=cages_not_wins,
         y_value=energy_preferences,
-        y_title='stability of C isomer [kJ/mol]',
+        y_title='stability of C isomer [kJmol$^{-1}$]',
         y_bar=6.0,
         suffix='energypreference',
     )
