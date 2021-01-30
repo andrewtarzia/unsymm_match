@@ -128,7 +128,7 @@ def plot_energetics_and_geom(
         # Set number of ticks for x-axis
         ax.tick_params(axis='both', which='major', labelsize=16)
         ax.set_xlabel(names[name]['xtitle'], fontsize=16)
-        ax.set_ylabel('stability of C isomer [kJ/mol]', fontsize=16)
+        ax.set_ylabel('stability of C isomer [kJmol$^{-1}$]', fontsize=16)
         # ax.set_xlim(names[name]['xlim'])
         # ax.set_ylim(-40, 80)
 
@@ -169,7 +169,7 @@ def plot_energetics_and_geom_3D(
     names = {
         'plane_dev': {
             'xlim': (0, None),
-            'xtitle': r'max. plane deviation [$\mathrm{\AA}$]',
+            'xtitle': r'$D_{\mathrm{max}}$ [$\mathrm{\AA}$]',
         },
         'sqpl': {
             'xlim': (None, 1),
@@ -177,49 +177,36 @@ def plot_energetics_and_geom_3D(
         }
     }
 
-    m_passed = 'o'
-    m_negative = 's'
-    m_experiments = 'X'
+    m_1 = 'o'
+    m_2 = 'X'
 
-    x_passed = []
-    y_passed = []
-    z_passed = []
-    x_negative = []
-    y_negative = []
-    z_negative = []
-    x_experiments = []
-    y_experiments = []
-    z_experiments = []
+    x_1 = []
+    y_1 = []
+    z_1 = []
+    x_2 = []
+    y_2 = []
+    z_2 = []
 
     for i, lig in enumerate(ligands):
         if lig in experiments:
-            x_experiments.append(sqpl_ops[i])
-            y_experiments.append(energy_preferences[i])
-            z_experiments.append(plane_devs[i])
-        elif energy_preferences[i] < 0:
-            x_negative.append(sqpl_ops[i])
-            y_negative.append(energy_preferences[i])
-            z_negative.append(plane_devs[i])
-        elif lig in cages_cis_wins or lig in cages_not_wins:
-            x_passed.append(sqpl_ops[i])
-            y_passed.append(energy_preferences[i])
-            z_passed.append(plane_devs[i])
+            x_2.append(sqpl_ops[i])
+            y_2.append(energy_preferences[i])
+            z_2.append(plane_devs[i])
         else:
-            raise ValueError('no matches!?')
+            x_1.append(sqpl_ops[i])
+            y_1.append(energy_preferences[i])
+            z_1.append(plane_devs[i])
 
-    print(
-        sum([len(x_experiments), len(x_negative), len(x_passed)])
-    )
+    print(sum([len(x_1), len(x_2)]))
 
     # Normalize plane deviations.
-    z_passed = [i/0.1 for i in z_passed]
-    z_negative = [i/0.1 for i in z_negative]
-    z_experiments = [i/0.1 for i in z_experiments]
+    z_1 = [i/0.1 for i in z_1]
+    z_2 = [i/0.1 for i in z_2]
 
     fig, ax = plt.subplots(figsize=(8, 5))
     cmap = {
         'mid_point': 0.5,
-        'cmap': cm.viridis,
+        'cmap': cm.Blues_r,
         'ticks': [0, .50, 1.00],
         'labels': ['0', '0.05', '0.1'],
         'cmap_label': names['plane_dev']['xtitle'],
@@ -234,31 +221,21 @@ def plot_energetics_and_geom_3D(
     )
 
     ax.scatter(
-        x_passed,
-        y_passed,
-        c=cmp(z_passed),
+        x_1,
+        y_1,
+        c=cmp(z_1),
         edgecolors='k',
-        marker=m_passed,
+        marker=m_1,
         alpha=1,
         s=140,
         # label='$cis$ preferred'
     )
     ax.scatter(
-        x_negative,
-        y_negative,
-        c=cmp(z_negative),
+        x_2,
+        y_2,
+        c=cmp(z_2),
         edgecolors='k',
-        marker=m_negative,
-        alpha=1,
-        s=140,
-        # label='$cis$ not preferred'
-    )
-    ax.scatter(
-        x_experiments,
-        y_experiments,
-        c=cmp(z_experiments),
-        edgecolors='k',
-        marker=m_experiments,
+        marker=m_2,
         alpha=1,
         s=140,
         # label='published examples'
@@ -268,37 +245,27 @@ def plot_energetics_and_geom_3D(
     ax.tick_params(axis='both', which='major', labelsize=16)
     ax.set_xlabel(names['sqpl']['xtitle'], fontsize=16)
     # ax.set_xlabel(names[name]['xtitle'], fontsize=16)
-    ax.set_ylabel('stability of C isomer [kJ/mol]', fontsize=16)
+    ax.set_ylabel('stability of C isomer [kJmol$^{-1}$]', fontsize=16)
     ax.set_xlim(0.3, 1.05)
     ax.set_ylim(-40, 50)
 
-    ax.axhline(y=6.0, c='r', alpha=0.6, lw=2)
-    ax.axhline(y=0.0, c='k', alpha=0.6, lw=2, linestyle='--')
-    # if name == 'sqpl':
-    #     ax.axvline(x=0.95, c='k', alpha=0.6, lw=2)
+    ax.axhline(y=6.0, c='r', alpha=0.8, lw=2)
+    ax.axhline(y=0.0, c='k', alpha=0.8, lw=2, linestyle='--')
+
     ax.scatter(
         -100, -100,
         c='white',
         edgecolors='k',
-        marker=m_passed,
+        marker=m_1,
         alpha=1,
         s=140,
-        label='$cis$ preferred',
+        label='this work',
     )
     ax.scatter(
         -100, -100,
         c='white',
         edgecolors='k',
-        marker=m_negative,
-        alpha=1,
-        s=140,
-        label='$cis$ not preferred',
-    )
-    ax.scatter(
-        -100, -100,
-        c='white',
-        edgecolors='k',
-        marker=m_experiments,
+        marker=m_2,
         alpha=1,
         s=140,
         label='published examples',
@@ -316,7 +283,7 @@ def plot_energetics_and_geom_3D(
     fig, ax = plt.subplots(figsize=(8, 5))
     cmap = {
         'mid_point': 0.5,
-        'cmap': cm.viridis,
+        'cmap': cm.Blues_r,
         'ticks': [0, .50, 1.00],
         'labels': ['0', '0.05', '0.1'],
         'cmap_label': names['plane_dev']['xtitle'],
@@ -331,43 +298,36 @@ def plot_energetics_and_geom_3D(
     )
 
     ax.scatter(
-        x_passed,
-        y_passed,
-        c=cmp(z_passed),
+        x_1,
+        y_1,
+        c=cmp(z_1),
         edgecolors='k',
-        marker=m_passed,
+        marker=m_1,
         alpha=1,
         s=140,
+        # label='$cis$ preferred'
     )
     ax.scatter(
-        x_negative,
-        y_negative,
-        c=cmp(z_negative),
+        x_2,
+        y_2,
+        c=cmp(z_2),
         edgecolors='k',
-        marker=m_negative,
+        marker=m_2,
         alpha=1,
         s=140,
-    )
-    ax.scatter(
-        x_experiments,
-        y_experiments,
-        c=cmp(z_experiments),
-        edgecolors='k',
-        marker=m_experiments,
-        alpha=1,
-        s=140,
+        # label='published examples'
     )
 
     # Set number of ticks for x-axis
     ax.tick_params(axis='both', which='major', labelsize=16)
     ax.set_xlabel(names['sqpl']['xtitle'], fontsize=16)
     # ax.set_xlabel(names[name]['xtitle'], fontsize=16)
-    ax.set_ylabel('stability of C isomer [kJ/mol]', fontsize=16)
+    ax.set_ylabel('stability of C isomer [kJmol$^{-1}$]', fontsize=16)
     ax.set_xlim(0.95, 1)
     ax.set_ylim(-20, 30)
 
-    ax.axhline(y=6.0, c='r', alpha=0.6, lw=2)
-    ax.axhline(y=0.0, c='k', alpha=0.6, lw=2, linestyle='--')
+    ax.axhline(y=6.0, c='r', alpha=0.8, lw=2)
+    ax.axhline(y=0.0, c='k', alpha=0.8, lw=2, linestyle='--')
 
     fig.tight_layout()
     fig.savefig(
@@ -615,7 +575,7 @@ def plot_isomer_distributions():
         },
         'energy': {
             'xlim': (0, 200),
-            'xtitle': r'relative isomer energy [kJ/mol]',
+            'xtitle': r'relative isomer energy [kJmol$^{-1}$]',
             'atitle': 'energy_A',
             'btitle': 'energy_B',
             'ctitle': 'energy_C',
