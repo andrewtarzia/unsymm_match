@@ -145,25 +145,46 @@ def get_deviation(molecule):
 
 
 def plot(
-    x, y, xlabel, ylabel, xlim, ylim, expt_x, expt_y, filename
+    x, y, xlabel, ylabel, xlim, ylim,
+    expt_x, expt_y, sele_x, sele_y, filename,
+    exam_x, exam_y, example_cases,
 ):
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.scatter(
+        exam_x,
+        exam_y,
+        c='r',
+        edgecolors='r',
+        marker='o',
+        alpha=1,
+        s=260,
+    )
+    ax.scatter(
         x,
         y,
-        c=colors_i_like()[4],
+        c='gold',
         edgecolors='k',
         marker='o',
         alpha=1,
         s=120,
-        label='new cages'
+        label='this work'
+    )
+    ax.scatter(
+        sele_x,
+        sele_y,
+        c=colors_i_like()[4],
+        edgecolors='k',
+        marker='X',
+        alpha=1,
+        s=120,
+        label='selected cage ligands'
     )
     ax.scatter(
         expt_x,
         expt_y,
         c=colors_i_like()[3],
         edgecolors='k',
-        marker='o',
+        marker='P',
         alpha=1,
         s=120,
         label='published examples'
@@ -197,9 +218,13 @@ def main():
 
     cage_data = pd.read_csv('all_cage_results.txt')
     experimental_ligands = ['5D3', '5D1', '4D2', '3D1']
+    selected_ligands = ['4B3', '4B1', '5B4', '5A3', '5A1']
+    example_cases = ['3B1', '5D2', '3C2', '5A2', '4A2', '6C1']
 
     cis_cages = {}
     expt_cages = {}
+    sele_cages = {}
+    exam_cages = {}
     for i, row in cage_data.iterrows():
         name = row['lig']
         if float(row['energy_C']) != 0:
@@ -213,8 +238,12 @@ def main():
         c_data['pore_size'] = get_pore_size(name, molecule)
         c_data['angle'], c_data['deviation'] = get_deviation(molecule)
         c_data['distance'] = get_distance(molecule)
+        if name in example_cases:
+            exam_cages[name] = c_data
         if name in experimental_ligands:
             expt_cages[name] = c_data
+        elif name in selected_ligands:
+            sele_cages[name] = c_data
         else:
             cis_cages[name] = c_data
         if c_data['pore_size'] == -1:
@@ -233,7 +262,12 @@ def main():
         ylim=(None, None),
         expt_x=[expt_cages[i]['pore_size'] for i in expt_cages],
         expt_y=[expt_cages[i]['angle'] for i in expt_cages],
-        filename=f'all_cages_prop_angle_vpore.pdf'
+        sele_x=[sele_cages[i]['pore_size'] for i in sele_cages],
+        sele_y=[sele_cages[i]['angle'] for i in sele_cages],
+        filename=f'all_cages_prop_angle_vpore.pdf',
+        exam_x=[exam_cages[i]['pore_size'] for i in exam_cages],
+        exam_y=[exam_cages[i]['angle'] for i in exam_cages],
+        example_cases=example_cases,
     )
     plot(
         x=[cis_cages[i]['distance'] for i in cis_cages],
@@ -244,30 +278,51 @@ def main():
         ylim=(None, None),
         expt_x=[expt_cages[i]['distance'] for i in expt_cages],
         expt_y=[expt_cages[i]['angle'] for i in expt_cages],
-        filename=f'all_cages_prop_angle_vdist.pdf'
+        sele_x=[sele_cages[i]['distance'] for i in sele_cages],
+        sele_y=[sele_cages[i]['angle'] for i in sele_cages],
+        filename=f'all_cages_prop_angle_vdist.pdf',
+        exam_x=[exam_cages[i]['distance'] for i in exam_cages],
+        exam_y=[exam_cages[i]['angle'] for i in exam_cages],
+        example_cases=example_cases,
     )
     plot(
         x=[cis_cages[i]['pore_size'] for i in cis_cages],
         y=[cis_cages[i]['deviation'] for i in cis_cages],
         xlabel=r'pore diameter [$\mathrm{\AA}$]',
-        ylabel=r'Pd displacement [$\mathrm{\AA}$]',
-        xlim=(0, None),
-        ylim=(None, None),
+        ylabel=r'$D_{\mathrm{Pd}}$ [$\mathrm{\AA}$]',
+        xlim=(0, 9),
+        ylim=(None, 12),
         expt_x=[expt_cages[i]['pore_size'] for i in expt_cages],
         expt_y=[expt_cages[i]['deviation'] for i in expt_cages],
-        filename=f'all_cages_prop_dev_vpore.pdf'
+        sele_x=[sele_cages[i]['pore_size'] for i in sele_cages],
+        sele_y=[sele_cages[i]['deviation'] for i in sele_cages],
+        filename=f'all_cages_prop_dev_vpore.pdf',
+        exam_x=[exam_cages[i]['pore_size'] for i in exam_cages],
+        exam_y=[exam_cages[i]['deviation'] for i in exam_cages],
+        example_cases=example_cases,
     )
     plot(
         x=[cis_cages[i]['distance'] for i in cis_cages],
         y=[cis_cages[i]['deviation'] for i in cis_cages],
         xlabel=r'Pd-Pd distance [$\mathrm{\AA}$]',
-        ylabel=r'Pd displacement [$\mathrm{\AA}$]',
-        xlim=(None, None),
-        ylim=(None, None),
+        ylabel=r'$D_{\mathrm{Pd}}$ [$\mathrm{\AA}$]',
+        xlim=(None, 15),
+        ylim=(None, 12),
         expt_x=[expt_cages[i]['distance'] for i in expt_cages],
         expt_y=[expt_cages[i]['deviation'] for i in expt_cages],
-        filename=f'all_cages_prop_dev_vdist.pdf'
+        sele_x=[sele_cages[i]['distance'] for i in sele_cages],
+        sele_y=[sele_cages[i]['deviation'] for i in sele_cages],
+        filename=f'all_cages_prop_dev_vdist.pdf',
+        exam_x=[exam_cages[i]['distance'] for i in exam_cages],
+        exam_y=[exam_cages[i]['deviation'] for i in exam_cages],
+        example_cases=example_cases,
     )
+
+    print('--------')
+    for i in cis_cages:
+        print(i, cis_cages[i]['deviation'])
+    print('--------')
+    print(exam_cages)
 
 
 if __name__ == "__main__":
