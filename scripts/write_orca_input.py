@@ -52,12 +52,12 @@ def write_molecule_section(directory, base_name, struct):
 
 def write_spe_input_file(infile, struct, grid, np, directory):
     comment_line = (
-        '# DFT single point energy with D3, solvent (DMSO, CPCM), '
+        '# DFT single point energy with D4, solvent (DMSO, CPCM), '
         'def2-TZVPP, def2-ECPs. Grid is 6 and slow convergence is on.'
         '.\n'
     )
     top_line = (
-        f'! DFT SP RKS PBE0 def2-TZVPP def2/J D3BJ '
+        f'! DFT SP RKS PBE0 def2-TZVPP def2/J D4 '
         f'Grid{grid} NOFINALGRID SlowConv '
         'TightSCF CPCM(dmso) printbasis\n\n'
     )
