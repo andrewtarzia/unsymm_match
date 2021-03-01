@@ -65,9 +65,7 @@ def plot_all_comparisons(runtypes):
     }
 
     for rt in runtypes:
-        print(rt)
         rtd = runtypes[rt]
-        print(rtd)
         for ser in series_data:
             a_energy = rtd['energies'][f'{ser.lower()}_A']
             b_energy = rtd['energies'][f'{ser.lower()}_B']
@@ -122,6 +120,48 @@ def plot_all_comparisons(runtypes):
         plt.close()
 
 
+def ey_table(runtypes, selected_ligands):
+
+    for rt in runtypes:
+        print('-----', rt)
+        columns = {'isomer': ['a', 'b', 'c', 'd', 'delta']}
+        for i in selected_ligands:
+            if i in ['4C1', '4C3']:
+                continue
+            columns[i] = []
+        rtd = runtypes[rt]
+        for sl in selected_ligands:
+            if sl in ['4C1', '4C3']:
+                continue
+            a_energy = rtd['energies'][f'{sl.lower()}_A']
+            b_energy = rtd['energies'][f'{sl.lower()}_B']
+            c_energy = rtd['energies'][f'{sl.lower()}_C']
+            d_energy = rtd['energies'][f'{sl.lower()}_D']
+            all_energies = [a_energy, b_energy, c_energy, d_energy]
+            energy_sep = c_energy - min([a_energy, b_energy, d_energy])
+            energy_sep = energy_sep*2625.5
+            a_energy = a_energy - min(all_energies)
+            a_energy = a_energy * 2625.5
+            b_energy = b_energy - min(all_energies)
+            b_energy = b_energy * 2625.5
+            c_energy = c_energy - min(all_energies)
+            c_energy = c_energy * 2625.5
+            d_energy = d_energy - min(all_energies)
+            d_energy = d_energy * 2625.5
+            columns[sl] = [
+                round(a_energy, 1),
+                round(b_energy, 1),
+                round(c_energy, 1),
+                round(d_energy, 1),
+                round(energy_sep, 1),
+            ]
+
+        final_df = pd.DataFrame(columns)
+
+        print(final_df.to_latex(index=False))
+        print('-----')
+
+
 def main():
 
     runtypes = {
@@ -137,6 +177,12 @@ def main():
         },
     }
 
+    selected_ligands = [
+        '3D1', '4D2', '5D1', '5D3',
+        '4B1', '4B3', '5A1', '5A3', '5B4',
+        '4C1', '4C3',
+    ]
+
     for dir in runtypes:
         if dir == 'xtb':
             full_data = pd.read_csv(
@@ -144,10 +190,7 @@ def main():
                 'production/all_cage_results.txt'
             )
             target_df = full_data[
-                full_data['lig'].isin([
-                    '3D1', '4D2', '5B4', '5D1', '5D3',
-                    '4B1', '4B3', '4C1', '4C3', '5A1', '5A3'
-                ])
+                full_data['lig'].isin(selected_ligands)
             ]
 
             runtypes[dir]['energies'] = {}
@@ -175,6 +218,12 @@ def main():
     print(runtypes)
 
     plot_all_comparisons(runtypes)
+    print('-----')
+    ey_table(
+        runtypes=runtypes,
+        selected_ligands=selected_ligands,
+    )
+    print('-----')
 
 
 if __name__ == '__main__':

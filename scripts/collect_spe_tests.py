@@ -7,7 +7,7 @@ Script to collect output from Gaussian 16 DFT SPE calculations.
 
 Author: Andrew Tarzia
 
-Date Created: 5 Aug 2020
+Date Created: 25 Feb 2021
 
 """
 
@@ -109,8 +109,8 @@ def plot_all_comparisons(runtypes):
         ax.set_xticks([X_positions[i] for i in X_positions])
         ax.set_xticklabels(list(X_positions.keys()))
         ax.set_xlim(0, 10)
-        ax.set_ylim(None, None)
-        ax.legend(fontsize=16)
+        ax.set_ylim(0, 250)
+        ax.legend(fontsize=12)
         fig.tight_layout()
         fig.savefig(
             f'spe_test_{ser}.pdf',
@@ -150,7 +150,7 @@ def main():
         },
         'mo6': {
             'name': 'M062X/def2-TZVP',
-            'functional': 'RPBE1PBE',
+            'functional': 'RM062X',
             'c': 'firebrick',
         },
     }
