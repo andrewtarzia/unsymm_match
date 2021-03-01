@@ -51,6 +51,9 @@ def write_defn_section(
     runtype,
     restart=False,
     solvent=None,
+    method=None,
+    org_basis=None,
+    m_basis=None,
 ):
 
     if solvent is None:
@@ -60,13 +63,21 @@ def write_defn_section(
 
     new_name = name.split('.')[0]
 
+    if method is None:
+        method = 'PBE1PBE'
+
     if restart:
         geom_ = 'geom=(checkpoint)'
     else:
         geom_ = ''
 
+    if m_basis is None and org_basis is not None:
+        basis = org_basis
+    else:
+        basis = 'GenECP'
+
     string = (
-        '#P PBE1PBE/GenECP '
+        f'#P {method}/{basis} '
         f'{runtype} '
         f'{geom_} '
         'SCF=(YQC,MaxCycle=900) '
@@ -128,6 +139,44 @@ def write_run_file(name, directory, infile, np):
     )
 
     with open(runfile, 'w') as f:
+        f.write(string)
+
+
+def write_input_file(
+    infile,
+    struct,
+    np,
+    directory,
+    runtype,
+    method,
+    org_basis,
+    m_basis,
+    solvent,
+):
+    base_name = '_'+infile.replace('.in', '')
+
+    string = write_top_section(
+        name=base_name,
+        np=np,
+        restart=False
+    )
+    string += write_defn_section(
+        name=base_name,
+        runtype=runtype,
+        restart=False,
+        method=method,
+        solvent=solvent,
+        org_basis=org_basis,
+        m_basis=m_basis,
+    )
+    string += write_molecule_section(struct, restart=False)
+    if m_basis is not None:
+        string += write_ECP_section(
+            org_basis=org_basis,
+            m_basis=m_basis,
+        )
+
+    with open(f'{directory}/{infile}', 'w') as f:
         f.write(string)
 
 
@@ -246,61 +295,26 @@ def main():
             struct_file = f'../{lig}_{isomer}{optc_extension}'
             prefix = f'{lig.lower()}_{isomer.lower()}'
             struct = stk.BuildingBlock.init_from_file(struct_file)
-            opt_directory = f'opt_{prefix}'
+            opt_directory = f's_{prefix}'
             if not exists(opt_directory):
                 mkdir(opt_directory)
 
-            step1_infile = f'o1_{prefix}.gau'
-            write_opt_input_file(
+            step1_infile = f's_{prefix}.gau'
+            write_input_file(
                 infile=step1_infile,
                 struct=struct,
                 np=num_proc,
                 directory=opt_directory,
-                runtype='opt=(calcfc,maxstep=4)',
+                method='PBE1PBE',
+                runtype='SP',
                 org_basis='Def2SVP',
-                m_basis='LANL2DZ',
-                solvent=None,
-            )
-            write_run_file(
-                name=f'o1_{prefix}',
-                directory=opt_directory,
-                infile=step1_infile,
-                np=num_proc
-            )
-
-            step2_infile = f'o2_{prefix}.gau'
-            write_opt_input_file(
-                infile=step2_infile,
-                struct=struct,
-                np=num_proc,
-                directory=opt_directory,
-                runtype='opt=(maxstep=4)',
-                org_basis='Def2SVP',
-                m_basis='SDD',
-                solvent=None,
-            )
-            write_run_file(
-                name=f'o2_{prefix}',
-                directory=opt_directory,
-                infile=step2_infile,
-                np=num_proc
-            )
-
-            step3_infile = f'o3_{prefix}.gau'
-            write_opt_input_file(
-                infile=step3_infile,
-                struct=struct,
-                np=num_proc,
-                directory=opt_directory,
-                runtype='opt=(maxstep=4)',
-                org_basis='Def2SVP',
-                m_basis='SDD',
+                m_basis=None,
                 solvent=r'SCRF=(PCM,Solvent=DiMethylSulfoxide)',
             )
             write_run_file(
-                name=f'o3_{prefix}',
+                name=f's_{prefix}',
                 directory=opt_directory,
-                infile=step3_infile,
+                infile=step1_infile,
                 np=num_proc
             )
 
