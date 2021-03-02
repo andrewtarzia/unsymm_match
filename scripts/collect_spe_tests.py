@@ -15,45 +15,7 @@ import matplotlib.pyplot as plt
 import glob
 import pandas as pd
 
-
-def get_g16_energy(
-    filename,
-    front_splitter,
-    back_splitter,
-    back_splitter2,
-):
-
-    with open(filename, 'r') as f:
-        data = f.read()
-
-    energy = data.split(front_splitter)
-    energy = energy[-1].split(back_splitter)[0]
-    try:
-        return float(energy)  # a.u.
-    except ValueError:
-        if back_splitter2 is None:
-            raise ValueError()
-        energy = energy.split(back_splitter2)[0]
-        return float(energy)  # a.u.
-
-
-def collate_energies(file_list, functional):
-
-    collated_energies = {}
-    for file in file_list:
-        splits = file.split('/')
-        mol_name = splits[1]
-        splits = mol_name.split('_')
-        mol_name = splits[1]+'_'+splits[2][0]
-        energy = get_g16_energy(
-            filename=file,
-            front_splitter=f'SCF Done:  E({functional}) =',
-            back_splitter='A.U. after',
-            back_splitter2=None,
-        )
-        collated_energies[mol_name] = energy
-
-    return collated_energies
+from utilities import collate_energies
 
 
 def plot_all_comparisons(runtypes):
@@ -105,7 +67,7 @@ def plot_all_comparisons(runtypes):
 
         # Set number of ticks for x-axis
         ax.tick_params(axis='both', which='major', labelsize=16)
-        ax.set_ylabel('rel. energy [kJ/mol]', fontsize=16)
+        ax.set_ylabel('rel. energy [kJmol$^{-1}$]', fontsize=16)
         ax.set_xticks([X_positions[i] for i in X_positions])
         ax.set_xticklabels(list(X_positions.keys()))
         ax.set_xlim(0, 10)

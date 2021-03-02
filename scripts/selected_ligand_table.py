@@ -12,12 +12,13 @@ Date Created: 30 Jan 2021
 """
 
 import pandas as pd
-import json
+import glob
+
+from utilities import collate_energies
 
 
-def latex_table_body(selected_ligands, data, dft_data):
-    print(data.columns)
-    target_df = data[data['lig'].isin(selected_ligands)]
+def latex_table_body(full_data, runtypes, selected_ligands):
+    target_df = full_data[full_data['lig'].isin(selected_ligands)]
 
     columns = {
         'ligand': [],
@@ -27,6 +28,10 @@ def latex_table_body(selected_ligands, data, dft_data):
         'dft-energy-sep': [],
         'expt-outcome': [],
     }
+
+    dft_data = runtypes['pbenoecp']['energies']
+    print(dft_data)
+
     for idx, row in target_df.iterrows():
         columns['ligand'].append(row['lig'].lower())
         columns['qscp_C'].append(round(float(row['sqpl_op_C']), 3))
@@ -38,10 +43,10 @@ def latex_table_body(selected_ligands, data, dft_data):
         ])
         columns['xtb-energy-sep'].append(round(energy_sep, 1))
         li = row['lig'].lower()
-        a_data = dft_data[f'{li}_a']
-        b_data = dft_data[f'{li}_b']
-        c_data = dft_data[f'{li}_c']
-        d_data = dft_data[f'{li}_d']
+        a_data = dft_data[f'{li}_A']
+        b_data = dft_data[f'{li}_B']
+        c_data = dft_data[f'{li}_C']
+        d_data = dft_data[f'{li}_D']
         dft_energy_sep = min([
             i - c_data
             for i in [a_data, b_data, d_data]
@@ -58,20 +63,60 @@ def latex_table_body(selected_ligands, data, dft_data):
 
 def main():
 
+    runtypes = {
+        'xtb': {
+            'name': 'GFN2-xTB',
+            'functional': None,
+            'c': 'k',
+        },
+        'pbenoecp': {
+            'name': 'PBE0/def2-SVP',
+            'functional': 'RPBE1PBE',
+            'c': 'skyblue',
+        },
+    }
+
     selected_ligands = [
-        '3D1', '4D2', '5D1', '5D3',
+        # '3D1', '4D2', '5D1', '5D3',
         '4B1', '4B3', '5A1', '5A3', '5B4',
-        # '5C2', '4C2', '3C2',
     ]
 
-    full_data = pd.read_csv('all_cage_results.txt')
-    with open('dft_validation/collated_energies.json', 'r') as f:
-        dft_data = json.load(f)
+    for dir in runtypes:
+        if dir == 'xtb':
+            full_data = pd.read_csv(
+                '/data/atarzia/projects/unsymm/screening/'
+                'production/all_cage_results.txt'
+            )
+            target_df = full_data[
+                full_data['lig'].isin(selected_ligands)
+            ]
+
+            runtypes[dir]['energies'] = {}
+            for idx, row in target_df.iterrows():
+                a_energy = float(row['energy_A'])
+                b_energy = float(row['energy_B'])
+                c_energy = float(row['energy_C'])
+                d_energy = float(row['energy_D'])
+                a_name = row['lig'].lower() + '_A'
+                b_name = row['lig'].lower() + '_B'
+                c_name = row['lig'].lower() + '_C'
+                d_name = row['lig'].lower() + '_D'
+                runtypes[dir]['energies'][f'{a_name}'] = a_energy/2625.5
+                runtypes[dir]['energies'][f'{b_name}'] = b_energy/2625.5
+                runtypes[dir]['energies'][f'{c_name}'] = c_energy/2625.5
+                runtypes[dir]['energies'][f'{d_name}'] = d_energy/2625.5
+
+        else:
+            files = sorted(glob.glob('*/*log'))
+            functional = runtypes[dir]['functional']
+            runtypes[dir]['energies'] = collate_energies(
+                files, functional
+            )
 
     latex_table_body(
+        full_data=full_data,
+        runtypes=runtypes,
         selected_ligands=selected_ligands,
-        data=full_data,
-        dft_data=dft_data,
     )
 
 
