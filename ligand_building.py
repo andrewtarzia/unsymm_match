@@ -57,9 +57,23 @@ def build_linker(lig1_smiles, lig2_smiles, linker_smiles, name):
 
     Parameters
     ----------
+    lig1_smiles : :class:`str`
+        SMILES string representing ligand component.
+
+    lig2_smiles : :class:`str`
+        SMILES string representing ligand component.
+
+    linker_smiles : :class:`str`
+        SMILES string representing linker component.
+
+    name : :class:`str`
+        Identifier for ligand.
 
     Returns
     -------
+    :class:`stk.BuildingBlock`
+        Building block constructed from ligand components with
+        functional groups assigned.
 
     """
 
@@ -101,7 +115,7 @@ def build_linker(lig1_smiles, lig2_smiles, linker_smiles, name):
             molecule=molecule,
             functional_groups=[
                 AromaticCNCFactory(),
-                AromaticCNNFactory()
+                AromaticCNNFactory(),
             ],
         )
         # Save file.

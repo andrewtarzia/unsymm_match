@@ -31,13 +31,26 @@ from atools import (
 
 def calc_NN_flexibility(molecule, confs, cids, name):
     """
-    Plot the flexibility of all conformers.
+    Calculate flexibility of all conformers based on NN distance.
 
     Parameters
     ----------
+    molecule : :class:`stk.Molecule`
+        Molecule to analyse.
+
+    confs : :class:`rdkit.Molecule`
+        RDKit molecule containing conformer coordinates.
+
+    cids : :class:`iterable`
+        List of conformer ids.
+
+    name : :class:`str`
+        Molecule identifier.
 
     Returns
     -------
+    :class:`list`
+        NN distances of all conformers.
 
     """
     NNs = []
@@ -68,15 +81,29 @@ def calc_NN_flexibility(molecule, confs, cids, name):
 
 def calc_bite_flexibility(molecule, confs, cids, name):
     """
-    Plot the flexibility of all conformers.
+    Calculate flexibility of all conformers based on bite angle.
 
     Parameters
     ----------
+    molecule : :class:`stk.Molecule`
+        Molecule to analyse.
+
+    confs : :class:`rdkit.Molecule`
+        RDKit molecule containing conformer coordinates.
+
+    cids : :class:`iterable`
+        List of conformer ids.
+
+    name : :class:`str`
+        Molecule identifier.
 
     Returns
     -------
+    :class:`list`
+        Bite angles of all conformers.
 
     """
+
     bites = []
     for cid in cids:
         # Need to define the functional groups.
@@ -107,12 +134,6 @@ def plot_NN_flexibility(NNs, name):
     """
     Plot the flexibility of all conformers.
 
-    Parameters
-    ----------
-
-    Returns
-    -------
-
     """
     fig, ax = histogram_plot_N(
         Y=NNs, X_range=(0, 30), width=2,
@@ -134,12 +155,6 @@ def plot_NN_flexibility(NNs, name):
 def plot_bite_flexibility(bites, name):
     """
     Plot the flexibility of all conformers.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
 
     """
 
@@ -164,13 +179,7 @@ def plot_bite_flexibility(bites, name):
 
 def get_conformers(molecule, N):
     """
-    Get N conformers with ETKDG algorithm.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
+    Get N conformers of stk.Molecule with ETKDG algorithm.
 
     """
 
@@ -193,12 +202,6 @@ def select_conformer(molecule, confs, cids, name):
     Currently:
         Best directionality will be defined by the smallest
         N-ligand centroid-N angle.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
 
     """
 

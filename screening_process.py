@@ -23,15 +23,15 @@ import cage_analysis as CA
 import plotting as PL
 
 
-def build_all_ligands(params):
+def build_all_ligands():
     """
-    Build all cages.
-
-    Parameters
-    ----------
+    Build all ligands.
 
     Returns
     -------
+    ligands : :class:`dict` of :class:`stk.BuildingBlock`
+        Keys are names of ligands, value contains ligand
+        building block.
 
     """
     ligand_smiles = LB.ligands()
@@ -66,13 +66,21 @@ def analyse_all_ligands(params, ligands):
 
     Parameters
     ----------
+    params: :class:`dict`
+        Parameters of analysis - sets number of conformers to check
+        geometries of.
+
+    ligands : :class:`dict` of :class:`stk.BuildingBlock`
+        Keys are names of ligands, value contains ligand
+        building block.
 
     Returns
     -------
+    ligands : :class:`dict` of :class:`tuple`
+        Keys are names of ligands, tuple in value contains ligand
+        building block.
 
     """
-
-    experiments = ['5D1', '4D2', '5D3', '3D1']
 
     for ligand in ligands:
         # if ligand not in experiments:
@@ -128,19 +136,23 @@ def analyse_all_ligands(params, ligands):
     return ligands
 
 
-def build_all_cages(params, ligands):
+def build_all_cages(ligands):
     """
     Build all cages.
 
     Parameters
     ----------
+    ligands : :class:`dict` of :class:`tuple`
+        Keys are names of ligands, tuple in value contains ligand
+        building block.
 
     Returns
     -------
+    :class:`dict`
+        Dictionary of cage isomers, where keys are the name of the cage
+        set.
 
     """
-
-    experiments = ['5D1', '4D2', '5D3', '3D1']
 
     all_cage_sets = {}
     for ligand in ligands:
@@ -156,15 +168,18 @@ def build_all_cages(params, ligands):
     return all_cage_sets
 
 
-def analyse_all_cages(params, all_cage_sets, ligands, read_data):
+def analyse_all_cages(all_cage_sets, read_data):
     """
-    Analyse all cages.
+    Analyse all cages, produces many plots.
 
     Parameters
     ----------
+    all_cage_sets : :class:`dict`
+        Dictionary of cage isomers, where keys are the name of the cage
+        set.
 
-    Returns
-    -------
+    read_data : :class:`bool`
+        `True` to read already calculated data, `False` to recalculate.
 
     """
 
@@ -412,9 +427,7 @@ def main():
         sys.exit()
     else:
         params = read_params(sys.argv[1])
-        read_data = True if sys.argv[2] is 't' else False
-
-    print(params, read_data)
+        read_data = True if sys.argv[2] == 't' else False
 
     # Build all ligands.
     ligands = build_all_ligands(params)
@@ -423,7 +436,7 @@ def main():
     ligands = analyse_all_ligands(params, ligands)
 
     # Build all cages.
-    all_cage_sets = build_all_cages(params, ligands)
+    all_cage_sets = build_all_cages(ligands)
 
     # Analyse all cages.
     analyse_all_cages(params, all_cage_sets, ligands, read_data)

@@ -19,6 +19,23 @@ import atools
 
 
 def optimize_cage(cage, cage_name):
+    """
+    Optimize a cage structure.
+
+    Parameters
+    ----------
+    cage : :class:`stk.ConstructedMolecule`
+        Cage structure to optimize.
+
+    cage_name : :class:`str`
+        Cage identifier.
+
+    Returns
+    -------
+    :class:`stk.ConstructedMolecule`
+        Optimized cage structure.
+
+    """
 
     collapser_file = f'{cage_name}_coll.mol'
     uff4mof_file = f'{cage_name}_uff4mof.mol'
@@ -128,9 +145,16 @@ def build_cage_isomers(name, ligand):
 
     Parameters
     ----------
+    name : :class:`str`
+        Cage identifier.
+
+    ligand : :class:`stk.BuildingBlock`
+        Ligand building block.
 
     Returns
     -------
+    cage_isomers : :class:`dict` of :class:`stk.ConstructedMolecule`
+        Constructed cage isomers.
 
     """
 

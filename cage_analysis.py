@@ -26,9 +26,19 @@ def get_energy(name, cage, solvent=None):
 
     Parameters
     ----------
+    name : :class:`str`
+        Name identifying cage.
+
+    cage : :class:`stk.ConstructedMolecule`
+        Cage to get energy of.
+
+    solvent : :class:`tuple` of :class:`str`, optional
+        Strings identifying solvent and grid for GBSA model in xTB.
 
     Returns
     -------
+    :class:`float`
+        Energy of structure from GFN2-xTB in kJ/mol.
 
     """
 
@@ -73,9 +83,17 @@ def get_cage_energies(name, cages):
 
     Parameters
     ----------
+    name : :class:`str`
+        Name identifying cage.
+
+    cages : :class:`dict`
+        Dictionary containing :class:`stk.ConstructedMolecules` of
+        cages.
 
     Returns
     -------
+    energies : :class:`dict`
+        Energies of cage isomers.
 
     """
 
@@ -235,15 +253,23 @@ def calculate_ligand_distortion(
     return distortions
 
 
-def get_ligand_distortion(name, cages, NN_dists, bites_dist):
+def get_ligand_distortion(name, cages):
     """
     Get ligand distortions compared to free ligand.
 
     Parameters
     ----------
+    name : :class:`str`
+        Name identifying cage.
+
+    cages : :class:`dict`
+        Dictionary containing :class:`stk.ConstructedMolecules` of
+        cages.
 
     Returns
     -------
+    l_distortions : :class:`dict` of :class:`dict`
+        Measures of ligand distortions.
 
     """
 
@@ -297,9 +323,17 @@ def get_metal_centre_distortion(name, cages):
 
     Parameters
     ----------
+    name : :class:`str`
+        Name identifying cage.
+
+    cages : :class:`dict`
+        Dictionary containing :class:`stk.ConstructedMolecules` of
+        cages.
 
     Returns
     -------
+    m_distortions : :class:`dict` of :class:`dict`
+        Measures of metal-centre distortions.
 
     """
 
@@ -378,9 +412,16 @@ def check_stability(l_distortions, m_distortions):
 
     Parameters
     ----------
+    l_distortions : :class:`dict` of :class:`dict`
+        Measures of ligand distortions.
+
+    m_distortions : :class:`dict` of :class:`dict`
+        Measures of metal-centre distortions.
 
     Returns
     -------
+    :class:`bool`
+        Whether the structure is stable based on distortions.
 
     """
 
@@ -440,9 +481,17 @@ def check_preference(energies, energy_cutoff):
 
     Parameters
     ----------
+    energies : :class:`dict`
+        Dictionary of isomer energies.
+
+    energy_cutoff : :class:`float`
+        Energy threshold for preference.
 
     Returns
     -------
+    :class:`tuple` of (:class:`bool`, :class:`float`)
+        Whether the cis isomer is preferred based on energy seperation
+        (which is at index 1).
 
     """
 

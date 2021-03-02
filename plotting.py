@@ -14,7 +14,6 @@ Date Created: 29 May 2020
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from pandas import read_csv
-import numpy as np
 from os.path import exists
 from os import mkdir
 from rdkit.Chem import AllChem as rdkit
@@ -33,12 +32,6 @@ def plot_energetics_and_geom(
 ):
     """
     Plot energy preference of all cages.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
 
     """
 
@@ -149,20 +142,12 @@ def plot_energetics_and_geom(
 def plot_energetics_and_geom_3D(
     ligands,
     experiments,
-    cages_cis_wins,
-    cages_not_wins,
     energy_preferences,
     plane_devs,
     sqpl_ops
 ):
     """
     Plot energy preference of all cages.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
 
     """
 
@@ -351,12 +336,6 @@ def plot_all_cages_bars(
     """
     Plot y value as bar chart of all cages.
 
-    Parameters
-    ----------
-
-    Returns
-    -------
-
     """
 
     fig, ax = plt.subplots(figsize=(8, 5))
@@ -432,19 +411,12 @@ def plot_all_cages_bars(
 
 def draw_molecules(
     ligands,
-    experiments,
     energy_preferences,
     plane_devs,
     sqpl_ops,
 ):
     """
     Draw molecules as grids with scores.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
 
     """
 
@@ -489,12 +461,6 @@ def draw_molecules(
 def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
     """
     Generic plot of isomer properties.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
 
     """
 
@@ -544,12 +510,6 @@ def plot_isomer_distributions():
     """
     Plot y value as bar chart of all cages.
 
-    Parameters
-    ----------
-
-    Returns
-    -------
-
     """
 
     data = read_csv('all_cage_results.txt')
@@ -586,11 +546,11 @@ def plot_isomer_distributions():
 
     for name in names:
         fig, ax = plt.subplots(figsize=(5, 5))
-        X_bins = np.arange(
-            names[name]['xlim'][0],
-            names[name]['xlim'][1],
-            names[name]['width'],
-        )
+        # X_bins = np.arange(
+        #     names[name]['xlim'][0],
+        #     names[name]['xlim'][1],
+        #     names[name]['width'],
+        # )
 
         c_a = atools.colors_i_like()[4]
         c_b = atools.colors_i_like()[3]
@@ -606,11 +566,11 @@ def plot_isomer_distributions():
         CS = [c_a, c_b, c_c, c_d]
 
         for X, label, Y, C in zip(XS, labels, YS, CS):
-            hist, bin_edges = np.histogram(
-                a=Y,
-                bins=X_bins,
-                density=True
-            )
+            # hist, bin_edges = np.histogram(
+            #     a=Y,
+            #     bins=X_bins,
+            #     density=True
+            # )
             # ax.bar(
             #     bin_edges[:-1],
             #     hist,
