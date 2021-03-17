@@ -23,12 +23,12 @@ def main():
 
     mA = 'o'
     cA = colors_i_like()[4]
-    mB = 's'
-    cB = colors_i_like()[3]
-    mC = 'X'
-    cC = colors_i_like()[0]
-    mD = 'D'
-    cD = colors_i_like()[2]
+    # mB = 's'
+    # cB = colors_i_like()[3]
+    # mC = 'X'
+    # cC = colors_i_like()[0]
+    # mD = 'D'
+    # cD = colors_i_like()[2]
 
     X_A = []
     Y_A = []
@@ -50,55 +50,55 @@ def main():
 
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.scatter(
-        X_A,
-        Y_A,
+        X_A+X_B+X_C+X_D,
+        Y_A+Y_B+Y_C+Y_D,
         c=cA,
-        edgecolors='k',
+        edgecolors='black',
         marker=mA,
         alpha=1,
-        s=60,
-        label='A isomer'
+        s=80,
+        # label='a',
     )
-    ax.scatter(
-        X_B,
-        Y_B,
-        c=cB,
-        edgecolors='k',
-        marker=mB,
-        alpha=1,
-        s=60,
-        label='B isomer'
-    )
-    ax.scatter(
-        X_C,
-        Y_C,
-        c=cC,
-        edgecolors='k',
-        marker=mC,
-        alpha=1,
-        s=60,
-        label='C isomer'
-    )
-    ax.scatter(
-        X_D,
-        Y_D,
-        c=cD,
-        edgecolors='k',
-        marker=mD,
-        alpha=1,
-        s=60,
-        label='D isomer'
-    )
+    # ax.scatter(
+    #     X_B,
+    #     Y_B,
+    #     c=cB,
+    #     edgecolors='white',
+    #     marker=mB,
+    #     alpha=1,
+    #     s=60,
+    #     label='b',
+    # )
+    # ax.scatter(
+    #     X_C,
+    #     Y_C,
+    #     c=cC,
+    #     edgecolors='white',
+    #     marker=mC,
+    #     alpha=1,
+    #     s=60,
+    #     label='c',
+    # )
+    # ax.scatter(
+    #     X_D,
+    #     Y_D,
+    #     c=cD,
+    #     edgecolors='white',
+    #     marker=mD,
+    #     alpha=1,
+    #     s=60,
+    #     label='d',
+    # )
     # Set number of ticks for x-axis
     ax.tick_params(axis='both', which='major', labelsize=16)
     ax.set_xlabel(r'$q_{\mathrm{sqp,min}}$', fontsize=16)
     ax.set_ylabel(
-        r'max. plane deviation [$\mathrm{\AA}$]',
+        r'$D_{\mathrm{max}}$ [$\mathrm{\AA}$]',
         fontsize=16
     )
     ax.set_xlim(0, 1)
     ax.set_ylim(0, None)
-    ax.legend(fontsize=16)
+    # ax.legend(fontsize=16)
 
     fig.tight_layout()
     fig.savefig(

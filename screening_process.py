@@ -363,30 +363,27 @@ def analyse_all_cages(all_cage_sets, read_data):
     )
 
     PL.plot_energetics_and_geom(
-        lig_studied,
-        experiments,
-        cages_cis_wins,
-        cages_not_wins,
-        energy_preferences,
-        plane_devs,
-        sqpl_ops,
+        ligands=lig_studied,
+        experiments=experiments,
+        cages_cis_wins=cages_cis_wins,
+        cages_not_wins=cages_not_wins,
+        energy_preferences=energy_preferences,
+        plane_devs=plane_devs,
+        sqpl_ops=sqpl_ops,
     )
     PL.plot_energetics_and_geom_3D(
-        lig_studied,
-        experiments,
-        cages_cis_wins,
-        cages_not_wins,
-        energy_preferences,
-        plane_devs,
-        sqpl_ops,
+        ligands=lig_studied,
+        experiments=experiments,
+        energy_preferences=energy_preferences,
+        plane_devs=plane_devs,
+        sqpl_ops=sqpl_ops,
     )
 
     PL.draw_molecules(
-        lig_studied,
-        experiments,
-        energy_preferences,
-        plane_devs,
-        sqpl_ops,
+        ligands=lig_studied,
+        energy_preferences=energy_preferences,
+        plane_devs=plane_devs,
+        sqpl_ops=sqpl_ops,
     )
 
 
@@ -430,7 +427,7 @@ def main():
         read_data = True if sys.argv[2] == 't' else False
 
     # Build all ligands.
-    ligands = build_all_ligands(params)
+    ligands = build_all_ligands()
 
     # Analyse all ligands.
     ligands = analyse_all_ligands(params, ligands)
@@ -439,7 +436,7 @@ def main():
     all_cage_sets = build_all_cages(ligands)
 
     # Analyse all cages.
-    analyse_all_cages(params, all_cage_sets, ligands, read_data)
+    analyse_all_cages(all_cage_sets, read_data)
 
 
 if __name__ == "__main__":

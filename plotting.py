@@ -28,7 +28,7 @@ def plot_energetics_and_geom(
     cages_not_wins,
     energy_preferences,
     plane_devs,
-    sqpl_ops
+    sqpl_ops,
 ):
     """
     Plot energy preference of all cages.
@@ -38,7 +38,7 @@ def plot_energetics_and_geom(
     names = {
         'plane_dev': {
             'xlim': (0, 1),
-            'xtitle': r'max. plane deviation [$\mathrm{\AA}$]',
+            'xtitle': r'$D_{\mathrm{max}}$ [$\mathrm{\AA}$]',
         },
         'sqpl': {
             'xlim': (0.6, 1),
@@ -144,7 +144,7 @@ def plot_energetics_and_geom_3D(
     experiments,
     energy_preferences,
     plane_devs,
-    sqpl_ops
+    sqpl_ops,
 ):
     """
     Plot energy preference of all cages.
@@ -259,7 +259,7 @@ def plot_energetics_and_geom_3D(
 
     fig.tight_layout()
     fig.savefig(
-        f'all_cages_pref_and_stable_3D.pdf',
+        'all_cages_pref_and_stable_3D.pdf',
         dpi=720,
         bbox_inches='tight'
     )
@@ -316,7 +316,7 @@ def plot_energetics_and_geom_3D(
 
     fig.tight_layout()
     fig.savefig(
-        f'all_cages_pref_and_stable_3D_zoomed.pdf',
+        'all_cages_pref_and_stable_3D_zoomed.pdf',
         dpi=720,
         bbox_inches='tight'
     )
@@ -517,7 +517,7 @@ def plot_isomer_distributions():
     names = {
         'plane_dev': {
             'xlim': (0, 1),
-            'xtitle': r'max. plane deviation [$\mathrm{\AA}$]',
+            'xtitle': r'$D_{\mathrm{max}}$ [$\mathrm{\AA}$]',
             'atitle': 'plane_dev_A',
             'btitle': 'plane_dev_B',
             'ctitle': 'plane_dev_C',
@@ -613,7 +613,7 @@ def plot_isomer_distributions():
         ax.set_ylim(names[name]['xlim'])
         ax.set_xlim(0, 5)
         ax.set_xticks([1, 2, 3, 4])
-        ax.set_xticklabels(['A', 'B', 'C', 'D'])
+        ax.set_xticklabels(['a', 'b', 'c', 'd'])
 
         # ax.legend(fontsize=16)
 

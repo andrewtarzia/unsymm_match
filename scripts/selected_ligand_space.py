@@ -108,7 +108,7 @@ def bar_figure(selected_ligands, experimental_ligands, data):
 
     fig.tight_layout()
     fig.savefig(
-        f'selected_ligands.pdf',
+        'selected_ligands.pdf',
         dpi=720,
         bbox_inches='tight'
     )
@@ -177,7 +177,10 @@ def single_bar_figure(selected_ligands, experimental_ligands, data):
     # ax.set_xlabel(names[name]['xtitle'], fontsize=16)
     # ax1.set_xticks(x_ticks)
     # ax1.set_xticklabels(x_ticklabels)
-    ax.set_xlabel('stability of C isomer [kJmol$^{-1}$]', fontsize=16)
+    ax.set_xlabel(
+        r'stability of $cis$ isomer [kJmol$^{-1}$]',
+        fontsize=16,
+    )
     # ax.set_xlim(names[name]['xlim'])
     ax.set_xlim(0, 30)
     # Set number of ticks for x-axis
@@ -187,7 +190,7 @@ def single_bar_figure(selected_ligands, experimental_ligands, data):
 
     fig.tight_layout()
     fig.savefig(
-        f'selected_ligands_energysep.pdf',
+        'selected_ligands_energysep.pdf',
         dpi=720,
         bbox_inches='tight'
     )
