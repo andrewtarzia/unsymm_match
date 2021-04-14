@@ -13,6 +13,7 @@ Date Created: 5 Aug 2020
 
 import pandas as pd
 import glob
+import matplotlib.pyplot as plt
 
 from atools import colors_i_like
 
@@ -48,6 +49,46 @@ def plot_bar_charts(runtypes, ligands):
         y_title=r'DFT $cis$ energy preference [kJmol$^{-1}$]',
         facecolor=colors_i_like()[3],
     )
+
+
+def plot_(runtypes, ligands):
+
+    series_data = {i: {} for i in ligands}
+
+    for rt in runtypes:
+        rtd = runtypes[rt]
+        for ser in series_data:
+            a_energy = rtd['energies'][f'{ser.lower()}_A']
+            b_energy = rtd['energies'][f'{ser.lower()}_B']
+            c_energy = rtd['energies'][f'{ser.lower()}_C']
+            d_energy = rtd['energies'][f'{ser.lower()}_D']
+            energy_sep = c_energy - min([a_energy, b_energy, d_energy])
+            energy_sep = -1 * energy_sep*2625.5
+            series_data[ser][rt] = energy_sep
+
+    x_data = [series_data[s]['pbenoecp'] for s in series_data]
+    y_data = [series_data[s]['xtb'] for s in series_data]
+    x_title = r'DFT $cis$ energy preference [kJmol$^{-1}$]'
+    y_title = r'xTB $cis$ energy preference [kJmol$^{-1}$]'
+
+    fig, ax = plt.subplots(figsize=(5, 5))
+    ax.scatter(
+        x_data,
+        y_data,
+        color='gold',
+        edgecolor='k',
+        s=160,
+        alpha=1.0,
+    )
+    ax.tick_params(axis='both', which='major', labelsize=16)
+    ax.set_xlabel(x_title, fontsize=16)
+    ax.set_ylabel(y_title, fontsize=16)
+    ax.set_xlim(0, None)
+    ax.set_ylim(0, None)
+
+    fig.tight_layout()
+    fig.savefig('previous_scatter.pdf', dpi=720, bbox_inches='tight')
+    plt.close()
 
 
 def main():
@@ -101,6 +142,7 @@ def main():
             )
 
     plot_bar_charts(runtypes, selected_ligands)
+    plot_(runtypes, selected_ligands)
 
 
 if __name__ == '__main__':
