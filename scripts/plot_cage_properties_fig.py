@@ -190,7 +190,7 @@ def plot(
         label='published examples'
     )
 
-    ax.axhline(y=0, lw=2, linestyle='--', c='k')
+    # ax.axhline(y=0, lw=2, linestyle='--', c='k')
 
     # Set number of ticks for x-axis
     ax.tick_params(axis='both', which='major', labelsize=16)
@@ -289,7 +289,7 @@ def main():
         x=[cis_cages[i]['pore_size'] for i in cis_cages],
         y=[cis_cages[i]['deviation'] for i in cis_cages],
         xlabel=r'pore diameter [$\mathrm{\AA}$]',
-        ylabel=r'$\delta_{\mathrm{Pd}}$ [$\mathrm{\AA}$]',
+        ylabel=r'$\Delta_{\mathrm{Pd}}$ [$\mathrm{\AA}$]',
         xlim=(0, 9),
         ylim=(None, 12),
         expt_x=[expt_cages[i]['pore_size'] for i in expt_cages],
@@ -305,7 +305,7 @@ def main():
         x=[cis_cages[i]['distance'] for i in cis_cages],
         y=[cis_cages[i]['deviation'] for i in cis_cages],
         xlabel=r'Pd-Pd distance [$\mathrm{\AA}$]',
-        ylabel=r'$\delta_{\mathrm{Pd}}$ [$\mathrm{\AA}$]',
+        ylabel=r'$\Delta_{\mathrm{Pd}}$ [$\mathrm{\AA}$]',
         xlim=(None, 15),
         ylim=(None, 12),
         expt_x=[expt_cages[i]['distance'] for i in expt_cages],
