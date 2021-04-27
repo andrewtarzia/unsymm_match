@@ -12,7 +12,6 @@ Date Created: 5 Aug 2020
 """
 
 import json
-import glob
 import matplotlib.pyplot as plt
 
 from atools import replace
@@ -39,7 +38,7 @@ def plot_per_grid(edict):
     ax.set_ylabel('rel. total energy [a.u.]', fontsize=16)
     fig.tight_layout()
     fig.savefig(
-        f'gridlevelplot.pdf',
+        'gridlevelplot.pdf',
         dpi=720,
         bbox_inches='tight'
     )
@@ -63,7 +62,7 @@ def plot_per_grid(edict):
     ax.set_ylabel('rel. total energy [a.u.]', fontsize=16)
     fig.tight_layout()
     fig.savefig(
-        f'gridlevelplot_zoomed.pdf',
+        'gridlevelplot_zoomed.pdf',
         dpi=720,
         bbox_inches='tight'
     )

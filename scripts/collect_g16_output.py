@@ -12,9 +12,7 @@ Date Created: 5 Aug 2020
 """
 
 from os.path import join
-from os import walk
 import json
-import glob
 
 
 def get_g16_energy(

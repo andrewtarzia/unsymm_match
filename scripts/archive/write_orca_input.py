@@ -264,8 +264,8 @@ def get_opt_energy(dir, basename):
 
 def get_dft_spe_energies():
 
-    files = glob.glob(f'*_opt.mol')
-    spe_directory = f'spe_calcs'
+    files = glob.glob('*_opt.mol')
+    spe_directory = 'spe_calcs'
 
     energies = {}
     for file in sorted(files):
@@ -283,8 +283,8 @@ def get_dft_spe_energies():
 
 def get_dft_opt_energies():
 
-    files = glob.glob(f'*_opt.mol')
-    opt_directory = f'opt_calcs'
+    files = glob.glob('*_opt.mol')
+    opt_directory = 'opt_calcs'
 
     energies = {}
     for file in sorted(files):

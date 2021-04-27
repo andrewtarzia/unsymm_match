@@ -11,12 +11,8 @@ Date Created: 24 Feb 2021
 
 """
 
-from os.path import exists, join
-from os import mkdir, walk
 import json
-import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 def plot_parity(w_solv, wo_solv):

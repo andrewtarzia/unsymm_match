@@ -187,7 +187,7 @@ def main():
     ax0.legend(handles=legend_elements, fontsize=16)
     fig.tight_layout()
     fig.savefig(
-        f'experimental_tests.pdf',
+        'experimental_tests.pdf',
         dpi=720,
         bbox_inches='tight'
     )

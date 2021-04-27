@@ -41,8 +41,11 @@ Notes
 -----
 
 `screening_process.py` runs the full screening from ligand assembly to cage assembly to analysis and ranking. This script includes all calculations and so should be run in an environment that will not kill it (i.e. using `nohup` on linux).
+
 `ligand_building.py` contains the definition of the ligand components as SMILES strings for editting.
+
 `params` contains one parameter, N, the number of conformers to use in flexibility analysis, which was not used in the manuscript.
+
 `cage_building.py` contains the optimisation protocol that I found to be most successful at finding the lowest energy cage conformer in a robust way. However, I would expect there are better and more efficient approaches, so editting this protocol is a smart idea.
 
 The `scripts` directory contains many one-off scripts used to produce figures and tables for the manuscript and to setup and analyse DFT validation. But nothing in there is required for the screening.

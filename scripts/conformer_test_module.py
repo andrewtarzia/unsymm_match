@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 """
-Module for building cages.
+Script for testing different optimisation protocols.
 
 Author: Andrew Tarzia
 
