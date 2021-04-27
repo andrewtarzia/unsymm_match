@@ -323,6 +323,24 @@ def main():
         print(i, cis_cages[i]['deviation'])
     print('--------')
     print(exam_cages)
+    print('--------')
+    for i in expt_cages:
+        print(
+            'prev_expt',
+            i,
+            expt_cages[i]['deviation'],
+            expt_cages[i]['distance'],
+            expt_cages[i]['pore_size'],
+        )
+    for i in sele_cages:
+        print(
+            'synth here',
+            i,
+            sele_cages[i]['deviation'],
+            sele_cages[i]['distance'],
+            sele_cages[i]['pore_size'],
+        )
+    print('--------')
 
 
 if __name__ == "__main__":

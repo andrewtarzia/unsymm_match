@@ -83,7 +83,7 @@ def plot_(runtypes, ligands):
     ax.tick_params(axis='both', which='major', labelsize=16)
     ax.set_xlabel(x_title, fontsize=16)
     ax.set_ylabel(y_title, fontsize=16)
-    ax.set_xlim(0, None)
+    ax.set_xlim(-5, None)
     ax.set_ylim(0, None)
 
     fig.tight_layout()
