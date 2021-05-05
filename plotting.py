@@ -307,12 +307,19 @@ def plot_energetics_and_geom_3D(
     ax.tick_params(axis='both', which='major', labelsize=16)
     ax.set_xlabel(names['sqpl']['xtitle'], fontsize=16)
     # ax.set_xlabel(names[name]['xtitle'], fontsize=16)
-    ax.set_ylabel('stability of C isomer [kJmol$^{-1}$]', fontsize=16)
+    # ax.set_ylabel(
+    #    'stability of C isomer [kJmol$^{-1}$]',
+    #    fontsize=16
+    # )
+    ax.set_ylabel(
+        r'$\Delta E_{\mathrm{cis}}$ [kJmol$^{-1}$]',
+        fontsize=16,
+    )
     ax.set_xlim(0.95, 1)
     ax.set_ylim(-20, 30)
 
-    ax.axhline(y=6.0, c='r', alpha=0.8, lw=2)
-    ax.axhline(y=0.0, c='k', alpha=0.8, lw=2, linestyle='--')
+    # ax.axhline(y=6.0, c='r', alpha=0.8, lw=2)
+    # ax.axhline(y=0.0, c='k', alpha=0.8, lw=2, linestyle='--')
 
     fig.tight_layout()
     fig.savefig(
