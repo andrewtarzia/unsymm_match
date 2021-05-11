@@ -153,38 +153,39 @@ def plot(
     ax.scatter(
         exam_x,
         exam_y,
-        c='r',
-        edgecolors='r',
+        c='black',
+        edgecolors='white',
         marker='o',
         alpha=1,
-        s=260,
+        s=270,
+        label='highlighted examples'
     )
     ax.scatter(
         x,
         y,
-        c='gold',
-        edgecolors='k',
+        c=colors_i_like('IBM')[2],
+        edgecolors='none',
         marker='o',
         alpha=1,
         s=120,
-        label='this work'
+        label='new in this work'
     )
     ax.scatter(
         sele_x,
         sele_y,
-        c=colors_i_like()[4],
-        edgecolors='k',
-        marker='X',
+        c=colors_i_like('IBM')[2],
+        edgecolors='white',
+        marker='o',
         alpha=1,
         s=120,
-        label='selected cage ligands'
+        # label='synthesised'
     )
     ax.scatter(
         expt_x,
         expt_y,
-        c=colors_i_like()[3],
-        edgecolors='k',
-        marker='P',
+        c=colors_i_like('IBM')[4],
+        edgecolors='white',
+        marker='D',
         alpha=1,
         s=120,
         label='published examples'
@@ -254,8 +255,16 @@ def main():
             print('large pore, high aniso', name, c_data)
 
     plot(
-        x=[cis_cages[i]['pore_size'] for i in cis_cages],
-        y=[cis_cages[i]['angle'] for i in cis_cages],
+        x=[
+            cis_cages[i]['pore_size']
+            for i in cis_cages
+            # if i not in example_cases
+        ],
+        y=[
+            cis_cages[i]['angle']
+            for i in cis_cages
+            # if i not in example_cases
+        ],
         xlabel=r'pore diameter [$\mathrm{\AA}$]',
         ylabel=r'Pd angle deviation [$\mathrm{\cdot}$]',
         xlim=(0, None),
@@ -270,8 +279,16 @@ def main():
         example_cases=example_cases,
     )
     plot(
-        x=[cis_cages[i]['distance'] for i in cis_cages],
-        y=[cis_cages[i]['angle'] for i in cis_cages],
+        x=[
+            cis_cages[i]['distance']
+            for i in cis_cages
+            # if i not in example_cases
+        ],
+        y=[
+            cis_cages[i]['angle']
+            for i in cis_cages
+            # if i not in example_cases
+        ],
         xlabel=r'Pd-Pd distance [$\mathrm{\AA}$]',
         ylabel=r'Pd angle deviation [$\mathrm{\cdot}$]',
         xlim=(None, None),
@@ -286,8 +303,16 @@ def main():
         example_cases=example_cases,
     )
     plot(
-        x=[cis_cages[i]['pore_size'] for i in cis_cages],
-        y=[cis_cages[i]['deviation'] for i in cis_cages],
+        x=[
+            cis_cages[i]['pore_size']
+            for i in cis_cages
+            # if i not in example_cases
+        ],
+        y=[
+            cis_cages[i]['deviation']
+            for i in cis_cages
+            # if i not in example_cases
+        ],
         xlabel=r'pore diameter [$\mathrm{\AA}$]',
         ylabel=r'$\Delta_{\mathrm{Pd}}$ [$\mathrm{\AA}$]',
         xlim=(0, 9),
@@ -302,8 +327,16 @@ def main():
         example_cases=example_cases,
     )
     plot(
-        x=[cis_cages[i]['distance'] for i in cis_cages],
-        y=[cis_cages[i]['deviation'] for i in cis_cages],
+        x=[
+            cis_cages[i]['distance']
+            for i in cis_cages
+            # if i not in example_cases
+        ],
+        y=[
+            cis_cages[i]['deviation']
+            for i in cis_cages
+            # if i not in example_cases
+        ],
         xlabel=r'Pd-Pd distance [$\mathrm{\AA}$]',
         ylabel=r'$\Delta_{\mathrm{Pd}}$ [$\mathrm{\AA}$]',
         xlim=(None, 15),
