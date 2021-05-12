@@ -147,7 +147,7 @@ def get_deviation(molecule):
 def plot(
     x, y, xlabel, ylabel, xlim, ylim,
     expt_x, expt_y, sele_x, sele_y, filename,
-    exam_x, exam_y, example_cases,
+    exam_x, exam_y,
 ):
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.scatter(
@@ -159,6 +159,16 @@ def plot(
         alpha=1,
         s=270,
         label='highlighted examples'
+    )
+    ax.scatter(
+        sele_x,
+        sele_y,
+        c='white',
+        edgecolors='k',
+        marker='o',
+        alpha=1,
+        s=270,
+        label='synthesised in this work'
     )
     ax.scatter(
         x,
@@ -174,11 +184,10 @@ def plot(
         sele_x,
         sele_y,
         c=colors_i_like('IBM')[2],
-        edgecolors='white',
+        edgecolors='none',
         marker='o',
         alpha=1,
         s=120,
-        # label='synthesised'
     )
     ax.scatter(
         expt_x,
@@ -276,7 +285,6 @@ def main():
         filename='all_cages_prop_angle_vpore.pdf',
         exam_x=[exam_cages[i]['pore_size'] for i in exam_cages],
         exam_y=[exam_cages[i]['angle'] for i in exam_cages],
-        example_cases=example_cases,
     )
     plot(
         x=[
@@ -300,7 +308,6 @@ def main():
         filename='all_cages_prop_angle_vdist.pdf',
         exam_x=[exam_cages[i]['distance'] for i in exam_cages],
         exam_y=[exam_cages[i]['angle'] for i in exam_cages],
-        example_cases=example_cases,
     )
     plot(
         x=[
@@ -324,7 +331,6 @@ def main():
         filename='all_cages_prop_dev_vpore.pdf',
         exam_x=[exam_cages[i]['pore_size'] for i in exam_cages],
         exam_y=[exam_cages[i]['deviation'] for i in exam_cages],
-        example_cases=example_cases,
     )
     plot(
         x=[
@@ -348,7 +354,6 @@ def main():
         filename='all_cages_prop_dev_vdist.pdf',
         exam_x=[exam_cages[i]['distance'] for i in exam_cages],
         exam_y=[exam_cages[i]['deviation'] for i in exam_cages],
-        example_cases=example_cases,
     )
 
     print('--------')
