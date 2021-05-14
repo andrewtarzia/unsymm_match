@@ -150,46 +150,50 @@ def plot(
     exam_x, exam_y,
 ):
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.scatter(
-        exam_x,
-        exam_y,
-        c='black',
-        edgecolors='white',
-        marker='o',
-        alpha=1,
-        s=270,
-        label='highlighted examples'
-    )
-    ax.scatter(
-        sele_x,
-        sele_y,
-        c='white',
-        edgecolors='k',
-        marker='o',
-        alpha=1,
-        s=270,
-        label='synthesised in this work'
-    )
-    ax.scatter(
+    full = ax.scatter(
         x,
         y,
         c=colors_i_like('IBM')[2],
         edgecolors='none',
         marker='o',
         alpha=1,
-        s=120,
-        label='new in this work'
+        s=150,
+        # label='new in this work'
     )
-    ax.scatter(
+    exam = ax.scatter(
+        exam_x,
+        exam_y,
+        c=colors_i_like('IBM')[2],
+        edgecolors='black',
+        linewidths=2,
+        marker='o',
+        alpha=1,
+        s=150,
+        # label='highlighted examples'
+    )
+    sele2 = ax.scatter(
+        sele_x,
+        sele_y,
+        c='white',
+        edgecolors='black',
+        linewidths=2,
+        marker='o',
+        alpha=1,
+        s=190,
+        # label='synthesised in this work'
+    )
+    sele = ax.scatter(
         sele_x,
         sele_y,
         c=colors_i_like('IBM')[2],
-        edgecolors='none',
+        edgecolors='white',
+        linewidths=2,
         marker='o',
         alpha=1,
-        s=120,
+        s=150,
+        # label='synthesised in this work'
     )
-    ax.scatter(
+    publ = ax.scatter(
         expt_x,
         expt_y,
         c=colors_i_like('IBM')[4],
@@ -197,18 +201,32 @@ def plot(
         marker='D',
         alpha=1,
         s=120,
-        label='published examples'
+        # label='published examples'
     )
 
     # ax.axhline(y=0, lw=2, linestyle='--', c='k')
-
+    ax.legend(
+        [
+            publ,
+            full,
+            exam,
+            (sele2, sele)
+        ],
+        [
+            'published examples',
+            'new in this work',
+            'highlighted examples',
+            'synthesised in this work'
+        ],
+        fontsize=16
+    )
     # Set number of ticks for x-axis
     ax.tick_params(axis='both', which='major', labelsize=16)
     ax.set_xlabel(xlabel, fontsize=16)
     ax.set_ylabel(ylabel, fontsize=16)
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
-    ax.legend(fontsize=16)
+    # ax.legend(fontsize=16)
     fig.tight_layout()
     fig.savefig(filename, dpi=720, bbox_inches='tight')
     plt.close()
@@ -267,12 +285,12 @@ def main():
         x=[
             cis_cages[i]['pore_size']
             for i in cis_cages
-            # if i not in example_cases
+            if i not in example_cases
         ],
         y=[
             cis_cages[i]['angle']
             for i in cis_cages
-            # if i not in example_cases
+            if i not in example_cases
         ],
         xlabel=r'pore diameter [$\mathrm{\AA}$]',
         ylabel=r'Pd angle deviation [$\mathrm{\cdot}$]',
@@ -290,12 +308,12 @@ def main():
         x=[
             cis_cages[i]['distance']
             for i in cis_cages
-            # if i not in example_cases
+            if i not in example_cases
         ],
         y=[
             cis_cages[i]['angle']
             for i in cis_cages
-            # if i not in example_cases
+            if i not in example_cases
         ],
         xlabel=r'Pd-Pd distance [$\mathrm{\AA}$]',
         ylabel=r'Pd angle deviation [$\mathrm{\cdot}$]',
@@ -313,12 +331,12 @@ def main():
         x=[
             cis_cages[i]['pore_size']
             for i in cis_cages
-            # if i not in example_cases
+            if i not in example_cases
         ],
         y=[
             cis_cages[i]['deviation']
             for i in cis_cages
-            # if i not in example_cases
+            if i not in example_cases
         ],
         xlabel=r'pore diameter [$\mathrm{\AA}$]',
         ylabel=r'$\Delta_{\mathrm{Pd}}$ [$\mathrm{\AA}$]',
@@ -336,12 +354,12 @@ def main():
         x=[
             cis_cages[i]['distance']
             for i in cis_cages
-            # if i not in example_cases
+            if i not in example_cases
         ],
         y=[
             cis_cages[i]['deviation']
             for i in cis_cages
-            # if i not in example_cases
+            if i not in example_cases
         ],
         xlabel=r'Pd-Pd distance [$\mathrm{\AA}$]',
         ylabel=r'$\Delta_{\mathrm{Pd}}$ [$\mathrm{\AA}$]',
