@@ -117,8 +117,8 @@ def bar_figure(selected_ligands, experimental_ligands, data):
 
 def single_bar_figure(selected_ligands, experimental_ligands, data):
 
-    c_expt = colors_i_like()[3]
-    c_selec = colors_i_like()[4]
+    c_expt = 'lightgray'
+    c_selec = colors_i_like('IBM')[3]
 
     x_expt = {}
     x_selec = {}
@@ -147,28 +147,46 @@ def single_bar_figure(selected_ligands, experimental_ligands, data):
         [x_expt[i][0] for i in x_expt]+[x_selec[i][0] for i in x_selec]
     )
     print(x_ticks, x_ticklabels)
-
+    hatch_patterns = [
+        '' if x_selec[i][0] != '4B3' else '//'
+        for i in x_selec
+    ]
     width = 0.9
     fig, ax = plt.subplots(figsize=(4, 8))
 
-    ax.barh(
+    ex = ax.barh(
         y=[i for i in x_expt],
         width=[x_expt[i][1] for i in x_expt],
         height=width,
         facecolor=c_expt,
+        # hatch='none',
         edgecolor='k',
         alpha=1,
-        label='published examples'
+        # label='published examples'
     )
-    ax.barh(
-        y=[i for i in x_selec],
-        width=[x_selec[i][1] for i in x_selec],
-        height=width,
-        facecolor=c_selec,
-        edgecolor='k',
-        alpha=1,
-        label='selected cage ligands'
-    )
+    for i, j in enumerate(x_selec):
+        if x_selec[j][0] == '4B3':
+            ssel = ax.barh(
+                y=j,
+                width=x_selec[j][1],
+                height=width,
+                facecolor=c_selec,
+                hatch=hatch_patterns[i],
+                edgecolor='k',
+                alpha=1,
+                # label='selected cage ligands'
+            )
+        else:
+            sel = ax.barh(
+                y=j,
+                width=x_selec[j][1],
+                height=width,
+                facecolor=c_selec,
+                hatch=hatch_patterns[i],
+                edgecolor='k',
+                alpha=1,
+                # label='selected cage ligands'
+            )
 
     ax.axvline(x=6.0, c='k', alpha=0.6, lw=2)
 
@@ -190,7 +208,11 @@ def single_bar_figure(selected_ligands, experimental_ligands, data):
     # Set number of ticks for x-axis
     ax.set_yticks(x_ticks)
     ax.set_yticklabels(x_ticklabels)
-    ax.legend(fontsize=16)
+    ax.legend(
+        [ex, sel, ssel],
+        ['published examples', 'forms single isomer', 'forms mixture'],
+        fontsize=16
+    )
 
     fig.tight_layout()
     fig.savefig(
