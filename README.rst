@@ -7,7 +7,7 @@ Scripts for computational screening ligands for unsymmetrical Pd_2L_4 synthesis.
 
 This work was done while I was a PostDoc in the Jelfs group at Imperial College London <https://github.com/JelfsMaterialsGroup>; <http://www.jelfs-group.org/>.
 
-This work resulted in a publication at DOI:XX.
+This work resulted in a publication at chemrxiv <10.26434/chemrxiv.14604294>.
 
 Please contact me with any questions (<atarzia@ic.ac.uk>) or submit an issue!
 
