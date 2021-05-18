@@ -13,7 +13,7 @@ Date Created: 10 Sep 2020
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from atools import colors_i_like
+from utilities import colors_i_like
 
 
 def bar_figure(selected_ligands, experimental_ligands, data):

@@ -11,14 +11,214 @@ Date Created: 29 May 2020
 
 """
 
+import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 import matplotlib.cm as cm
 from pandas import read_csv
-from os.path import exists
-from os import mkdir
-from rdkit.Chem import AllChem as rdkit
 
-import atools
+
+def define_plot_cmap(
+    fig,
+    ax,
+    mid_point,
+    cmap,
+    ticks,
+    labels,
+    cmap_label,
+):
+    """
+    Define cmap shifted to midpoint and plot colourbar
+
+    """
+
+    new_cmap = shiftedColorMap(
+        cmap,
+        midpoint=mid_point,
+        name='shifted'
+    )
+    X = np.linspace(0, 1, 256)
+    cax = ax.scatter(-X-100, -X-100, c=X, cmap=new_cmap)
+    cbar = fig.colorbar(cax, ticks=ticks, spacing='proportional')
+    cbar.ax.set_yticklabels(labels, fontsize=16)
+    cbar.set_label(cmap_label, fontsize=16)
+    return new_cmap
+
+
+def shiftedColorMap(
+    cmap,
+    start=0,
+    midpoint=0.5,
+    stop=1.0,
+    name='shiftedcmap',
+):
+    """
+    Function to offset the "center" of a colormap. Useful for
+    data with a negative min and positive max and you want the
+    middle of the colormap's dynamic range to be at zero
+
+    From Stack Exchange:
+        https://stackoverflow.com/questions/7404116/
+        defining-the-midpoint-of-a-colormap-in-matplotlib
+
+    Input
+    -----
+      cmap : The matplotlib colormap to be altered
+      start : Offset from lowest point in the colormap's range.
+          Defaults to 0.0 (no lower ofset). Should be between
+          0.0 and `midpoint`.
+      midpoint : The new center of the colormap. Defaults to
+          0.5 (no shift). Should be between 0.0 and 1.0. In
+          general, this should be  1 - vmax/(vmax + abs(vmin))
+          For example if your data range from -15.0 to +5.0 and
+          you want the center of the colormap at 0.0, `midpoint`
+          should be set to  1 - 5/(5 + 15)) or 0.75
+      stop : Offset from highets point in the colormap's range.
+          Defaults to 1.0 (no upper ofset). Should be between
+          `midpoint` and 1.0.
+    """
+
+    cdict = {
+        'red': [],
+        'green': [],
+        'blue': [],
+        'alpha': []
+    }
+    # regular index to compute the colors
+    reg_index = np.linspace(start, stop, 257)
+    # shifted index to match the data
+    shift_index = np.hstack([
+        np.linspace(0.0, midpoint, 128, endpoint=False),
+        np.linspace(midpoint, 1.0, 129, endpoint=True)
+    ])
+
+    for ri, si in zip(reg_index, shift_index):
+        r, g, b, a = cmap(ri)
+        cdict['red'].append((si, r, r))
+        cdict['green'].append((si, g, g))
+        cdict['blue'].append((si, b, b))
+        cdict['alpha'].append((si, a, a))
+    newcmap = colors.LinearSegmentedColormap(name, cdict)
+    plt.register_cmap(cmap=newcmap)
+    return newcmap
+
+
+def colors_i_like(palette=None):
+    """
+    A list of colours I like to choose from.
+
+    palette options:
+        None
+        Base
+        IBM
+        Wong
+        Tol
+        CB_pairs
+
+    """
+
+    if palette is None:
+        return [
+            '#FA7268', '#F8A72A', '#DAF7A6', '#900C3F', '#6BADB0',
+            '#DB869D', '#F6D973', 'mediumvioletred',
+            'skyblue', 'gold', 'palegreen', 'coral',
+        ]
+    elif palette == 'Base':
+        return [
+            '#D81B60', '#1E88E5', '#FFC107', '#FE6100', '#004D40'
+        ]
+    elif palette == 'IBM':
+        return [
+            '#648FFF', '#785EF0', '#DC267F', '#FE6100', '#FFB000'
+        ]
+    elif palette == 'Wong':
+        return [
+            '#000000', '#E69F00', '#56B4E9', '#009E73', '#F0E442',
+            '#0072B2', '#D55E00', '#CC79A7'
+        ]
+    elif palette == 'Tol':
+        return [
+            '#332288', '#117733', '#44AA99', '#88CCEE', '#DDCC77',
+            '#CC6677', '#AA4499', '#882255',
+        ]
+    elif palette == 'CB_pairs':
+        return [
+            '#FFC20A', '#0C7BDC', '#994F00', '#006CD1', '#E1BE6A',
+            '#40B0A6', '#E66100', '#5D3A9B', '#1AFF1A', '#4B0092',
+            '#FEFE62', '#D35FB7', '#005AB5', '#DC3220', '#1A85FF',
+            '#D41159',
+        ]
+
+
+def histogram_plot_N(
+    Y,
+    X_range,
+    width,
+    alpha,
+    color,
+    edgecolor,
+    xtitle,
+    labels=None,
+    density=False,
+    N=1
+):
+    """
+    Make histogram plot with 1 distribution.
+
+    """
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    X_bins = np.arange(X_range[0], X_range[1], width)
+    if N == 1:
+        hist, bin_edges = np.histogram(
+            a=Y,
+            bins=X_bins,
+            density=density
+        )
+        ax.bar(
+            bin_edges[:-1],
+            hist,
+            align='edge',
+            alpha=alpha,
+            width=width,
+            color=color,
+            edgecolor=edgecolor
+        )
+    else:
+        for i_ in range(N):
+            if type(color) is not list or len(Y) != N:
+                raise ValueError(
+                    'Make sure color and Y are of length N'
+                )
+            hist, bin_edges = np.histogram(
+                a=Y[i_],
+                bins=X_bins,
+                density=density
+            )
+            if labels[i_] is None:
+                label = ''
+            else:
+                label = labels[i_]
+            ax.bar(
+                bin_edges[:-1],
+                hist,
+                align='edge',
+                alpha=alpha[i_],
+                width=width,
+                color=color[i_],
+                edgecolor=edgecolor,
+                label=label
+            )
+    ax.tick_params(axis='both', which='major', labelsize=16)
+    ax.set_xlabel(xtitle, fontsize=16)
+    if density is False:
+        ax.set_ylabel('count', fontsize=16)
+    elif density is True:
+        ax.set_ylabel('frequency', fontsize=16)
+    ax.set_xlim(X_range)
+    if N > 1 and labels[0] is not None:
+        ax.legend(fontsize=16)
+    return fig, ax
 
 
 def plot_energetics_and_geom(
@@ -49,10 +249,10 @@ def plot_energetics_and_geom(
     for name, data in zip(names, [plane_devs, sqpl_ops]):
         fig, ax = plt.subplots(figsize=(8, 5))
 
-        c_passed = atools.colors_i_like()[4]
-        # c_failed = atools.colors_i_like()[3]
-        c_negative = atools.colors_i_like()[3]
-        c_experiments = atools.colors_i_like()[0]
+        c_passed = colors_i_like()[4]
+        # c_failed = colors_i_like()[3]
+        c_negative = colors_i_like()[3]
+        c_experiments = colors_i_like()[0]
         m_passed = 'o'
         # m_failed = 'o'
         m_negative = 's'
@@ -196,7 +396,7 @@ def plot_energetics_and_geom_3D(
         'labels': ['0', '0.05', '0.1'],
         'cmap_label': names['plane_dev']['xtitle'],
     }
-    cmp = atools.define_plot_cmap(
+    cmp = define_plot_cmap(
         fig, ax,
         mid_point=cmap['mid_point'],
         cmap=cmap['cmap'],
@@ -273,7 +473,7 @@ def plot_energetics_and_geom_3D(
         'labels': ['0', '0.05', '0.1'],
         'cmap_label': names['plane_dev']['xtitle'],
     }
-    cmp = atools.define_plot_cmap(
+    cmp = define_plot_cmap(
         fig, ax,
         mid_point=cmap['mid_point'],
         cmap=cmap['cmap'],
@@ -347,9 +547,9 @@ def plot_all_cages_bars(
 
     fig, ax = plt.subplots(figsize=(8, 5))
 
-    c_passed = atools.colors_i_like()[4]
-    c_failed = atools.colors_i_like()[3]
-    c_experiments = atools.colors_i_like()[0]
+    c_passed = colors_i_like()[4]
+    c_failed = colors_i_like()[3]
+    c_experiments = colors_i_like()[0]
 
     x_passed = []
     y_passed = []
@@ -416,55 +616,6 @@ def plot_all_cages_bars(
     plt.close()
 
 
-def draw_molecules(
-    ligands,
-    energy_preferences,
-    plane_devs,
-    sqpl_ops,
-):
-    """
-    Draw molecules as grids with scores.
-
-    """
-
-    mol_list = []
-    name_list = []
-    count = 0
-    for i, lig in enumerate(ligands):
-        MOL = rdkit.MolFromMolFile(
-            f'{lig}_opt.mol'
-        )
-        MOL.RemoveAllConformers()
-        mol_list.append(MOL)
-        name_list.append(
-            f'{lig}: OP={round(sqpl_ops[i], 2)}'
-            f',PD={round(plane_devs[i], 2)}\n'
-            f'E={round(energy_preferences[i], 2)}'
-        )
-        count += 1
-
-    # Sort by energy preferences.
-    mol_list = [
-        x for _, x in sorted(zip(energy_preferences, mol_list))
-    ]
-    name_list = [
-        x for _, x in sorted(zip(energy_preferences, name_list))
-    ]
-
-    if not exists('molecules_scoring'):
-        mkdir('molecules_scoring')
-
-    # Save figure of desired molecules.
-    atools.mol_list2grid(
-        molecules=mol_list,
-        names=name_list,
-        filename='molecules_scoring/molecules_scoring',
-        mol_per_row=4,
-        maxrows=3,
-        subImgSize=(300, 300)
-    )
-
-
 def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
     """
     Generic plot of isomer properties.
@@ -479,7 +630,7 @@ def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
     ax.plot(
         list(X_positions.values()),
         list(dictionary.values()),
-        color=atools.colors_i_like()[col],
+        color=colors_i_like()[col],
         lw=3,
     )
     for isomer in dictionary:
@@ -487,7 +638,7 @@ def isomer_plot(dictionary, file_name, ytitle, ylim, horiz=None):
         ax.scatter(
             X_positions[isomer],
             Y,
-            c=atools.colors_i_like()[col],
+            c=colors_i_like()[col],
             edgecolors='none',
             marker='o',
             alpha=1,
@@ -559,10 +710,10 @@ def plot_isomer_distributions():
         #     names[name]['width'],
         # )
 
-        c_a = atools.colors_i_like()[4]
-        c_b = atools.colors_i_like()[3]
-        c_c = atools.colors_i_like()[0]
-        c_d = atools.colors_i_like()[2]
+        c_a = colors_i_like()[4]
+        c_b = colors_i_like()[3]
+        c_c = colors_i_like()[0]
+        c_d = colors_i_like()[2]
         x_a = list(data[names[name]['atitle']])
         x_b = list(data[names[name]['btitle']])
         x_c = list(data[names[name]['ctitle']])
@@ -631,3 +782,116 @@ def plot_isomer_distributions():
             bbox_inches='tight'
         )
         plt.close()
+
+
+def scatter_plot(
+    X,
+    Y,
+    xtitle,
+    ytitle,
+    xlim,
+    ylim,
+    title=None,
+    c='firebrick',
+    edgecolors='k',
+    marker='o',
+    alpha=1.0,
+    s=80,
+    Z=None,
+    cmap=None
+):
+    """
+    Make scatter plot.
+
+    Parameters
+    ----------
+    X : :class:``
+
+    Y : :class:``
+
+    xtitle : :class:``
+
+    ytitle : :class:``
+
+    xlim : :class:``
+
+    ylim : :class:``
+
+    title : :class:``
+
+    c : :class:``
+
+    edgecolors : :class:``
+
+    marker : :class:``
+
+    alpha : :class:``
+
+    s : :class:``
+
+    Z : :class:``
+
+    cmap : :class:`dict`
+        Dictionary containing information for cmap.
+        Example:
+        {
+            'mid_point': 0.5,
+            'cmap': cm.Purples,
+            'ticks': [0, .50, 1.00],
+            'labels': [
+                '0',
+                '20',
+                '40'
+            ],
+            'cmap_label': 'flex',
+        }
+
+        This requries that the `Z` argument is on the range of 0 to 1.
+        Use 'labels' to define the relationship between cmap and
+        Z value.
+
+
+    Returns
+    -------
+
+    fig
+
+    ax
+
+    """
+    fig, ax = plt.subplots(figsize=(8, 5))
+    if cmap is None and Z is None:
+        ax.scatter(
+            X, Y,
+            c=c,
+            edgecolors=edgecolors,
+            marker=marker,
+            alpha=alpha,
+            s=s
+        )
+    else:
+        cmp = define_plot_cmap(
+            fig, ax,
+            mid_point=cmap['mid_point'],
+            cmap=cmap['cmap'],
+            ticks=cmap['ticks'],
+            labels=cmap['labels'],
+            cmap_label=cmap['cmap_label']
+        )
+        ax.scatter(
+            X, Y,
+            c=cmp(Z),
+            edgecolors=edgecolors,
+            marker=marker,
+            alpha=alpha,
+            s=s
+        )
+    # Set number of ticks for x-axis
+    ax.tick_params(axis='both', which='major', labelsize=16)
+    ax.set_xlabel(xtitle, fontsize=16)
+    ax.set_ylabel(ytitle, fontsize=16)
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+    if title is not None:
+        ax.set_title(title, fontsize=16)
+    return fig, ax

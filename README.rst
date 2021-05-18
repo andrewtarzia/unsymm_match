@@ -20,6 +20,10 @@ Dependancies:
 
 * matplotlib
 * pandas
+* pymatgen 2019.5.8
+* networkx 2.5.1
+* mendeleev 0.6.0
+* Originally, my package `atools` was used. However, I removed it to avoid a dependency. If a function is missing, the function should be in this release <https://github.com/andrewtarzia/atools/releases/tag/v0.1.unsymm>. Latest version of atools should work, however, the API is ensured to be the same in that release.
 
 `stk`:
 
@@ -32,8 +36,6 @@ Dependancies:
 `stko`:
 
     $ pip install stko
-
-`atools`, clone this repo through this release <https://github.com/andrewtarzia/atools/releases/tag/v0.1.unsymm>. Latest version of atools should work, however, the API is ensured to be the same in that release.
 
 `xtb`, I used the Version 6.2 RC2 (SAW190805); (190806 binary) throughout this work. However, for future use, a new binary or conda installation of xTB should work. See details at <https://xtb-docs.readthedocs.io/en/latest/contents.html>.
 

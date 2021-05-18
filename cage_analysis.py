@@ -15,8 +15,18 @@ from os.path import exists
 import numpy as np
 
 import stko
-import atools
 
+from utilities import (
+    get_square_planar_distortion,
+    get_order_values,
+    AromaticCNNFactory,
+    AromaticCNCFactory,
+    get_lowest_energy_conformers,
+    get_organic_linkers,
+    calculate_deltann_distance,
+    calculate_deltaangle_distance,
+    calculate_ligand_SE,
+)
 from plotting import isomer_plot
 
 
@@ -199,37 +209,37 @@ def calculate_ligand_distortion(
 
     """
 
-    org_ligs, smiles_keys = atools.get_organic_linkers(
+    org_ligs, smiles_keys = get_organic_linkers(
         cage=mol,
         metal_atom_nos=metal_atom_nos,
         file_prefix=f'{cage_name}_sg'
     )
 
-    atools.get_lowest_energy_conformers(
+    get_lowest_energy_conformers(
         org_ligs=org_ligs,
         smiles_keys=smiles_keys,
         file_prefix=f'{free_ligand_name}_sg'
     )
 
-    deltann_dist_dict = atools.calculate_deltann_distance(
+    deltann_dist_dict = calculate_deltann_distance(
         org_ligs=org_ligs,
         smiles_keys=smiles_keys,
         fg_factory=[
-            atools.AromaticCNCFactory(),
-            atools.AromaticCNNFactory()
+            AromaticCNCFactory(),
+            AromaticCNNFactory(),
         ],
         file_prefix=f'{free_ligand_name}_sg'
     )
-    deltaangle_dist_dict = atools.calculate_deltaangle_distance(
+    deltaangle_dist_dict = calculate_deltaangle_distance(
         org_ligs=org_ligs,
         smiles_keys=smiles_keys,
         fg_factory=[
-            atools.AromaticCNCFactory(),
-            atools.AromaticCNNFactory()
+            AromaticCNCFactory(),
+            AromaticCNNFactory(),
         ],
         file_prefix=f'{free_ligand_name}_sg'
     )
-    lse_dict = atools.calculate_ligand_SE(
+    lse_dict = calculate_ligand_SE(
         org_ligs=org_ligs,
         smiles_keys=smiles_keys,
         output_json=f'{cage_name}_lse.json',
@@ -372,12 +382,12 @@ def get_metal_centre_distortion(name, cages):
 
     for iso in cages:
         cage = cages[iso]
-        results = atools.get_square_planar_distortion(
+        results = get_square_planar_distortion(
             mol=cage,
             metal=46,
             bonder=7
         )
-        order_results = atools.get_order_values(
+        order_results = get_order_values(
             mol=cage,
             metal=46
         )

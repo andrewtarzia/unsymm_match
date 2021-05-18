@@ -18,7 +18,7 @@ from itertools import product
 import stk
 import stko
 
-from atools import MOC_xtb_opt
+from ..utilities import MOC_xtb_opt
 
 
 def build_guests():

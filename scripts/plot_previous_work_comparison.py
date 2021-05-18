@@ -15,9 +15,7 @@ import pandas as pd
 import glob
 import matplotlib.pyplot as plt
 
-from atools import colors_i_like
-
-from utilities import bar_chart, collate_energies
+from utilities import bar_chart, collate_energies, colors_i_like
 
 
 def plot_bar_charts(runtypes, ligands):

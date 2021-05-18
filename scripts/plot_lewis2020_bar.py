@@ -16,7 +16,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 
-from atools import colors_i_like
+from utilities import colors_i_like
 
 
 def plot_xtb_bar_chart(data, ligands):

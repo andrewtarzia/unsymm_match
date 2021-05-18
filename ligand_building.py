@@ -14,7 +14,8 @@ Date Created: 5 Nov 2019
 from os.path import exists
 import stk
 import stko
-from atools import AromaticCNCFactory, AromaticCNNFactory
+
+from utilities import AromaticCNCFactory, AromaticCNNFactory
 
 
 def ligands():

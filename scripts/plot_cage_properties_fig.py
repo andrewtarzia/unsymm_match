@@ -22,7 +22,7 @@ import json
 
 import stk
 
-from atools import colors_i_like, angle_between, get_atom_distance
+from utilities import colors_i_like, angle_between, get_atom_distance
 
 
 def get_pore_size(name, molecule):

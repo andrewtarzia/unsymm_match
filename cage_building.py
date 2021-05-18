@@ -15,7 +15,15 @@ from os.path import exists
 import numpy as np
 
 import stk
-import atools
+from utilities import (
+    AromaticCNC,
+    AromaticCNN,
+    MOC_collapse,
+    MOC_uff_opt,
+    MOC_MD_opt,
+    MOC_xtb_conformers,
+    MOC_xtb_opt,
+)
 
 
 def optimize_cage(cage, cage_name):
@@ -49,7 +57,7 @@ def optimize_cage(cage, cage_name):
         step_size = 0.05
         distance_cut = 2.0
         scale_steps = True
-        cage = atools.MOC_collapse(
+        cage = MOC_collapse(
             cage,
             cage_name,
             step_size=step_size,
@@ -61,7 +69,7 @@ def optimize_cage(cage, cage_name):
     if exists(uff4mof_file):
         cage = cage.with_structure_from_file(uff4mof_file)
     else:
-        cage = atools.MOC_uff_opt(
+        cage = MOC_uff_opt(
             cage,
             cage_name,
             metal_FFs={46: 'Pd4+2'}
@@ -71,7 +79,7 @@ def optimize_cage(cage, cage_name):
     if exists(mdconf_file):
         cage = cage.with_structure_from_file(mdconf_file)
     else:
-        cage = atools.MOC_MD_opt(
+        cage = MOC_MD_opt(
             cage,
             cage_name,
             integrator='leapfrog verlet',
@@ -85,7 +93,7 @@ def optimize_cage(cage, cage_name):
             save_conf=False
         )
 
-        cage = atools.MOC_MD_opt(
+        cage = MOC_MD_opt(
             cage,
             cage_name,
             integrator='leapfrog verlet',
@@ -104,7 +112,7 @@ def optimize_cage(cage, cage_name):
     if exists(prextb_file):
         cage = cage.with_structure_from_file(prextb_file)
     else:
-        cage = atools.MOC_xtb_conformers(
+        cage = MOC_xtb_conformers(
             cage,
             cage_name,
             opt=True,
@@ -124,7 +132,7 @@ def optimize_cage(cage, cage_name):
         )
         cage.write(prextb_file)
 
-    cage = atools.MOC_xtb_opt(
+    cage = MOC_xtb_opt(
         cage,
         cage_name,
         nc=6,
@@ -193,11 +201,11 @@ def build_cage_isomers(name, ligand):
                     stk.GenericReactionFactory(
                         bond_orders={
                             frozenset({
-                                atools.AromaticCNC,
+                                AromaticCNC,
                                 stk.SingleAtom
                             }): 9,
                             frozenset({
-                                atools.AromaticCNN,
+                                AromaticCNN,
                                 stk.SingleAtom
                             }): 9,
                         }

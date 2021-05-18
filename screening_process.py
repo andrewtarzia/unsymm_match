@@ -21,6 +21,7 @@ import ligand_analysis as LA
 import cage_building as CB
 import cage_analysis as CA
 import plotting as PL
+import utilities
 
 
 def build_all_ligands():
@@ -379,7 +380,7 @@ def analyse_all_cages(all_cage_sets, read_data):
         sqpl_ops=sqpl_ops,
     )
 
-    PL.draw_molecules(
+    utilities.draw_molecules(
         ligands=lig_studied,
         energy_preferences=energy_preferences,
         plane_devs=plane_devs,

@@ -17,13 +17,15 @@ import stko
 from matplotlib.pyplot import close
 from rdkit.Chem import AllChem as rdkit
 
-from atools import (
+from utilities import (
     update_from_rdkit_conf,
     calculate_NN_distance,
     calculate_bite_angle,
     AromaticCNCFactory,
     AromaticCNNFactory,
     calculate_N_COM_N_angle,
+)
+from plotting import (
     histogram_plot_N,
     colors_i_like,
 )

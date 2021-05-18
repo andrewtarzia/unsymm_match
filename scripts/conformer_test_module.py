@@ -18,7 +18,8 @@ from rdkit.Chem import AllChem as rdkit
 import matplotlib.pyplot as plt
 
 import stk
-import atools
+
+from utilities import scatter_plot
 
 
 def build_metal():
@@ -941,7 +942,7 @@ def xtb_conformers(
     cage.dump(f'{cage_name}_optc.json')
 
     energies = [(i-min(energies))*2625.5 for i in energies]
-    fig, ax = atools.scatter_plot(
+    fig, ax = scatter_plot(
         X=ids, Y=energies,
         xtitle='conformer id',
         ytitle='rel. energy [kJmol$^{-1}$]',
