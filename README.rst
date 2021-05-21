@@ -11,6 +11,11 @@ This work resulted in a publication at chemrxiv <10.26434/chemrxiv.14604294>.
 
 Please contact me with any questions (<atarzia@ic.ac.uk>) or submit an issue!
 
+chemrxiv version: 
+
+.. image:: https://zenodo.org/badge/190806715.svg
+   :target: https://zenodo.org/badge/latestdoi/190806715
+
 Installation
 ------------
 
