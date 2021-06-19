@@ -34,7 +34,8 @@ def write_top_section(basename, method, solvent):
         )
     elif method == 'B97-3c':
         string = (
-            f'! DFT SP B97-3c TightSCF printbasis {solvent_s}'
+            f'! DFT SP B97-3c TightSCF printbasis {solvent_s} Grid6 '
+            'NOFINALGRID SlowConv '
             '\n\n'
             f'%base "{basename}"\n'
             '%maxcore 3000\n'
