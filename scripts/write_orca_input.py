@@ -111,7 +111,7 @@ def main():
                     np=num_proc,
                     directory=opt_directory,
                     method=methods[meth],
-                    solvent='CPCM(dmso)',
+                    solvent=None,
                 )
 
 

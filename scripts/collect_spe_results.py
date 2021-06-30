@@ -124,18 +124,56 @@ def ey_table(runtypes, selected_ligands):
         print('-----')
 
 
+def get_orca_energy(
+    filename,
+    front_splitter='FINAL SINGLE POINT ENERGY',
+    back_splitter='-------------------------',
+):
+
+    with open(filename, 'r') as f:
+        data = f.read()
+
+    energy = data.split(front_splitter)
+    energy = energy[-1].split(back_splitter)[0]
+    return float(energy)  # a.u.
+
+
+def collate_orca_energies(file_list):
+
+    collated_energies = {}
+    for file in file_list:
+        splits = file.split('/')
+        mol_name = splits[1]
+        splits = mol_name.split('_')
+        mol_name = splits[1].lower()+'_'+splits[2][0].upper()
+        energy = get_orca_energy(file)
+        collated_energies[mol_name] = energy
+
+    return collated_energies
+
+
 def main():
 
     runtypes = {
         'xtb': {
-            'name': 'GFN2-xTB',
+            'name': 'GFN2-xTB/GBSA',
             'functional': None,
             'c': 'k',
         },
         'pbenoecp': {
-            'name': 'PBE0/def2-SVP',
+            'name': 'g16/PBE0/def2-SVP/CPCM',
             'functional': 'RPBE1PBE',
             'c': 'skyblue',
+        },
+        'orca_pbe0': {
+            'name': 'ORCA/PBE0/def2-SVP',
+            'c': 'red',
+            'suffix': 'PBE0',
+        },
+        'orca_b973c': {
+            'name': 'B97-3c',
+            'c': 'gold',
+            'suffix': 'B97-3c',
         },
     }
 
@@ -169,6 +207,12 @@ def main():
                 runtypes[dir]['energies'][f'{b_name}'] = b_energy/2625.5
                 runtypes[dir]['energies'][f'{c_name}'] = c_energy/2625.5
                 runtypes[dir]['energies'][f'{d_name}'] = d_energy/2625.5
+
+        elif dir in ['orca_b973c', 'orca_pbe0']:
+            directory = 's_orca'
+            suffix = runtypes[dir]['suffix']
+            files = sorted(glob.glob(f'{directory}/*_{suffix}.out'))
+            runtypes[dir]['energies'] = collate_orca_energies(files)
 
         else:
             files = sorted(glob.glob('*/*log'))
