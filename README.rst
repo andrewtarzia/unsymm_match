@@ -43,7 +43,7 @@ Dependancies:
 
     $ conda install -c rdkit rdkit=2020
 
-`stko`:
+`stko`, to avoid backwards compatability issues a release of `stko` on my github is available under `Unsymmetrical MOCS: Revised release` - the pip version should be ok:
 
     $ pip install stko
 
